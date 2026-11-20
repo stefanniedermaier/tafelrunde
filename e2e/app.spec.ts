@@ -79,18 +79,34 @@ test('Web-App-Manifest ist installierbar konfiguriert', async ({ request }) => {
   expect(manifest.icons.map((i) => i.sizes)).toEqual(expect.arrayContaining(['192x192', '512x512']))
 })
 
-test('Service Worker registriert sich trotz Trusted Types und die App startet offline', async ({
-  page,
-  context,
-}) => {
-  const problems = collectProblems(page)
-  await page.goto('/')
-  await page.evaluate(async () => {
-    await navigator.serviceWorker.ready
+test.describe('mit Service Worker', () => {
+  test.use({ serviceWorkers: 'allow' })
+
+  test('Service Worker registriert sich trotz Trusted Types und die App startet offline', async ({
+    page,
+    context,
+  }) => {
+    const problems = collectProblems(page)
+    await page.goto('/')
+    await page.evaluate(async () => {
+      await navigator.serviceWorker.ready
+    })
+    await context.setOffline(true)
+    await page.reload()
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Willkommen bei Tafelrunde')
+    await context.setOffline(false)
+    expect(problems.filter((p) => !p.includes('net::ERR_INTERNET_DISCONNECTED'))).toEqual([])
   })
-  await context.setOffline(true)
-  await page.reload()
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Willkommen bei Tafelrunde')
-  await context.setOffline(false)
-  expect(problems.filter((p) => !p.includes('net::ERR_INTERNET_DISCONNECTED'))).toEqual([])
+
+  test('Hinweis „offline verfügbar“ verschwindet von selbst und blockiert nichts', async ({
+    page,
+  }) => {
+    await page.goto('/')
+    const toast = page.getByRole('status').filter({ hasText: 'offline verfügbar' })
+    await expect(toast).toBeVisible()
+    await expect(toast).toBeHidden({ timeout: 10_000 })
+    await page.getByRole('link', { name: 'Basis-Komponenten ansehen' }).click()
+    await page.getByRole('button', { name: 'Dialog öffnen' }).click({ timeout: 2_000 })
+    await expect(page.getByRole('dialog', { name: 'Liste löschen?' })).toBeVisible()
+  })
 })

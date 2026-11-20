@@ -19,7 +19,10 @@ export function useServiceWorker() {
     wb.addEventListener('activated', (event) => {
       if (!event.isUpdate) offlineReady.value = true
     })
-    void wb.register()
+    // Registrierung kann scheitern (privater Modus, gesperrter Speicher); die App läuft dann online weiter.
+    wb.register().catch((error: unknown) =>
+      console.warn('Service Worker nicht registriert:', error),
+    )
   }
 
   function update() {

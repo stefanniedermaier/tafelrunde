@@ -1,9 +1,22 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
 <script setup lang="ts">
-withDefaults(defineProps<{ tone?: 'info' | 'success' | 'warning' | 'error' }>(), {
-  tone: 'info',
+import { onBeforeUnmount, onMounted } from 'vue'
+
+const props = withDefaults(
+  defineProps<{
+    tone?: 'info' | 'success' | 'warning' | 'error'
+    /** Schließt den Hinweis nach so vielen Millisekunden (0 = nie); nur für reine Informationen. */
+    duration?: number
+  }>(),
+  { tone: 'info', duration: 0 },
+)
+const emit = defineEmits<{ dismiss: [] }>()
+
+let timer: ReturnType<typeof setTimeout> | undefined
+onMounted(() => {
+  if (props.duration > 0) timer = setTimeout(() => emit('dismiss'), props.duration)
 })
-defineEmits<{ dismiss: [] }>()
+onBeforeUnmount(() => clearTimeout(timer))
 </script>
 
 <template>

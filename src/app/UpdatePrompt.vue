@@ -15,7 +15,12 @@ const { needRefresh, offlineReady, update } = useServiceWorker()
       <AppButton variant="ghost" @click="needRefresh = false">Später</AppButton>
     </template>
   </AppToast>
-  <AppToast v-else-if="offlineReady" tone="success" @dismiss="offlineReady = false">
+  <AppToast
+    v-else-if="offlineReady"
+    tone="success"
+    :duration="6000"
+    @dismiss="offlineReady = false"
+  >
     Die App ist jetzt auch offline verfügbar.
   </AppToast>
 </template>

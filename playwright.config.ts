@@ -10,6 +10,8 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:4173',
     trace: 'retain-on-failure',
+    // Service Worker nur dort, wo er getestet wird: seine Hinweise sollen andere Tests nicht stören.
+    serviceWorkers: 'block',
   },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },

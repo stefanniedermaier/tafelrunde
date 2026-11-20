@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // @vitest-environment jsdom
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import AppButton from './AppButton.vue'
 import AppTextField from './AppTextField.vue'
@@ -46,6 +46,26 @@ describe('AppToast', () => {
         .attributes('role'),
     ).toBe('alert')
     expect(mount(AppToast).get('div').attributes('role')).toBe('status')
+  })
+  it('schließt sich nach duration selbst', () => {
+    vi.useFakeTimers()
+    const w = mount(AppToast, { props: { duration: 6000 } })
+    vi.advanceTimersByTime(5999)
+    expect(w.emitted('dismiss')).toBeUndefined()
+    vi.advanceTimersByTime(1)
+    expect(w.emitted('dismiss')).toHaveLength(1)
+    vi.useRealTimers()
+  })
+  it('bleibt ohne duration stehen und räumt den Timer beim Entfernen ab', () => {
+    vi.useFakeTimers()
+    const w = mount(AppToast)
+    vi.advanceTimersByTime(60_000)
+    expect(w.emitted('dismiss')).toBeUndefined()
+    const timed = mount(AppToast, { props: { duration: 1000 } })
+    timed.unmount()
+    vi.advanceTimersByTime(1000)
+    expect(timed.emitted('dismiss')).toBeUndefined()
+    vi.useRealTimers()
   })
 })
 
