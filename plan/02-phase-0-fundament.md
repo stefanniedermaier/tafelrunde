@@ -10,7 +10,7 @@
 - [ ] OAuth-Client (Typ Web) mit den Origins `http://localhost:5173` und `https://tafelrunde.niedermaier.bayern`; Weiterleitungs-URI jeweils `…/auth/callback.html`
 - [ ] `niedermaier.bayern` als autorisierte Domain auf dem Zustimmungsbildschirm eintragen; falls Google es verlangt, über die Google Search Console bestätigen (kostenlos, DNS-TXT-Eintrag)
 - [ ] API-Key, beschränkt auf die Drive API und die HTTP-Referrer der App
-- [ ] Anleitung in `docs/setup/google-cloud.md`, auch für Forks
+- [x] Anleitung in `docs/setup/google-cloud.md`, auch für Forks
 
 ### 0.1b Domain und GitHub Pages
 - [ ] Zwei-Faktor-Anmeldung beim Domain-Anbieter prüfen bzw. aktivieren
@@ -18,7 +18,7 @@
 - [ ] DNS: CNAME `tafelrunde` → `<konto>.github.io`
 - [ ] Falls CAA-Einträge existieren, `letsencrypt.org` erlauben
 - [ ] Pages-Einstellungen: eigene Domain eintragen, „Enforce HTTPS“ aktivieren
-- [ ] Anleitung in `docs/setup/hosting.md`
+- [x] Anleitung in `docs/setup/hosting.md`
 
 ### 0.2 Machbarkeitstest Drive-Sync (Timebox: 3 Tage)
 Wegwerf-Code in `spikes/drive-sync/`, er wird nicht übernommen. Getestet wird auf Android (installierte PWA) und am Desktop (Chrome, Firefox).
@@ -34,50 +34,50 @@ Wegwerf-Code in `spikes/drive-sync/`, er wird nicht übernommen. Getestet wird a
 **Abbruchkriterium:** Funktioniert das Lesen per API-Key nicht oder reichen die Kontingente nicht, wird vor Phase 1 Dropbox als Anbieter geprüft.
 
 ### 0.3 Repo-Grundgerüst
-- [ ] Vite, Vue 3, TypeScript im `strict`-Modus, pnpm; Node-LTS gepinnt (`.nvmrc`, `packageManager`)
-- [ ] Ordnerstruktur laut [Architektur](01-architektur.md#code-struktur); ESLint setzt die Regel durch, dass `core` weder `ui` noch `providers` importiert
-- [ ] Vue Router im Hash-Modus, `vite-plugin-pwa` (Manifest, Service Worker, Offline-Shell, Hinweis bei neuer Version)
-- [ ] Eigene Seite `auth/callback.html` für die OAuth-Rückkehr, außerhalb des Routers (siehe [Login per Weiterleitung](01-architektur.md#login-per-weiterleitung))
-- [ ] Barrierearme UI-Grundbausteine bewerten, z. B. Reka UI (MIT)
+- [x] Vite, Vue 3, TypeScript im `strict`-Modus, pnpm; Node-LTS gepinnt (`.nvmrc`, `packageManager`)
+- [x] Ordnerstruktur laut [Architektur](01-architektur.md#code-struktur); ESLint setzt die Regel durch, dass `core` weder `ui` noch `providers` importiert
+- [x] Vue Router im Hash-Modus, `vite-plugin-pwa` (Manifest, Service Worker, Offline-Shell, Hinweis bei neuer Version)
+- [x] Eigene Seite `auth/callback.html` für die OAuth-Rückkehr, außerhalb des Routers (siehe [Login per Weiterleitung](01-architektur.md#login-per-weiterleitung))
+- [x] Barrierearme UI-Grundbausteine bewerten, z. B. Reka UI (MIT)
 
 ### 0.4 Lizenzen und Projektdateien
-- [ ] `LICENSE` (AGPL-3.0) und `catalog/LICENSE` (CC BY-SA 4.0)
-- [ ] REUSE-konform über `REUSE.toml` oder SPDX-Header
-- [ ] `README.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md` (Meldeweg über GitHub Private Vulnerability Reporting)
-- [ ] Vorlagen für Issues und PRs, `CODEOWNERS`
+- [x] `LICENSE` (AGPL-3.0) und `catalog/LICENSE` (CC BY-SA 4.0)
+- [x] REUSE-konform über `REUSE.toml` oder SPDX-Header
+- [x] `README.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md` (Meldeweg über GitHub Private Vulnerability Reporting)
+- [x] Vorlagen für Issues und PRs, `CODEOWNERS`
 
 ### 0.5 CI bei jedem Pull Request
-- [ ] Installation mit `--frozen-lockfile`
-- [ ] ESLint (mit `vue/no-v-html` und den Import-Grenzen) und Prettier-Check
-- [ ] Typecheck mit `vue-tsc`
-- [ ] Unit-Tests mit Abdeckung (Vitest)
-- [ ] Build
-- [ ] E2E-Tests mit Playwright (Chromium und Firefox), inklusive Barrierefreiheit per axe
-- [ ] Lighthouse CI (PWA, Performance-Budget)
-- [ ] Lizenzen: `reuse lint` und Abgleich der Abhängigkeiten mit einer Allowlist AGPL-kompatibler Lizenzen
-- [ ] Commit-Konvention (Conventional Commits)
+- [x] Installation mit `--frozen-lockfile`
+- [x] ESLint (mit `vue/no-v-html` und den Import-Grenzen) und Prettier-Check
+- [x] Typecheck mit `vue-tsc`
+- [x] Unit-Tests mit Abdeckung (Vitest)
+- [x] Build
+- [x] E2E-Tests mit Playwright (Chromium und Firefox), inklusive Barrierefreiheit per axe
+- [x] Lighthouse CI (PWA, Performance-Budget)
+- [x] Lizenzen: `reuse lint` und Abgleich der Abhängigkeiten mit einer Allowlist AGPL-kompatibler Lizenzen
+- [x] Commit-Konvention (Conventional Commits)
 
 ### 0.6 Security-Workflows
-- [ ] CodeQL für JavaScript und TypeScript
-- [ ] Dependency Review: blockiert bekannte Schwachstellen und inkompatible Lizenzen
-- [ ] OSV-Scanner und gitleaks
-- [ ] OpenSSF Scorecard (wöchentlich)
-- [ ] Renovate mit gruppierten Updates
+- [x] CodeQL für JavaScript und TypeScript
+- [x] Dependency Review: blockiert bekannte Schwachstellen und inkompatible Lizenzen
+- [x] OSV-Scanner und gitleaks
+- [x] OpenSSF Scorecard (wöchentlich)
+- [x] Renovate mit gruppierten Updates
 - [ ] In GitHub: Secret Scanning mit Push Protection, Private Vulnerability Reporting, Branch-Schutz mit Pflicht-Checks
-- [ ] Alle Actions per Commit-SHA gepinnt, `permissions:` je Workflow minimal
+- [x] Alle Actions per Commit-SHA gepinnt, `permissions:` je Workflow minimal
 
 ### 0.7 Auslieferung
-- [ ] release-please erzeugt Versionen und Changelog aus den Commits
-- [ ] Deployment auf GitHub Pages bei jedem Release
-- [ ] Build-Provenance-Attestierung (`actions/attest-build-provenance`)
+- [x] release-please erzeugt Versionen und Changelog aus den Commits
+- [x] Deployment auf GitHub Pages bei jedem Release
+- [x] Build-Provenance-Attestierung (`actions/attest-build-provenance`)
 
 ### 0.8 Security-Baseline der App
-- [ ] Content-Security-Policy als `<meta http-equiv>` ganz am Anfang des `<head>`: `default-src 'self'`, `connect-src` nur für Google-APIs, kein `unsafe-inline` oder `unsafe-eval`
-- [ ] Frame-Erkennung: In einem fremden Frame rendert die App nicht (Ersatz für `frame-ancestors`)
-- [ ] `<meta name="referrer" content="no-referrer">`
-- [ ] Keine Fremdskripte, keine Fremd-Fonts, keine Tracker
-- [ ] Trusted Types in Chromium prüfen
-- [ ] `docs/threat-model.md` in Version 0, abgeleitet aus dem [Sicherheitskonzept](01-architektur.md#sicherheitskonzept)
+- [x] Content-Security-Policy als `<meta http-equiv>` ganz am Anfang des `<head>`: `default-src 'self'`, `connect-src` nur für Google-APIs, kein `unsafe-inline` oder `unsafe-eval`
+- [x] Frame-Erkennung: In einem fremden Frame rendert die App nicht (Ersatz für `frame-ancestors`)
+- [x] `<meta name="referrer" content="no-referrer">`
+- [x] Keine Fremdskripte, keine Fremd-Fonts, keine Tracker
+- [x] Trusted Types in Chromium prüfen
+- [x] `docs/threat-model.md` in Version 0, abgeleitet aus dem [Sicherheitskonzept](01-architektur.md#sicherheitskonzept)
 
 ### 0.9 Design-Tokens
 Umgesetzt als CSS-Custom-Properties mit den Modi Hell, Dunkel und System. Ziel ist WCAG 2.2 AA. Fett gesetzte Werte sind neu oder geändert gegenüber `idea.md`.
@@ -102,9 +102,9 @@ Umgesetzt als CSS-Custom-Properties mit den Modi Hell, Dunkel und System. Ziel i
 | `--focus` | #2D6A4F | #52B788 | 2 px Ring mit 2 px Abstand |
 | Familien-Badges | #E9C46A, #F4A261, #8AB17D | dieselben | immer mit dunklem Text |
 
-- [ ] Tokens umsetzen; ein Unit-Test prüft die Kontraste aller relevanten Token-Paare
-- [ ] Schrift festlegen: Systemschrift oder selbst gehostet, keine Google Fonts
-- [ ] Basis-Komponenten: Button, Eingabefeld, Checkbox, Listeneintrag, Karte, Badge, Toast, Dialog, Sync-Status
+- [x] Tokens umsetzen; ein Unit-Test prüft die Kontraste aller relevanten Token-Paare
+- [x] Schrift festlegen: Systemschrift oder selbst gehostet, keine Google Fonts
+- [x] Basis-Komponenten: Button, Eingabefeld, Checkbox, Listeneintrag, Karte, Badge, Toast, Dialog, Sync-Status
 
 ## Akzeptanzkriterien
 - ADR 0001 liegt vor, mit Go oder einer Entscheidung für eine Alternative
