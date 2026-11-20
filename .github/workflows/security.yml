@@ -46,6 +46,14 @@ jobs:
             0BSD, AGPL-3.0-only, AGPL-3.0-or-later, Apache-2.0, BlueOak-1.0.0,
             BSD-2-Clause, BSD-3-Clause, CC0-1.0, CC-BY-4.0, ISC, LGPL-3.0-or-later,
             MIT, MPL-2.0, Python-2.0, Unlicense, Zlib
+          # Fehlerkennungen der Lizenz-Analyse (scancode), beide nur Build-/Testwerkzeuge:
+          # - unicode-match-property-value-ecmascript (Babel): package.json MIT, Daten unter
+          #   der Unicode-Lizenz (permissiv, GPL-kompatibel)
+          # - uri-js (ajv/ESLint, workbox-build): package.json BSD-2-Clause; erkannt wird
+          #   zusätzlich BSD-2-Clause-Views (permissiv)
+          allow-dependencies-licenses: >-
+            pkg:npm/unicode-match-property-value-ecmascript,
+            pkg:npm/uri-js
           comment-summary-in-pr: on-failure
 
   osv-scanner:
