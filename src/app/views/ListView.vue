@@ -23,6 +23,7 @@ import {
   setChecked,
   setItemCategory,
   setListStore,
+  spaceKind,
   updateItem,
 } from '@/core'
 import AppButton from '@/ui/components/AppButton.vue'
@@ -32,11 +33,30 @@ import AppTextField from '@/ui/components/AppTextField.vue'
 import AppToast from '@/ui/components/AppToast.vue'
 import { catalogLookup, catalogNames } from '../catalog'
 import { useSpace } from '../workspace/use-space'
-import { workspace } from '../workspace/use-workspace'
+import { bumpWorkspace, workspace } from '../workspace/use-workspace'
+import ConnectButton from '../ConnectButton.vue'
 
 const props = defineProps<{ spaceId: string; listId: string }>()
 const router = useRouter()
-const { doc, version, error } = useSpace(toRef(props, 'spaceId'), { active: true })
+const { doc, version, error, snapshot } = useSpace(toRef(props, 'spaceId'), { active: true })
+const kind = computed(() => (version.value, doc.value ? spaceKind(doc.value) : undefined))
+const readOnly = computed(() => snapshot.value?.status === 'login-required')
+
+// --- Mit anderen teilen (1.11) -----------------------------------------------------
+
+const confirmShare = ref(false)
+const shareError = ref<string>()
+async function share() {
+  shareError.value = undefined
+  try {
+    const target = await (await workspace()).shareList(props.spaceId, props.listId, catalogLookup)
+    confirmShare.value = false
+    bumpWorkspace()
+    await router.replace({ name: 'space', params: { spaceId: target.record.id } })
+  } catch (e) {
+    shareError.value = e instanceof Error ? e.message : String(e)
+  }
+}
 const deviceId = ref('')
 void workspace().then((ws) => (deviceId.value = ws.profile?.deviceId ?? ''))
 
@@ -185,6 +205,12 @@ const detail = (i: Item) => [i.quantity, i.unit].filter(Boolean).join(' ')
       <AppButton variant="ghost" @click="renaming = list.name">Umbenennen</AppButton>
     </div>
 
+    <p v-if="readOnly" class="notice" role="status">
+      Du siehst den aktuellen Stand. Damit die anderen deine Änderungen sehen, melde dich an – bis
+      dahin bleiben sie auf diesem Gerät.
+      <ConnectButton />
+    </p>
+
     <form class="add" aria-label="Eintrag hinzufügen" @submit.prevent="add">
       <AppTextField
         v-model="name"
@@ -245,6 +271,9 @@ const detail = (i: Item) => [i.quantity, i.unit].filter(Boolean).join(' ')
 
     <div class="footer">
       <AppButton :disabled="!hasChecked" @click="clearChecked">Erledigte entfernen</AppButton>
+      <AppButton v-if="kind !== 'shared-list'" @click="confirmShare = true">
+        Mit anderen teilen
+      </AppButton>
       <AppButton variant="danger" @click="confirmDelete = true">Liste löschen</AppButton>
     </div>
   </template>
@@ -301,6 +330,18 @@ const detail = (i: Item) => [i.quantity, i.unit].filter(Boolean).join(' ')
     <template #actions>
       <AppButton @click="renaming = undefined">Abbrechen</AppButton>
       <AppButton type="submit" form="rename-form" variant="primary">Speichern</AppButton>
+    </template>
+  </AppDialog>
+
+  <AppDialog v-model:open="confirmShare" title="Liste mit anderen teilen?">
+    <p>
+      Die Liste bekommt einen eigenen Bereich mit eigenem Schlüssel. Alle Geräte in diesem Bereich
+      sehen sie weiterhin; zusätzlich kannst du Freunde einladen, die nur diese Liste sehen.
+    </p>
+    <p v-if="shareError" role="alert" class="error">{{ shareError }}</p>
+    <template #actions>
+      <AppButton @click="confirmShare = false">Abbrechen</AppButton>
+      <AppButton variant="primary" @click="share">Teilen</AppButton>
     </template>
   </AppDialog>
 
@@ -370,6 +411,14 @@ const detail = (i: Item) => [i.quantity, i.unit].filter(Boolean).join(' ')
 }
 .store {
   max-width: 20rem;
+}
+.notice {
+  padding: var(--space-3);
+  border-left: 4px solid var(--warning);
+  background: var(--surface);
+}
+.error {
+  color: var(--error);
 }
 .stack {
   display: grid;

@@ -208,4 +208,67 @@ describe('Workspace', () => {
     expect(getItems(benSpace.doc, listId).map((i) => i.name)).not.toContain('Geheim nach Entfernen')
     expect(listMembers(cleoSpace.doc).map((m) => m.person)).toEqual(['Anna', 'Cleo'])
   })
+
+  it('teilt eine einzelne Liste: Haushalt tritt automatisch bei, Externe per Einladung', async () => {
+    const cloud = new FakeCloud()
+    const { ws: anna } = await workspace(cloud, 'anna')
+    const { ws: ben } = await workspace(cloud, 'ben')
+    const { ws: gast } = await workspace(cloud, 'gast')
+    await anna.setup('Anna', 'Laptop')
+    await ben.setup('Ben', 'Handy')
+    await gast.setup('Gast', 'Handy')
+
+    // Haushalt mit Anna und Ben
+    const family = await anna.createSpace('Familie', 'household')
+    const listId = createList(family.doc, 'Grillfest')
+    addItem(family.doc, listId, { name: 'Kohle' }, anna.profile!.deviceId)
+    const { setItemCategory } = await import('@/core')
+    const kohle = getItems(family.doc, listId)[0]!.id
+    setItemCategory(family.doc, kohle, 'sonstiges')
+    await family.sync.flush()
+    await family.sync.flush()
+    const benFamily = await ben.join(transfer(await anna.invite(family.record.id)))
+    await anna.acceptReply(transfer(await ben.reply(family.record.id)))
+    await family.sync.flush()
+
+    // Anna überführt die Liste in einen eigenen Bereich.
+    const party = await anna.shareList(family.record.id, listId)
+    expect(getLists(family.doc)).toEqual([])
+    expect(getItems(party.doc, listId)).toMatchObject([{ name: 'Kohle', category: 'sonstiges' }])
+    await party.sync.flush()
+    await anna.syncLinks()
+    await family.sync.flush()
+
+    // Ben bekommt den Haushalt, sieht die Verknüpfung und tritt bei.
+    await benFamily.sync.poll()
+    await ben.syncLinks()
+    expect(ben.hasSpace(party.record.id)).toBe(true)
+    const benParty = await ben.space(party.record.id)
+    expect(getItems(benParty.doc, listId).map((i) => i.name)).toEqual(['Kohle'])
+    await benParty.sync.flush()
+    await ben.syncLinks()
+    await benFamily.sync.flush()
+
+    // Anna erfährt Bens Datei über den Haushalt und liest seine Änderungen.
+    await family.sync.poll()
+    await anna.syncLinks()
+    addItem(benParty.doc, listId, { name: 'Würstchen' }, ben.profile!.deviceId)
+    await benParty.sync.flush()
+    await party.sync.poll()
+    expect(
+      getItems(party.doc, listId)
+        .map((i) => i.name)
+        .sort(),
+    ).toEqual(['Kohle', 'Würstchen'])
+
+    // Ein Gast wird ganz normal eingeladen und sieht nur diese Liste.
+    await party.sync.flush()
+    const gastParty = await gast.join(transfer(await anna.invite(party.record.id)))
+    expect(
+      getItems(gastParty.doc, listId)
+        .map((i) => i.name)
+        .sort(),
+    ).toEqual(['Kohle', 'Würstchen'])
+    expect(gast.spaces().map((s) => s.kind)).toEqual(['personal', 'shared-list'])
+  })
 })

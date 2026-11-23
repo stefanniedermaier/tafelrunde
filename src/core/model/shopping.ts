@@ -340,3 +340,42 @@ export function mergeItems(doc: Y.Doc, targetId: string, sourceId: string): void
     items(doc).delete(sourceId)
   })
 }
+
+// --- Liste in einen anderen Bereich übertragen ------------------------------
+
+export interface ListExport {
+  id: string
+  name: string
+  items: Item[]
+}
+
+/**
+ * Liste samt Einträgen für die Übertragung in einen anderen Bereich. Die
+ * Kategorie wird fest übernommen, weil die gemerkten Zuordnungen des
+ * Haushalts im neuen Bereich fehlen.
+ */
+export function exportList(doc: Y.Doc, listId: string, lookup?: CatalogLookup): ListExport {
+  const list = getLists(doc).find((l) => l.id === listId)
+  if (!list) throw new Error('unbekannte Liste')
+  return {
+    id: list.id,
+    name: list.name,
+    items: getItems(doc, listId).map((i) => ({ ...i, category: categoryFor(doc, i, lookup) })),
+  }
+}
+
+export function importList(doc: Y.Doc, data: ListExport, now = Date.now()): void {
+  doc.transact(() => {
+    const entry = new Y.Map<unknown>()
+    lists(doc).set(data.id, entry)
+    entry.set('name', cleanName(data.name))
+    entry.set('createdAt', now)
+    for (const item of data.items) {
+      const e = new Y.Map<unknown>()
+      items(doc).set(item.id, e)
+      for (const [key, value] of Object.entries(item)) {
+        if (key !== 'id' && value !== undefined) e.set(key, key === 'listId' ? data.id : value)
+      }
+    }
+  })
+}

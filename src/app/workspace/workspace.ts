@@ -8,6 +8,7 @@
 
 import * as Y from 'yjs'
 import {
+  type CatalogLookup,
   type JoinReply,
   type Peer,
   type PersistedSyncState,
@@ -22,8 +23,14 @@ import {
   getMember,
   importSpaceKey,
   initSpace,
+  deleteList,
+  exportList,
+  getLinkedSpaces,
+  importList,
+  linkSpace,
   listMembers,
   markRemoved,
+  reportLinkedFile,
   peerFiles,
   randomId,
   setMemberFile,
@@ -234,6 +241,8 @@ export class Workspace {
         // Auch den Anbieter aktualisieren (z. B. erst lokal, dann mit Google verbunden).
         this.registerSelf(doc)
         setMemberFile(doc, profile.deviceId, 'live', fileId)
+        // Eigene Datei in verknüpften Bereichen dem Haushalt melden.
+        if (record.kind === 'shared-list') this.scheduleLinkSync()
       },
     })
     await sync.start()
@@ -244,6 +253,8 @@ export class Workspace {
       onUnexpectedError: (error) => console.error('Sync-Fehler', error),
     })
     loop.setVisible(this.visible)
+    // Haushalt: verknüpfte Bereiche (geteilte Listen) automatisch übernehmen.
+    if (record.kind !== 'shared-list') doc.on('update', () => this.scheduleLinkSync())
     const records = this.records
     return {
       // Immer der aktuelle Datensatz (Schlüssel ändern sich beim Schlüsselwechsel).
@@ -407,6 +418,96 @@ export class Workspace {
     await handle.sync.poll().catch(() => undefined)
     return handle
   }
+
+  // --- Geteilte Listen (verknüpfte Bereiche) ------------------------------------
+
+  /**
+   * Überführt eine Liste in einen eigenen Bereich, den man mit Externen teilen
+   * kann. Alle Geräte des bisherigen Bereichs treten automatisch bei.
+   */
+  async shareList(
+    fromSpaceId: string,
+    listId: string,
+    lookup?: CatalogLookup,
+  ): Promise<SpaceHandle> {
+    const from = await this.space(fromSpaceId)
+    const data = exportList(from.doc, listId, lookup)
+    const target = await this.createSpace(data.name, 'shared-list')
+    importList(target.doc, data, this.now())
+    from.doc.transact(() => {
+      deleteList(from.doc, listId)
+    })
+    linkSpace(from.doc, {
+      spaceId: target.record.id,
+      name: data.name,
+      key: await exportSpaceKey(target.record.key),
+    })
+    await this.syncLinks()
+    return target
+  }
+
+  private linkTimer: ReturnType<typeof setTimeout> | undefined
+  private linkRun: Promise<void> | undefined
+
+  private scheduleLinkSync(): void {
+    clearTimeout(this.linkTimer)
+    this.linkTimer = setTimeout(
+      () => void this.syncLinks().catch((e: unknown) => console.error(e)),
+      300,
+    )
+  }
+
+  /** Tritt verknüpften Bereichen bei und gleicht die gemeldeten Dateien ab. */
+  syncLinks(): Promise<void> {
+    const run = async () => {
+      const self = this.requireProfile().deviceId
+      for (const record of this.spaces()) {
+        if (record.kind === 'shared-list') continue
+        const household = await this.space(record.id)
+        for (const link of getLinkedSpaces(household.doc)) {
+          if (!this.records.has(link.spaceId)) {
+            await this.join({
+              type: 'invite',
+              spaceId: link.spaceId,
+              key: link.key,
+              name: link.name,
+              kind: 'shared-list',
+              peers: Object.entries(link.files)
+                .filter(([deviceId]) => deviceId !== self)
+                .map(([deviceId, fileId]) => ({ deviceId, provider: '', files: { live: fileId } })),
+            })
+            this.onSpacesChanged?.()
+          }
+          const shared = await this.space(link.spaceId)
+          const own = shared.sync.ownFileId
+          if (own) reportLinkedFile(household.doc, link.spaceId, self, own)
+          for (const [deviceId, fileId] of Object.entries(link.files)) {
+            if (deviceId === self) continue
+            const member = getMember(shared.doc, deviceId)
+            if (member?.removedAt !== undefined || member?.files.live === fileId) continue
+            const info = getMember(household.doc, deviceId)
+            upsertMember(shared.doc, {
+              deviceId,
+              person: info?.person ?? '',
+              deviceName: info?.deviceName ?? '',
+              provider: info?.provider ?? '',
+              joinedAt: member?.joinedAt ?? this.now(),
+              files: { live: fileId },
+            })
+          }
+        }
+      }
+    }
+    // Nie zwei Abgleiche gleichzeitig; ein angeforderter läuft nach dem aktuellen.
+    const next = (this.linkRun ?? Promise.resolve()).then(run, run)
+    this.linkRun = next.finally(() => {
+      if (this.linkRun === next) this.linkRun = undefined
+    })
+    return next
+  }
+
+  /** Wird aufgerufen, wenn Bereiche ohne Zutun der Oberfläche hinzukommen. */
+  onSpacesChanged: (() => void) | undefined
 
   /**
    * Entfernt ein Gerät und wechselt den Schlüssel (plan/01-architektur.md,

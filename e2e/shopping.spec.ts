@@ -134,6 +134,21 @@ test('Hinweis auf den Wiederherstellungscode verschwindet, sobald er angezeigt w
   await expect(hint).toHaveCount(0)
 })
 
+test('Liste mit anderen teilen bekommt einen eigenen Bereich', async ({ page }) => {
+  await setup(page)
+  await newList(page, 'Grillfest')
+  await addItem(page, 'Kohle')
+  await page.getByRole('button', { name: 'Mit anderen teilen' }).click()
+  await page.getByRole('dialog').getByRole('button', { name: 'Teilen' }).click()
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Grillfest')
+  await expect(page.getByRole('heading', { name: 'Jemanden einladen' })).toBeVisible()
+  await page.getByRole('link', { name: '← Alle Listen' }).click()
+  await expect(page.getByRole('heading', { level: 2 })).toHaveText(['Grillfest', 'Persönlich'])
+  await page.getByRole('link', { name: 'Grillfest' }).click()
+  await expect(page.getByRole('checkbox', { name: 'Kohle' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Mit anderen teilen' })).toHaveCount(0)
+})
+
 test('Haushalt anlegen; Einladung braucht einen verbundenen Speicher', async ({ page }) => {
   await setup(page)
   await page.getByRole('button', { name: 'Haushalt anlegen' }).click()

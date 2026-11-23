@@ -64,8 +64,8 @@
 - [x] Eingabe per Diktierfunktion der Tastatur funktioniert (keine eigene Spracherkennung)
 
 ### 1.11 Liste mit anderen teilen
-- [ ] Eine einzelne Liste in einen eigenen Bereich überführen und Externe einladen
-- [ ] Lesen ohne Google-Konto, Abhaken und Ändern mit Konto
+- [x] Eine einzelne Liste in einen eigenen Bereich überführen und Externe einladen
+- [x] Lesen ohne Google-Konto, Abhaken und Ändern mit Konto
 
 ### 1.12 Qualität
 - [x] Unit-Tests: Krypto, Zusammenführen, Kategorisierung

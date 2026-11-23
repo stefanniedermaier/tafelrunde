@@ -26,6 +26,8 @@ export const workspaceVersion = ref(0)
 export function initWorkspace(provider: StorageProvider = createProvider()) {
   instance ??= (async () => {
     const ws = await Workspace.open({ kv: await IdbKeyValueStore.open(), provider, persistDoc })
+    // Automatisch beigetretene Bereiche (geteilte Listen des Haushalts) anzeigen.
+    ws.onSpacesChanged = bumpWorkspace
     document.addEventListener('visibilitychange', () => {
       void ws.setVisible(document.visibilityState === 'visible')
     })
