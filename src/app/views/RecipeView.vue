@@ -27,6 +27,7 @@ import { useRecipes } from '../recipes/recipe-store'
 import { recipeRoute } from '../recipes/routes'
 import { workspace } from '../workspace/use-workspace'
 import CookMode from './CookMode.vue'
+import RecipeCollections from './RecipeCollections.vue'
 import RecipeReviews from './RecipeReviews.vue'
 
 /**
@@ -291,6 +292,11 @@ const stepBlocks = (blocks: Block[]) => blocks
     <RecipeReviews
       v-if="library && props.recipeId"
       :space-id="props.spaceId!"
+      :recipe-id="props.recipeId"
+    />
+    <RecipeCollections
+      v-if="library && props.recipeId"
+      :library="library.doc"
       :recipe-id="props.recipeId"
     />
 

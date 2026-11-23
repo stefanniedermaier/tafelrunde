@@ -176,6 +176,36 @@ test('Bewertung und Notiz', async ({ page }) => {
   await expect(page.getByLabel('Deine Notiz')).toHaveValue('Mit Dinkelmehl probieren')
 })
 
+test('Suchen, filtern und Sammlungen', async ({ page }) => {
+  await setup(page)
+  await createRecipe(page, HEFETEIG)
+  await page.getByRole('button', { name: 'Fertig' }).click()
+  await createRecipe(
+    page,
+    '---\ntitle: Rucolasalat\ntags: [Salat, schnell]\ntime.prep: 10 min\n---\nMische @Rucola{100%g} mit @Olivenöl{2%EL}.',
+  )
+  await page.getByRole('button', { name: 'Fertig' }).click()
+  await page.getByLabel('Neue Sammlung').fill('Sommer')
+  await page.getByRole('button', { name: 'Anlegen' }).click()
+  await expect(page.getByRole('checkbox', { name: 'Sommer' })).toBeChecked()
+
+  await page.getByRole('link', { name: '← Alle Rezepte' }).click()
+  const cards = page.locator('.cards h2')
+  await expect(cards).toHaveText(['Hefeteig', 'Rucolasalat'])
+  await page.getByLabel('Suchen', { exact: true }).fill('Mehl')
+  await expect(cards).toHaveText(['Hefeteig'])
+  await page.getByRole('button', { name: 'Filter zurücksetzen' }).click()
+  await page.getByLabel('Ernährung').selectOption({ label: 'vegan' })
+  await expect(cards).toHaveText(['Rucolasalat'])
+  await page.getByRole('button', { name: 'Filter zurücksetzen' }).click()
+  await page.getByRole('button', { name: /schnell/ }).click()
+  await expect(cards).toHaveText(['Rucolasalat'])
+  await page.getByRole('button', { name: 'Filter zurücksetzen' }).click()
+  await page.getByLabel('Sammlung').selectOption({ label: 'Sommer' })
+  await expect(cards).toHaveText(['Rucolasalat'])
+  await expect(page.getByRole('status').filter({ hasText: '1 Rezept' })).toBeVisible()
+})
+
 for (const theme of ['light', 'dark'] as const) {
   test(`Barrierefreiheit Rezeptansicht und Editor (${theme})`, async ({ page }) => {
     await page.emulateMedia({ colorScheme: theme })

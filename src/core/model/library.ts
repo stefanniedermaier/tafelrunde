@@ -14,7 +14,12 @@ import * as Y from 'yjs'
 import { isValidId, randomId } from '../crypto/ids'
 import { MAX_RECIPE_CHARS } from '../recipe/recipe'
 
-export const LIBRARY_ROOT = { recipes: 'recipes', reviews: 'reviews', cooked: 'cooked' } as const
+export const LIBRARY_ROOT = {
+  recipes: 'recipes',
+  reviews: 'reviews',
+  cooked: 'cooked',
+  collections: 'collections',
+} as const
 
 /** Herkunft eines übernommenen Rezepts (2.11). */
 export interface RecipeOrigin {
@@ -37,6 +42,7 @@ export interface StoredRecipe {
 const recipes = (doc: Y.Doc) => doc.getMap<Y.Map<unknown>>(LIBRARY_ROOT.recipes)
 const reviews = (doc: Y.Doc) => doc.getMap<unknown>(LIBRARY_ROOT.reviews)
 const cooked = (doc: Y.Doc) => doc.getMap<unknown>(LIBRARY_ROOT.cooked)
+const collections = (doc: Y.Doc) => doc.getMap<unknown>(LIBRARY_ROOT.collections)
 
 const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : 0)
 
@@ -126,6 +132,9 @@ export function deleteRecipe(doc: Y.Doc, id: string): void {
     recipes(doc).delete(id)
     for (const map of [reviews(doc), cooked(doc)]) {
       for (const key of [...map.keys()]) if (key.startsWith(`${id}/`)) map.delete(key)
+    }
+    for (const key of [...collections(doc).keys()]) {
+      if (key.endsWith(`/r/${id}`)) collections(doc).delete(key)
     }
   })
 }
@@ -256,4 +265,61 @@ export function cookedLog(doc: Y.Doc, recipeId?: string): CookedEntry[] {
 
 export function lastCooked(doc: Y.Doc, recipeId: string): number | undefined {
   return cookedLog(doc, recipeId)[0]?.at
+}
+
+// --- Sammlungen (2.6) -------------------------------------------------------------
+
+export interface Collection {
+  id: string
+  name: string
+  recipeIds: string[]
+}
+
+export function createCollection(doc: Y.Doc, name: string): string {
+  const id = randomId()
+  const trimmed = name.replace(/\s+/g, ' ').trim().slice(0, 60)
+  if (!trimmed) throw new Error('Name darf nicht leer sein')
+  collections(doc).set(`${id}/name`, trimmed)
+  return id
+}
+
+export function renameCollection(doc: Y.Doc, id: string, name: string): void {
+  const trimmed = name.replace(/\s+/g, ' ').trim().slice(0, 60)
+  if (trimmed && collections(doc).has(`${id}/name`)) collections(doc).set(`${id}/name`, trimmed)
+}
+
+export function deleteCollection(doc: Y.Doc, id: string): void {
+  doc.transact(() => {
+    for (const key of [...collections(doc).keys()])
+      if (key.startsWith(`${id}/`)) collections(doc).delete(key)
+  })
+}
+
+export function setInCollection(
+  doc: Y.Doc,
+  collectionId: string,
+  recipeId: string,
+  member: boolean,
+): void {
+  if (!isValidId(recipeId) || !collections(doc).has(`${collectionId}/name`)) return
+  const key = `${collectionId}/r/${recipeId}`
+  if (member) collections(doc).set(key, true)
+  else collections(doc).delete(key)
+}
+
+export function listCollections(doc: Y.Doc): Collection[] {
+  const byId = new Map<string, Collection>()
+  const get = (id: string) => {
+    let c = byId.get(id)
+    if (!c) byId.set(id, (c = { id, name: '', recipeIds: [] }))
+    return c
+  }
+  for (const [key, value] of collections(doc)) {
+    const [id, field, recipeId] = key.split('/')
+    if (!id || !isValidId(id)) continue
+    if (field === 'name' && typeof value === 'string') get(id).name = value
+    else if (field === 'r' && recipeId && value === true) get(id).recipeIds.push(recipeId)
+  }
+  // Sammlungen ohne Namen sind Reste gelöschter Sammlungen (gleichzeitige Bearbeitung).
+  return [...byId.values()].filter((c) => c.name).sort((a, b) => a.name.localeCompare(b.name, 'de'))
 }

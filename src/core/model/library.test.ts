@@ -4,6 +4,11 @@ import { describe, expect, it } from 'vitest'
 import * as Y from 'yjs'
 import {
   averageStars,
+  createCollection,
+  deleteCollection,
+  listCollections,
+  renameCollection,
+  setInCollection,
   cookedLog,
   createRecipe,
   deleteRecipe,
@@ -116,5 +121,23 @@ describe('Koch-Protokoll', () => {
     expect(cookedLog(doc).map((e) => e.at)).toEqual([300, 200, 100])
     deleteRecipe(doc, 'r1')
     expect(cookedLog(doc).map((e) => e.recipeId)).toEqual(['r2'])
+  })
+})
+
+describe('Sammlungen', () => {
+  it('ordnen Rezepte zu und räumen beim Löschen auf', () => {
+    const doc = new Y.Doc()
+    const r1 = createRecipe(doc, 'a', 'p')
+    const r2 = createRecipe(doc, 'b', 'p')
+    const c = createCollection(doc, ' Sonntagsessen ')
+    setInCollection(doc, c, r1, true)
+    setInCollection(doc, c, r2, true)
+    setInCollection(doc, c, r2, false)
+    renameCollection(doc, c, 'Sonntag')
+    expect(listCollections(doc)).toEqual([{ id: c, name: 'Sonntag', recipeIds: [r1] }])
+    deleteRecipe(doc, r1)
+    expect(listCollections(doc)[0]!.recipeIds).toEqual([])
+    deleteCollection(doc, c)
+    expect(listCollections(doc)).toEqual([])
   })
 })

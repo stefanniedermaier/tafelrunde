@@ -32,9 +32,9 @@
 - [x] Rekursive Auflösung für Zutatenliste und Ernährungsform
 
 ### 2.6 Organisation und Suche
-- [ ] Tags und Sammlungen
-- [ ] Sortierung nach Name, Bewertung, zuletzt gekocht, Zubereitungszeit, neueste
-- [ ] Volltextsuche (z. B. MiniSearch); Filter nach Tags, Ernährungsform und Zeit
+- [x] Tags und Sammlungen
+- [x] Sortierung nach Name, Bewertung, zuletzt gekocht, Zubereitungszeit, neueste
+- [x] Volltextsuche (z. B. MiniSearch); Filter nach Tags, Ernährungsform und Zeit
 
 ### 2.7 Ernährungsform
 - [x] Den Zutatenkatalog um die Ernährungsform erweitern: vegan · vegetarisch · mit Fisch · mit Fleisch

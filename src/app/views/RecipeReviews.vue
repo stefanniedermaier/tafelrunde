@@ -103,9 +103,10 @@ function saveNote() {
         :key="r.personId"
       >
         <strong>{{ names.get(r.personId) ?? 'Jemand' }}</strong>
-        <span v-if="r.stars" :aria-label="`${r.stars} von 5 Sternen`">
-          {{ '★'.repeat(r.stars) }}</span
-        >
+        <span v-if="r.stars">
+          <span aria-hidden="true"> {{ '★'.repeat(r.stars) }}</span>
+          <span class="visually-hidden">{{ r.stars }} von 5 Sternen</span>
+        </span>
         <p v-if="r.note">{{ r.note }}</p>
       </li>
     </ul>
