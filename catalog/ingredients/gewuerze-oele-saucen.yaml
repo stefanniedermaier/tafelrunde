@@ -1,0 +1,28 @@
+# Kategorie: gewuerze-oele-saucen. Eine Zeile je Artikel; siehe catalog/README.md.
+- { id: salz, name: Salz, synonyms: [Speisesalz, Meersalz], diet: vegan }
+- { id: pfeffer, name: Pfeffer, synonyms: [Schwarzer Pfeffer], diet: vegan }
+- { id: paprikapulver, name: Paprikapulver, synonyms: [Paprika edelsüß], diet: vegan }
+- { id: currypulver, name: Currypulver, synonyms: [Curry], diet: vegan }
+- { id: zimt, name: Zimt, diet: vegan }
+- { id: muskatnuss, name: Muskatnuss, synonyms: [Muskat], diet: vegan }
+- { id: oregano, name: Oregano, diet: vegan }
+- { id: thymian, name: Thymian, diet: vegan }
+- { id: rosmarin, name: Rosmarin, diet: vegan }
+- { id: chili, name: Chili, synonyms: [Chiliflocken, Chilipulver], diet: vegan }
+- { id: kreuzkuemmel, name: Kreuzkümmel, synonyms: [Cumin], diet: vegan }
+- { id: kurkuma, name: Kurkuma, diet: vegan }
+- { id: lorbeerblaetter, name: Lorbeerblätter, synonyms: [Lorbeer], diet: vegan }
+- { id: olivenoel, name: Olivenöl, diet: vegan }
+- { id: rapsoel, name: Rapsöl, synonyms: [Pflanzenöl, Sonnenblumenöl, Öl], diet: vegan }
+- { id: essig, name: Essig, synonyms: [Weißweinessig, Branntweinessig], diet: vegan }
+- { id: balsamico, name: Balsamico, synonyms: [Balsamessig], diet: vegan }
+- { id: senf, name: Senf, diet: vegan }
+- { id: ketchup, name: Ketchup, diet: vegan }
+- { id: mayonnaise, name: Mayonnaise, synonyms: [Mayo], diet: vegetarisch }
+- { id: sojasauce, name: Sojasauce, synonyms: [Sojasoße], diet: vegan }
+- { id: pesto, name: Pesto, diet: vegetarisch }
+- { id: worcestersauce, name: Worcestersauce, diet: pescetarisch }
+- { id: tabasco, name: Tabasco, synonyms: [Scharfe Sauce], diet: vegan }
+- { id: grillsauce, name: Grillsauce, synonyms: [BBQ-Sauce], diet: vegan }
+- { id: remoulade, name: Remoulade, diet: vegetarisch }
+- { id: fertigsauce, name: Fertigsauce, synonyms: [Soße], diet: vegan }

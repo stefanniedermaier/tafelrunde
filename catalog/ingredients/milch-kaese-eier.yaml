@@ -1,0 +1,31 @@
+# Kategorie: milch-kaese-eier. Eine Zeile je Artikel; siehe catalog/README.md.
+- { id: milch, name: Milch, synonyms: [Vollmilch, Frischmilch, H-Milch], diet: vegetarisch }
+- { id: hafermilch, name: Hafermilch, synonyms: [Haferdrink], diet: vegan }
+- { id: sojamilch, name: Sojamilch, synonyms: [Sojadrink], diet: vegan }
+- { id: mandelmilch, name: Mandelmilch, synonyms: [Mandeldrink], diet: vegan }
+- { id: butter, name: Butter, diet: vegetarisch }
+- { id: margarine, name: Margarine, diet: vegan }
+- { id: sahne, name: Sahne, synonyms: [Schlagsahne], diet: vegetarisch }
+- { id: saure-sahne, name: Saure Sahne, synonyms: [Schmand, Sauerrahm], diet: vegetarisch }
+- { id: creme-fraiche, name: Crème fraîche, synonyms: [Creme fraiche], diet: vegetarisch }
+- { id: joghurt, name: Joghurt, synonyms: [Naturjoghurt], diet: vegetarisch }
+- { id: griechischer-joghurt, name: Griechischer Joghurt, diet: vegetarisch }
+- { id: fruchtjoghurt, name: Fruchtjoghurt, diet: vegetarisch }
+- { id: quark, name: Quark, synonyms: [Magerquark, Speisequark], diet: vegetarisch }
+- { id: frischkaese, name: Frischkäse, diet: vegetarisch }
+- { id: huettenkaese, name: Hüttenkäse, synonyms: [Körniger Frischkäse], diet: vegetarisch }
+- { id: mozzarella, name: Mozzarella, diet: vegetarisch }
+- { id: gouda, name: Gouda, diet: vegetarisch }
+- { id: emmentaler, name: Emmentaler, diet: vegetarisch }
+- { id: bergkaese, name: Bergkäse, diet: vegetarisch }
+- { id: parmesan, name: Parmesan, diet: vegetarisch }
+- { id: feta, name: Feta, synonyms: [Schafskäse], diet: vegetarisch }
+- { id: reibekaese, name: Reibekäse, synonyms: [Geriebener Käse], diet: vegetarisch }
+- { id: scheibenkaese, name: Scheibenkäse, synonyms: [Käsescheiben], diet: vegetarisch }
+- { id: camembert, name: Camembert, diet: vegetarisch }
+- { id: eier, name: Eier, synonyms: [Ei], diet: vegetarisch }
+- { id: skyr, name: Skyr, diet: vegetarisch }
+- { id: kefir, name: Kefir, diet: vegetarisch }
+- { id: buttermilch, name: Buttermilch, diet: vegetarisch }
+- { id: pudding, name: Pudding, diet: vegetarisch }
+- { id: tofu, name: Tofu, diet: vegan }

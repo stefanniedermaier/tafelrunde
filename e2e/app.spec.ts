@@ -15,7 +15,7 @@ test('Startseite lädt ohne Fehler und CSP-Verstöße', async ({ page }) => {
   const problems = collectProblems(page)
   await page.goto('/')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Willkommen bei Tafelrunde')
-  await page.getByRole('link', { name: 'Basis-Komponenten ansehen' }).click()
+  await page.goto('/#/komponenten')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Basis-Komponenten')
   await page.getByRole('button', { name: 'Dialog öffnen' }).click()
   await expect(page.getByRole('dialog', { name: 'Liste löschen?' })).toBeVisible()
@@ -65,10 +65,16 @@ test('OAuth-Rückkehr entfernt das Token aus der URL und verwirft fremde Antwort
   page,
 }) => {
   await page.goto('/auth/callback.html#state=fremd&access_token=geheim&expires_in=3600')
-  await page.waitForURL((url) => url.pathname === '/' && url.hash === '#/')
+  // Ohne Profil leitet die App danach zur Einrichtung weiter.
+  await page.waitForURL((url) => url.pathname === '/' && /^#\/(einrichten)?$/.test(url.hash))
   expect(page.url()).not.toContain('geheim')
   const result = await page.evaluate(() => sessionStorage.getItem('tafelrunde.oauth.result'))
-  expect(JSON.parse(result!)).toEqual({ ok: false, error: 'state_mismatch' })
+  if (result) {
+    expect(JSON.parse(result)).toEqual({ ok: false, error: 'state_mismatch' })
+  } else {
+    // Mit Google-Konfiguration hat die App das Ergebnis schon übernommen – und kein Token.
+    await expect(page.getByRole('button', { name: 'Mit Google verbinden' })).toBeVisible()
+  }
 })
 
 test('Web-App-Manifest ist installierbar konfiguriert', async ({ request }) => {
@@ -105,7 +111,8 @@ test.describe('mit Service Worker', () => {
     const toast = page.getByRole('status').filter({ hasText: 'offline verfügbar' })
     await expect(toast).toBeVisible()
     await expect(toast).toBeHidden({ timeout: 10_000 })
-    await page.getByRole('link', { name: 'Basis-Komponenten ansehen' }).click()
+    await page.getByRole('button', { name: 'Los geht’s' }).click({ timeout: 2_000 })
+    await page.goto('/#/komponenten')
     await page.getByRole('button', { name: 'Dialog öffnen' }).click({ timeout: 2_000 })
     await expect(page.getByRole('dialog', { name: 'Liste löschen?' })).toBeVisible()
   })

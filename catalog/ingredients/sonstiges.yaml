@@ -1,0 +1,4 @@
+# Kategorie: sonstiges. Eine Zeile je Artikel; siehe catalog/README.md.
+- { id: blumen, name: Blumen, synonyms: [Blumenstrauß] }
+- { id: geschenkpapier, name: Geschenkpapier }
+- { id: pfandflaschen, name: Pfandflaschen, synonyms: [Leergut] }

@@ -1,22 +1,37 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
 <script setup lang="ts">
-import { useId } from 'vue'
+import { computed, useAttrs, useId } from 'vue'
 
-const props = defineProps<{ label: string; hint?: string; error?: string }>()
+// Attribute wie maxlength oder list gehören ans Eingabefeld, class und style an den Rahmen.
+defineOptions({ inheritAttrs: false })
+const attrs = useAttrs()
+const inputAttrs = computed(() => {
+  const { class: _class, style: _style, ...rest } = attrs
+  void _class
+  void _style
+  return rest
+})
+const rootStyle = computed(() => attrs.style as string | undefined)
+
+const props = defineProps<{
+  label: string
+  hint?: string | undefined
+  error?: string | undefined
+}>()
 const model = defineModel<string>({ default: '' })
 const id = useId()
-const describedBy = [props.hint ? `${id}-hint` : '', props.error ? `${id}-error` : '']
-  .filter(Boolean)
-  .join(' ')
+const describedBy = computed(() =>
+  [props.hint ? `${id}-hint` : '', props.error ? `${id}-error` : ''].filter(Boolean).join(' '),
+)
 </script>
 
 <template>
-  <div class="field">
+  <div :class="['field', attrs.class]" :style="rootStyle">
     <label :for="id">{{ label }}</label>
     <input
       :id="id"
       v-model="model"
-      v-bind="$attrs"
+      v-bind="inputAttrs"
       :aria-invalid="error ? 'true' : undefined"
       :aria-describedby="describedBy || undefined"
     />
@@ -29,11 +44,14 @@ const describedBy = [props.hint ? `${id}-hint` : '', props.error ? `${id}-error`
 .field {
   display: grid;
   gap: var(--space-1);
+  min-width: 0;
 }
 label {
   font-weight: 600;
 }
 input {
+  width: 100%;
+  min-width: 0;
   min-height: var(--touch-target);
   padding: 0 var(--space-3);
   border: 1px solid var(--border-strong);

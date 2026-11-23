@@ -1,0 +1,27 @@
+# Kategorie: nudeln-reis-konserven. Eine Zeile je Artikel; siehe catalog/README.md.
+- { id: nudeln, name: Nudeln, synonyms: [Pasta], diet: vegan }
+- { id: spaghetti, name: Spaghetti, diet: vegan }
+- { id: penne, name: Penne, diet: vegan }
+- { id: fusilli, name: Fusilli, synonyms: [Spiralnudeln], diet: vegan }
+- { id: lasagneplatten, name: Lasagneplatten, diet: vegan }
+- { id: eiernudeln, name: Eiernudeln, synonyms: [Spätzle], diet: vegetarisch }
+- { id: tortellini, name: Tortellini, diet: vegetarisch }
+- { id: reis, name: Reis, synonyms: [Langkornreis, Basmatireis, Jasminreis], diet: vegan }
+- { id: risottoreis, name: Risottoreis, synonyms: [Arborio], diet: vegan }
+- { id: couscous, name: Couscous, diet: vegan }
+- { id: bulgur, name: Bulgur, diet: vegan }
+- { id: quinoa, name: Quinoa, diet: vegan }
+- { id: linsen, name: Linsen, synonyms: [Rote Linsen], diet: vegan }
+- { id: kichererbsen, name: Kichererbsen, diet: vegan }
+- { id: kidneybohnen, name: Kidneybohnen, synonyms: [Rote Bohnen], diet: vegan }
+- { id: weisse-bohnen, name: Weiße Bohnen, diet: vegan }
+- { id: mais-in-der-dose, name: Mais in der Dose, synonyms: [Dosenmais], diet: vegan }
+- { id: gehackte-tomaten, name: Gehackte Tomaten, synonyms: [Tomaten in der Dose, Dosentomaten, Stückige Tomaten], diet: vegan }
+- { id: passierte-tomaten, name: Passierte Tomaten, synonyms: [Passata], diet: vegan }
+- { id: tomatenmark, name: Tomatenmark, diet: vegan }
+- { id: kokosmilch, name: Kokosmilch, diet: vegan }
+- { id: gemuesebruehe, name: Gemüsebrühe, synonyms: [Brühe, Brühwürfel], diet: vegan }
+- { id: huehnerbruehe, name: Hühnerbrühe, diet: omnivor }
+- { id: fertigsuppe, name: Fertigsuppe, synonyms: [Tütensuppe], diet: vegan }
+- { id: haferflocken, name: Haferflocken, diet: vegan }
+- { id: semmelbroesel, name: Semmelbrösel, synonyms: [Paniermehl], diet: vegan }

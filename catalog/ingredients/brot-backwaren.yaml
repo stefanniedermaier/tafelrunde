@@ -1,0 +1,18 @@
+# Kategorie: brot-backwaren. Eine Zeile je Artikel; siehe catalog/README.md.
+- { id: brot, name: Brot, synonyms: [Mischbrot, Bauernbrot], diet: vegan }
+- { id: vollkornbrot, name: Vollkornbrot, diet: vegan }
+- { id: toastbrot, name: Toastbrot, synonyms: [Toast], diet: vegan }
+- { id: broetchen, name: Brötchen, synonyms: [Semmeln, Semmel, Schrippen, Weckle], diet: vegan }
+- { id: vollkornbroetchen, name: Vollkornbrötchen, diet: vegan }
+- { id: baguette, name: Baguette, diet: vegan }
+- { id: brezeln, name: Brezeln, synonyms: [Brezel, Breze, Laugenbrezel], diet: vegan }
+- { id: laugenstangen, name: Laugenstangen, synonyms: [Laugengebäck], diet: vegan }
+- { id: croissants, name: Croissants, synonyms: [Croissant], diet: vegetarisch }
+- { id: knaeckebrot, name: Knäckebrot, diet: vegan }
+- { id: wraps, name: Wraps, synonyms: [Tortillas, Tortilla], diet: vegan }
+- { id: burgerbroetchen, name: Burgerbrötchen, synonyms: [Burger Buns], diet: vegetarisch }
+- { id: fladenbrot, name: Fladenbrot, diet: vegan }
+- { id: zwieback, name: Zwieback, diet: vegetarisch }
+- { id: kuchen, name: Kuchen, diet: vegetarisch }
+- { id: hefezopf, name: Hefezopf, diet: vegetarisch }
+- { id: pumpernickel, name: Pumpernickel, diet: vegan }

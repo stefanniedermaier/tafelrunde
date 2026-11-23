@@ -1,0 +1,14 @@
+# Kategorie: tiefkuehl. Eine Zeile je Artikel; siehe catalog/README.md.
+- { id: tiefkuehlpizza, name: Tiefkühlpizza, synonyms: [Pizza], diet: vegetarisch }
+- { id: pommes, name: Pommes, synonyms: [Pommes frites, Tiefkühlpommes], diet: vegan }
+- { id: tiefkuehlgemuese, name: Tiefkühlgemüse, synonyms: [TK-Gemüse, Gemüsemischung], diet: vegan }
+- { id: tiefkuehlspinat, name: Tiefkühlspinat, synonyms: [TK-Spinat], diet: vegan }
+- { id: erbsen, name: Erbsen, synonyms: [TK-Erbsen, Tiefkühlerbsen], diet: vegan }
+- { id: tiefkuehlbeeren, name: Tiefkühlbeeren, synonyms: [TK-Beeren, Beerenmischung], diet: vegan }
+- { id: eis, name: Eis, synonyms: [Speiseeis, Eiscreme], diet: vegetarisch }
+- { id: kraeuter-tiefgekuehlt, name: Kräuter tiefgekühlt, synonyms: [TK-Kräuter], diet: vegan }
+- { id: blaetterteig, name: Blätterteig, diet: vegan }
+- { id: kroketten, name: Kroketten, diet: vegetarisch }
+- { id: fischfilet-tiefgekuehlt, name: Fischfilet tiefgekühlt, synonyms: [TK-Fisch], diet: pescetarisch }
+- { id: rahmspinat, name: Rahmspinat, diet: vegetarisch }
+- { id: eiswuerfel, name: Eiswürfel, diet: vegan }

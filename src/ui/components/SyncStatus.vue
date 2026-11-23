@@ -3,7 +3,7 @@
 import { computed } from 'vue'
 import { SYNC_LABELS, type SyncState } from '@/ui/sync-state'
 
-const props = defineProps<{ state: SyncState; lastSync?: Date }>()
+const props = defineProps<{ state: SyncState; lastSync?: Date | undefined }>()
 
 const label = computed(() => SYNC_LABELS[props.state])
 const time = computed(() =>

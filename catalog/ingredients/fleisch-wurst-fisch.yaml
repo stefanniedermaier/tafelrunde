@@ -1,0 +1,25 @@
+# Kategorie: fleisch-wurst-fisch. Eine Zeile je Artikel; siehe catalog/README.md.
+- { id: hackfleisch, name: Hackfleisch, synonyms: [Hack, Gemischtes Hackfleisch], diet: omnivor }
+- { id: rinderhack, name: Rinderhack, diet: omnivor }
+- { id: haehnchenbrust, name: Hähnchenbrust, synonyms: [Hühnchenbrust, Hähnchenfilet], diet: omnivor }
+- { id: haehnchenschenkel, name: Hähnchenschenkel, diet: omnivor }
+- { id: putenbrust, name: Putenbrust, synonyms: [Putenfilet], diet: omnivor }
+- { id: schweineschnitzel, name: Schweineschnitzel, synonyms: [Schnitzel], diet: omnivor }
+- { id: schweinefilet, name: Schweinefilet, diet: omnivor }
+- { id: rindersteak, name: Rindersteak, synonyms: [Steak], diet: omnivor }
+- { id: gulasch, name: Gulasch, synonyms: [Gulaschfleisch], diet: omnivor }
+- { id: bratwuerste, name: Bratwürste, synonyms: [Bratwurst], diet: omnivor }
+- { id: wiener-wuerstchen, name: Wiener Würstchen, synonyms: [Würstchen, Wiener, Frankfurter], diet: omnivor }
+- { id: leberkaese, name: Leberkäse, diet: omnivor }
+- { id: salami, name: Salami, diet: omnivor }
+- { id: kochschinken, name: Kochschinken, synonyms: [Schinken], diet: omnivor }
+- { id: rohschinken, name: Rohschinken, synonyms: [Parmaschinken, Serrano], diet: omnivor }
+- { id: speck, name: Speck, synonyms: [Bacon, Schinkenwürfel], diet: omnivor }
+- { id: aufschnitt, name: Aufschnitt, synonyms: [Wurst], diet: omnivor }
+- { id: lachs, name: Lachs, synonyms: [Lachsfilet], diet: pescetarisch }
+- { id: raeucherlachs, name: Räucherlachs, diet: pescetarisch }
+- { id: thunfisch, name: Thunfisch, synonyms: [Thunfisch in Dose], diet: pescetarisch }
+- { id: fischstaebchen, name: Fischstäbchen, diet: pescetarisch }
+- { id: garnelen, name: Garnelen, synonyms: [Shrimps, Krabben], diet: pescetarisch }
+- { id: forelle, name: Forelle, diet: pescetarisch }
+- { id: hering, name: Hering, synonyms: [Matjes], diet: pescetarisch }

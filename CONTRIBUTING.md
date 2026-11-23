@@ -24,9 +24,28 @@ Danke für dein Interesse! Beiträge sind willkommen – Code, Rezepte, Zutaten 
 - Kein `v-html`, kein `innerHTML`; Nutzerinhalte werden immer als Text gerendert.
 - Keine Fremdskripte, Fremd-Fonts oder Tracker; die CSP (`build/csp.ts`) wird nicht gelockert.
 - `src/core` importiert weder Vue noch `ui`, `providers` oder `app`.
+- Code, der beim Start geladen wird, importiert aus `@/core/base` (ohne Rezept-Parser und Suche); `@/core` nur in den Rezept-Ansichten. So bleibt der Start-Chunk unter dem Lighthouse-Budget.
 - Neue Abhängigkeiten nur mit AGPL-kompatibler Lizenz (`pnpm licenses:check`) und mit Begründung im Pull Request.
 - Änderungen am Sicherheitsmodell aktualisieren `docs/threat-model.md`.
 
 ## Rezepte und Zutaten
 
-Der Katalog in `catalog/` nimmt ab Phase 2 Beiträge an. Format und Prüfregeln werden dann hier beschrieben.
+Der öffentliche Katalog liegt in `catalog/` und steht unter [CC BY-SA 4.0](catalog/LICENSE).
+
+**Nur eigene Texte und Fotos.** Rezepte aus Büchern, Zeitschriften oder von Webseiten dürfen nicht übernommen werden – auch nicht umformuliert. Zutatenlisten allein sind zwar nicht geschützt, die Beschreibung der Zubereitung aber schon. Schreib das Rezept so, wie du es selbst kochst.
+
+### Neues Rezept
+
+1. Lege eine Datei `catalog/recipes/<kategorie>/<name>.cook` an – Pfad nur aus Kleinbuchstaben, Ziffern und Bindestrichen, z. B. `catalog/recipes/backen/apfelstrudel.cook`.
+2. Schreibe das Rezept in Cooklang mit Front Matter (`title` ist Pflicht). Anleitung und Beispiele: [`docs/rezepte.md`](docs/rezepte.md).
+3. Verwendest du ein anderes Katalogrezept, verweise darauf: `@./backen/Hefeteig{500%g}`.
+4. Prüfen:
+   ```sh
+   pnpm catalog:validate
+   ```
+   Fehler (nicht lesbar, Titel fehlt, Referenz nicht gefunden, Zyklus) lassen die CI scheitern. Zutaten, die der Artikelkatalog nicht kennt, erscheinen als Hinweis – ergänze sie dann in `catalog/ingredients/`, damit Kategorie und Ernährungsform stimmen.
+5. Pull Request mit der Vorlage „Neues Rezept“: `…/compare/main...<branch>?template=neues-rezept.md`
+
+### Neuer Artikel
+
+Eine Zeile in `catalog/ingredients/<kategorie>.yaml`, Format siehe [`catalog/README.md`](catalog/README.md).

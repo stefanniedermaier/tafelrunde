@@ -1,0 +1,56 @@
+# Kategorie: obst-gemuese. Eine Zeile je Artikel; siehe catalog/README.md.
+- { id: aepfel, name: Äpfel, synonyms: [Apfel], diet: vegan }
+- { id: bananen, name: Bananen, synonyms: [Banane], diet: vegan }
+- { id: birnen, name: Birnen, synonyms: [Birne], diet: vegan }
+- { id: orangen, name: Orangen, synonyms: [Orange, Apfelsine, Apfelsinen], diet: vegan }
+- { id: mandarinen, name: Mandarinen, synonyms: [Mandarine, Clementinen, Clementine], diet: vegan }
+- { id: zitronen, name: Zitronen, synonyms: [Zitrone], diet: vegan }
+- { id: limetten, name: Limetten, synonyms: [Limette], diet: vegan }
+- { id: weintrauben, name: Weintrauben, synonyms: [Trauben, Weintraube], diet: vegan }
+- { id: erdbeeren, name: Erdbeeren, synonyms: [Erdbeere], diet: vegan }
+- { id: himbeeren, name: Himbeeren, synonyms: [Himbeere], diet: vegan }
+- { id: heidelbeeren, name: Heidelbeeren, synonyms: [Blaubeeren, Heidelbeere, Blaubeere], diet: vegan }
+- { id: kiwis, name: Kiwis, synonyms: [Kiwi], diet: vegan }
+- { id: ananas, name: Ananas, diet: vegan }
+- { id: mango, name: Mango, synonyms: [Mangos], diet: vegan }
+- { id: melone, name: Melone, synonyms: [Wassermelone, Honigmelone], diet: vegan }
+- { id: zwetschgen, name: Zwetschgen, synonyms: [Zwetschge, Pflaumen, Pflaume], diet: vegan }
+- { id: pfirsiche, name: Pfirsiche, synonyms: [Pfirsich, Nektarinen, Nektarine], diet: vegan }
+- { id: avocado, name: Avocado, synonyms: [Avocados], diet: vegan }
+- { id: tomaten, name: Tomaten, synonyms: [Tomate, Cocktailtomaten, Kirschtomaten], diet: vegan }
+- { id: gurke, name: Gurke, synonyms: [Gurken, Salatgurke], diet: vegan }
+- { id: paprika, name: Paprika, synonyms: [Paprikaschote, Paprikaschoten], diet: vegan }
+- { id: karotten, name: Karotten, synonyms: [Karotte, Möhren, Möhre, Mohrrüben], diet: vegan }
+- { id: kartoffeln, name: Kartoffeln, synonyms: [Kartoffel, Erdäpfel], diet: vegan }
+- { id: suesskartoffeln, name: Süßkartoffeln, synonyms: [Süßkartoffel], diet: vegan }
+- { id: zwiebeln, name: Zwiebeln, synonyms: [Zwiebel], diet: vegan }
+- { id: rote-zwiebeln, name: Rote Zwiebeln, synonyms: [Rote Zwiebel], diet: vegan }
+- { id: fruehlingszwiebeln, name: Frühlingszwiebeln, synonyms: [Frühlingszwiebel, Lauchzwiebeln], diet: vegan }
+- { id: knoblauch, name: Knoblauch, synonyms: [Knoblauchzehe, Knoblauchzehen], diet: vegan }
+- { id: ingwer, name: Ingwer, diet: vegan }
+- { id: lauch, name: Lauch, synonyms: [Porree], diet: vegan }
+- { id: sellerie, name: Sellerie, synonyms: [Staudensellerie, Knollensellerie], diet: vegan }
+- { id: zucchini, name: Zucchini, diet: vegan }
+- { id: aubergine, name: Aubergine, synonyms: [Auberginen], diet: vegan }
+- { id: brokkoli, name: Brokkoli, synonyms: [Broccoli], diet: vegan }
+- { id: blumenkohl, name: Blumenkohl, diet: vegan }
+- { id: rosenkohl, name: Rosenkohl, diet: vegan }
+- { id: weisskohl, name: Weißkohl, synonyms: [Kohl], diet: vegan }
+- { id: rotkohl, name: Rotkohl, synonyms: [Blaukraut, Rotkraut], diet: vegan }
+- { id: spinat, name: Spinat, synonyms: [Babyspinat, Blattspinat], diet: vegan }
+- { id: kopfsalat, name: Kopfsalat, synonyms: [Salat, Eisbergsalat, Blattsalat], diet: vegan }
+- { id: rucola, name: Rucola, synonyms: [Rauke], diet: vegan }
+- { id: feldsalat, name: Feldsalat, diet: vegan }
+- { id: champignons, name: Champignons, synonyms: [Pilze, Champignon], diet: vegan }
+- { id: radieschen, name: Radieschen, diet: vegan }
+- { id: kuerbis, name: Kürbis, synonyms: [Hokkaido], diet: vegan }
+- { id: mais, name: Mais, synonyms: [Maiskolben], diet: vegan }
+- { id: petersilie, name: Petersilie, diet: vegan }
+- { id: schnittlauch, name: Schnittlauch, diet: vegan }
+- { id: basilikum, name: Basilikum, diet: vegan }
+- { id: koriander, name: Koriander, synonyms: [Koriandergrün], diet: vegan }
+- { id: dill, name: Dill, diet: vegan }
+- { id: minze, name: Minze, diet: vegan }
+- { id: rote-bete, name: Rote Bete, synonyms: [Rote Beete], diet: vegan }
+- { id: spargel, name: Spargel, diet: vegan }
+- { id: fenchel, name: Fenchel, diet: vegan }

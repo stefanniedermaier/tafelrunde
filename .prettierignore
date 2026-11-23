@@ -6,3 +6,5 @@ LICENSES/
 LICENSE
 catalog/LICENSE
 plan/
+# Ein Artikel je Zeile ist gewollt (übersichtlicher für Beiträge)
+catalog/ingredients/
