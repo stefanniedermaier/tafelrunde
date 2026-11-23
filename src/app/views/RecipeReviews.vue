@@ -65,6 +65,44 @@ function saveNote() {
   const personId = ws.value?.profile?.personId
   if (lib && personId) setReview(lib.doc, props.recipeId, personId, { note: note.value })
 }
+
+// --- Private Notiz zu einem Haushaltsrezept: liegt im persönlichen Bereich --------
+
+const personal = computed(() =>
+  handles.value.find((h) => spaceKind(h.doc) === 'personal' && h.record.id !== props.spaceId),
+)
+/** Verweis auf das Rezept eines anderen Bereichs als Schlüssel im persönlichen Bereich. */
+const privateKey = computed(() => `${props.spaceId}-${props.recipeId}`)
+const privateVersion = ref(0)
+watch(
+  personal,
+  (h, _old, onCleanup) => {
+    if (!h?.library) return
+    const bump = () => privateVersion.value++
+    h.library.doc.on('update', bump)
+    onCleanup(() => h.library?.doc.off('update', bump))
+  },
+  { immediate: true },
+)
+const privateNote = ref('')
+watch(
+  [personal, privateVersion, () => ws.value?.profile?.personId],
+  () => {
+    const lib = personal.value?.library
+    const personId = ws.value?.profile?.personId
+    const mineThere =
+      lib && personId
+        ? getReviews(lib.doc, privateKey.value).find((r) => r.personId === personId)
+        : undefined
+    privateNote.value = mineThere?.note ?? ''
+  },
+  { immediate: true },
+)
+function savePrivateNote() {
+  const lib = personal.value?.library
+  const personId = ws.value?.profile?.personId
+  if (lib && personId) setReview(lib.doc, privateKey.value, personId, { note: privateNote.value })
+}
 </script>
 
 <template>
@@ -95,6 +133,12 @@ function saveNote() {
       <label for="review-note">Deine Notiz</label>
       <textarea id="review-note" v-model="note" rows="3" maxlength="5000"></textarea>
       <div><AppButton type="submit">Notiz speichern</AppButton></div>
+    </form>
+
+    <form v-if="!isPrivate && personal" class="note" @submit.prevent="savePrivateNote">
+      <label for="review-private-note">Private Notiz (nur für dich)</label>
+      <textarea id="review-private-note" v-model="privateNote" rows="2" maxlength="5000"></textarea>
+      <div><AppButton type="submit">Private Notiz speichern</AppButton></div>
     </form>
 
     <ul class="others">
@@ -137,6 +181,7 @@ function saveNote() {
   padding: 0 var(--space-2);
 }
 .note {
+  margin-bottom: var(--space-4);
   display: grid;
   gap: var(--space-1);
 }
