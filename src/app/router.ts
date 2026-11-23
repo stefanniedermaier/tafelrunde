@@ -35,6 +35,11 @@ export const router = createRouter({
       component: () => import('./views/RecipesView.vue'),
     },
     {
+      path: '/import',
+      name: 'import',
+      component: () => import('./views/ImportView.vue'),
+    },
+    {
       path: '/katalog/:path+',
       name: 'catalog-recipe',
       component: () => import('./views/CatalogRecipeView.vue'),

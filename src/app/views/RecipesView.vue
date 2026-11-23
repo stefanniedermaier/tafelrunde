@@ -228,6 +228,7 @@ const minutes = (m?: number) => (m ? `${m} min` : '')
       .cook importieren
       <input type="file" accept=".cook,.txt,text/plain" multiple @change="importFiles" />
     </label>
+    <RouterLink class="file-button" :to="{ name: 'import' }">Von Rezeptseite oder Text</RouterLink>
     <AppButton variant="ghost" :disabled="!recipes.length" @click="exportAll">
       Alle als ZIP sichern
     </AppButton>
@@ -362,6 +363,10 @@ select {
   background: var(--surface);
   font-weight: 600;
   cursor: pointer;
+}
+a.file-button {
+  color: var(--text);
+  text-decoration: none;
 }
 .file-button:focus-within {
   outline: var(--focus-ring);

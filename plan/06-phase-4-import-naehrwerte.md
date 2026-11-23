@@ -5,24 +5,24 @@
 **Ziel:** Rezepte von Seiten wie Chefkoch übernehmen, ohne sie abzutippen und ohne Server.
 
 ### 4.1 Import-Kern
-- [ ] schema.org/Recipe aus JSON-LD lesen (Microdata als Fallback) und daraus einen Cooklang-Entwurf erzeugen
-- [ ] Deutscher Parser für Zutatenzeilen: Brüche (½), Bereiche (2–3), „etwas“, „nach Belieben“, Synonyme für Einheiten (EL, Essl., g, Gramm …)
-- [ ] Zutaten dem Zutatenkatalog zuordnen; per Namensabgleich in die Arbeitsschritte setzen, sonst als eigenen Abschnitt anlegen
-- [ ] Prüfansicht vor dem Speichern; Quelle und Importdatum in den Metadaten
-- [ ] Bilder werden standardmäßig nicht übernommen (Urheberrecht)
+- [x] schema.org/Recipe aus JSON-LD lesen (Microdata als Fallback) und daraus einen Cooklang-Entwurf erzeugen
+- [x] Deutscher Parser für Zutatenzeilen: Brüche (½), Bereiche (2–3), „etwas“, „nach Belieben“, Synonyme für Einheiten (EL, Essl., g, Gramm …)
+- [x] Zutaten dem Zutatenkatalog zuordnen; per Namensabgleich in die Arbeitsschritte setzen, sonst als eigenen Abschnitt anlegen
+- [x] Prüfansicht vor dem Speichern; Quelle und Importdatum in den Metadaten
+- [x] Bilder werden standardmäßig nicht übernommen (Urheberrecht)
 
 ### 4.2 Bookmarklet (Desktop)
-- [ ] Ein kleines, im Repo veröffentlichtes Skript liest die strukturierten Daten auf der Rezeptseite, öffnet die App und übergibt sie per `postMessage` mit Origin-Prüfung
-- [ ] Installationsseite in der App: Lesezeichen in die Leiste ziehen
+- [x] Ein kleines, im Repo veröffentlichtes Skript liest die strukturierten Daten auf der Rezeptseite, öffnet die App und übergibt sie per `postMessage` mit Origin-Prüfung
+- [x] Installationsseite in der App: Lesezeichen in die Leiste ziehen
 
 ### 4.3 Android und Text
-- [ ] Web Share Target im Manifest: markierten Rezepttext teilen startet den Text-Import
-- [ ] Wird nur eine URL geteilt, erscheint der Hinweis „Bitte Rezepttext markieren und teilen“
-- [ ] Dialog zum Einfügen von Text auf allen Geräten
+- [x] Web Share Target im Manifest: markierten Rezepttext teilen startet den Text-Import
+- [x] Wird nur eine URL geteilt, erscheint der Hinweis „Bitte Rezepttext markieren und teilen“
+- [x] Dialog zum Einfügen von Text auf allen Geräten
 
 ### 4.4 Sicherheit und Recht
-- [ ] Importierte Inhalte gelten als nicht vertrauenswürdig: nur Text, Größenlimits, kein HTML
-- [ ] Hinweis „nur für den privaten Gebrauch“; importierte Rezepte gelangen nur in den öffentlichen Katalog, wenn die Rechte geklärt sind
+- [x] Importierte Inhalte gelten als nicht vertrauenswürdig: nur Text, Größenlimits, kein HTML
+- [x] Hinweis „nur für den privaten Gebrauch“; importierte Rezepte gelangen nur in den öffentlichen Katalog, wenn die Rechte geklärt sind
 
 ## Teil B: Nährwerte und Kalorien
 
@@ -48,7 +48,7 @@
 
 ### 4.9 Qualität
 - [ ] Unit-Tests: Zutaten-Parser mit echten Beispielzeilen, Umrechnung, Rundung
-- [ ] E2E-Tests: Import per Bookmarklet (Testseite mit JSON-LD), Text-Import
+- [x] E2E-Tests: Import per Bookmarklet (Testseite mit JSON-LD), Text-Import
 
 ## Akzeptanzkriterien
 - Ein Chefkoch-Rezept liegt per Bookmarklet in unter einer Minute als bearbeitbarer Entwurf in der App
