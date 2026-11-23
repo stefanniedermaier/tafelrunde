@@ -24,6 +24,7 @@ Danke für dein Interesse! Beiträge sind willkommen – Code, Rezepte, Zutaten 
 - Kein `v-html`, kein `innerHTML`; Nutzerinhalte werden immer als Text gerendert.
 - Keine Fremdskripte, Fremd-Fonts oder Tracker; die CSP (`build/csp.ts`) wird nicht gelockert.
 - `src/core` importiert weder Vue noch `ui`, `providers` oder `app`.
+- Code, der beim Start geladen wird, importiert aus `@/core/base` (ohne Rezept-Parser und Suche); `@/core` nur in den Rezept-Ansichten. So bleibt der Start-Chunk unter dem Lighthouse-Budget.
 - Neue Abhängigkeiten nur mit AGPL-kompatibler Lizenz (`pnpm licenses:check`) und mit Begründung im Pull Request.
 - Änderungen am Sicherheitsmodell aktualisieren `docs/threat-model.md`.
 

@@ -1,24 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Domänenkern: frameworkfrei, ohne Abhängigkeit zu ui, providers oder app.
+// Für Code, der beim Start geladen wird, `./base` verwenden (ohne Parser und Suche).
 
-export * from './catalog/categories'
-export * from './crypto/base64url'
-export * from './crypto/envelope'
-export * from './crypto/ids'
-export * from './model/shopping'
-export * from './model/space'
-export * from './sync/doc-sync'
-export * from './sync/poll-loop'
-export * from './sync/provider'
-export * from './invite/codes'
-export * from './catalog/catalog-index'
-export * from './model/stores'
-export * from './model/links'
-export * from './recipe/amount'
-export * from './recipe/recipe'
-export * from './model/library'
-export * from './recipe/references'
+export * from './base'
 export * from './recipe/diet'
+export * from './recipe/recipe'
+export * from './recipe/references'
 export * from './recipe/search'
 export * from './recipe/zip'
-export * from './model/photos'

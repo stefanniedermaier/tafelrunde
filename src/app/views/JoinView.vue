@@ -2,7 +2,14 @@
 <script setup lang="ts">
 import { computed, ref, shallowRef } from 'vue'
 import { useRouter } from 'vue-router'
-import { type JoinReply, type SpaceAccess, codeLink, decodeCode, getLists, spaceName } from '@/core'
+import {
+  type JoinReply,
+  type SpaceAccess,
+  codeLink,
+  decodeCode,
+  getLists,
+  spaceName,
+} from '@/core/base'
 import AppButton from '@/ui/components/AppButton.vue'
 import AppCard from '@/ui/components/AppCard.vue'
 import QrCode from '@/ui/components/QrCode.vue'

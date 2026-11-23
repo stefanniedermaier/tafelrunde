@@ -7,7 +7,7 @@
  */
 
 import { ref } from 'vue'
-import type { StorageProvider } from '@/core'
+import type { StorageProvider } from '@/core/base'
 import { GoogleDriveProvider } from '@/providers/gdrive/drive-provider'
 import { GoogleAuth } from '@/providers/gdrive/google-auth'
 import { LocalOnlyProvider } from '@/providers/local/local-only'

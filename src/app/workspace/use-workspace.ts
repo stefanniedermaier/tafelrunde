@@ -8,7 +8,7 @@
 import { type Ref, onScopeDispose, ref, shallowRef, watch } from 'vue'
 import type * as Y from 'yjs'
 import { IndexeddbPersistence } from 'y-indexeddb'
-import type { DocSync, StorageProvider, SyncSnapshot } from '@/core'
+import type { DocSync, StorageProvider, SyncSnapshot } from '@/core/base'
 import { createProvider } from '../storage'
 import { IdbKeyValueStore } from './kv'
 import { type DocPersistence, Workspace } from './workspace'

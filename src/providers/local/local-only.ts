@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { type RemoteMeta, StorageError, type StorageProvider } from '@/core'
+import { type RemoteMeta, StorageError, type StorageProvider } from '@/core/base'
 
 /**
  * Platzhalter, solange kein Speicheranbieter verbunden ist: Alles bleibt

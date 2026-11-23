@@ -10,10 +10,10 @@ import { shallowRef } from 'vue'
 import {
   type CatalogIndex,
   type CatalogLookup,
-  type DietLookup,
   EMPTY_CATALOG,
   buildCatalogIndex,
-} from '@/core'
+} from '@/core/base'
+import type { DietLookup } from '@/core/recipe/diet'
 
 const index = shallowRef<CatalogIndex>(EMPTY_CATALOG)
 let loading: Promise<void> | undefined

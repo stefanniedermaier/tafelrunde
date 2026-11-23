@@ -31,7 +31,7 @@ import TimerButton from '@/ui/components/TimerButton.vue'
 import { catalogDiet } from '../catalog'
 import { useRecipes } from '../recipes/recipe-store'
 import { recipeRoute } from '../recipes/routes'
-import { catalogVersions } from '../recipes/catalog-recipes'
+import { catalogVersions, loadCatalogRecipes } from '../recipes/catalog-recipes'
 import { bumpWorkspace, workspace } from '../workspace/use-workspace'
 import CookMode from './CookMode.vue'
 import RecipeCollections from './RecipeCollections.vue'
@@ -51,6 +51,8 @@ const props = defineProps<{
 }>()
 const router = useRouter()
 const { recipes, index, handles } = useRecipes()
+// Für Referenzen auf Katalogrezepte und den Hinweis „Original geändert“.
+void loadCatalogRecipes()
 
 const current = computed<RecipeEntry | undefined>(
   () =>

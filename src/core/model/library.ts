@@ -12,7 +12,7 @@
 
 import * as Y from 'yjs'
 import { isValidId, randomId } from '../crypto/ids'
-import { MAX_RECIPE_CHARS } from '../recipe/recipe'
+import { MAX_RECIPE_CHARS } from '../recipe/limits'
 
 export const LIBRARY_ROOT = {
   recipes: 'recipes',

@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { computed, ref, toRef } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
-import { createList, getItems, getLists, spaceName } from '@/core'
+import { createList, getItems, getLists, spaceName } from '@/core/base'
 import AppButton from '@/ui/components/AppButton.vue'
 import AppCard from '@/ui/components/AppCard.vue'
 import AppTextField from '@/ui/components/AppTextField.vue'

@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { type JoinReply, decodeCode } from '@/core'
+import { type JoinReply, decodeCode } from '@/core/base'
 import AppButton from '@/ui/components/AppButton.vue'
 import AppCard from '@/ui/components/AppCard.vue'
 import { workspace } from '../workspace/use-workspace'

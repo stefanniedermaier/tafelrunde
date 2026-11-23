@@ -40,8 +40,6 @@ import {
   createRecipe,
   getRecipe,
   listRecipes,
-  parseRecipe,
-  resolveReference,
   setSpaceOwner,
   spaceOwner,
   reportLinkedFile,
@@ -50,7 +48,7 @@ import {
   setMemberFile,
   spaceName,
   upsertMember,
-} from '@/core'
+} from '@/core/base'
 import type { KeyValueStore } from './kv'
 
 export interface Profile {
@@ -607,6 +605,8 @@ export class Workspace {
     const all = listRecipes(from.library.doc)
     const start = all.find((r) => r.id === recipeId)
     if (!start) throw new Error('Rezept nicht gefunden.')
+    // Parser erst hier laden: gehört nicht in den Start-Chunk.
+    const { parseRecipe, resolveReference } = await import('@/core')
     const entries = all.map((r) => ({
       key: r.id,
       scope: fromSpaceId,

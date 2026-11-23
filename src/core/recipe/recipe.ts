@@ -19,8 +19,9 @@ import { Recipe as CooklangRecipe } from '@tmlmt/cooklang-parser'
 import type { Diet } from '../catalog/catalog-index'
 import { type Amount, addAmounts, parseDuration, parseQuantity, scaleAmount } from './amount'
 
-/** Obergrenze gegen übergroße Eingaben (geteilte, importierte Rezepte). */
-export const MAX_RECIPE_CHARS = 50_000
+import { MAX_RECIPE_CHARS } from './limits'
+
+export { MAX_RECIPE_CHARS }
 
 export interface RecipeMeta {
   title: string

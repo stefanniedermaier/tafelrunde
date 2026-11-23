@@ -10,7 +10,13 @@
  *   lesen sie ohne Anmeldung per API-Key. Der Inhalt ist verschlüsselt.
  */
 
-import { type RemoteMeta, StorageError, type StorageProvider, isValidId, randomId } from '@/core'
+import {
+  type RemoteMeta,
+  StorageError,
+  type StorageProvider,
+  isValidId,
+  randomId,
+} from '@/core/base'
 
 const API = 'https://www.googleapis.com'
 const FOLDER_NAME = 'Tafelrunde'

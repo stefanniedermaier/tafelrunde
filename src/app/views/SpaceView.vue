@@ -12,7 +12,7 @@ import {
   renameSpace,
   spaceKind,
   spaceName,
-} from '@/core'
+} from '@/core/base'
 import AppButton from '@/ui/components/AppButton.vue'
 import AppCard from '@/ui/components/AppCard.vue'
 import AppDialog from '@/ui/components/AppDialog.vue'

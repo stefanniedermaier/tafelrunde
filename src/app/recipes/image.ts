@@ -6,7 +6,7 @@
  * entfernt dabei auch Metadaten wie den GPS-Standort aus dem Foto.
  */
 
-import { MAX_PHOTO_BYTES } from '@/core'
+import { MAX_PHOTO_BYTES } from '@/core/base'
 
 const MAX_INPUT_BYTES = 40 * 1024 * 1024
 

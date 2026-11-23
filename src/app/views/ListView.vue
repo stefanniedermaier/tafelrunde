@@ -25,7 +25,7 @@ import {
   setListStore,
   spaceKind,
   updateItem,
-} from '@/core'
+} from '@/core/base'
 import AppButton from '@/ui/components/AppButton.vue'
 import AppDialog from '@/ui/components/AppDialog.vue'
 import AppListItem from '@/ui/components/AppListItem.vue'

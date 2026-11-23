@@ -7,7 +7,7 @@
  */
 
 import { shallowRef } from 'vue'
-import { MAX_RECIPE_CHARS } from '@/core'
+import { MAX_RECIPE_CHARS } from '@/core/base'
 import { catalogEntries, parseCached } from './recipe-store'
 
 const PATH = /^[a-z0-9]+(-[a-z0-9]+)*(\/[a-z0-9]+(-[a-z0-9]+)*)*$/
