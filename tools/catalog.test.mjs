@@ -32,7 +32,9 @@ describe('Katalog', () => {
 
   it('liest Einträge mit Kategorie aus dem Dateinamen', () => {
     const dir = fixture({ 'backen.yaml': '- { id: mehl, name: Mehl, units: [kg] }\n' })
-    expect(loadCatalog(dir)).toEqual([{ id: 'mehl', name: 'Mehl', category: 'backen', units: ['kg'] }])
+    expect(loadCatalog(dir)).toEqual([
+      { id: 'mehl', name: 'Mehl', category: 'backen', units: ['kg'] },
+    ])
   })
 
   it.each([
@@ -42,7 +44,11 @@ describe('Katalog', () => {
     ['ungültige id', { 'backen.yaml': '- { id: Mehl!, name: Mehl }' }, /ungültige id/],
     ['fehlender Name', { 'backen.yaml': '- { id: mehl }' }, /ungültiger Name/],
     ['unbekanntes Feld', { 'backen.yaml': '- { id: a, name: A, preis: 3 }' }, /unbekanntes Feld/],
-    ['falsche Ernährungsform', { 'backen.yaml': '- { id: a, name: A, diet: keto }' }, /Ernährungsform/],
+    [
+      'falsche Ernährungsform',
+      { 'backen.yaml': '- { id: a, name: A, diet: keto }' },
+      /Ernährungsform/,
+    ],
     [
       'doppelte id',
       { 'backen.yaml': '- { id: a, name: A }', 'getraenke.yaml': '- { id: a, name: B }' },

@@ -29,7 +29,9 @@ export function loadCatalog(dir = SOURCE) {
   const ids = new Map()
   const names = new Map()
 
-  for (const file of readdirSync(dir).filter((f) => f.endsWith('.yaml')).sort()) {
+  for (const file of readdirSync(dir)
+    .filter((f) => f.endsWith('.yaml'))
+    .sort()) {
     const category = basename(file, '.yaml')
     const where = (i) => `${file}[${i}]`
     if (!CATEGORY_IDS.has(category)) {
@@ -60,10 +62,13 @@ export function loadCatalog(dir = SOURCE) {
       if (typeof name !== 'string' || !name.trim() || name.length > 60) {
         errors.push(`${where(i)}: ungültiger Name`)
       }
-      const stringList = (v) => Array.isArray(v) && v.every((s) => typeof s === 'string' && s.trim())
-      if (!stringList(synonyms)) errors.push(`${where(i)}: synonyms muss eine Liste von Texten sein`)
+      const stringList = (v) =>
+        Array.isArray(v) && v.every((s) => typeof s === 'string' && s.trim())
+      if (!stringList(synonyms))
+        errors.push(`${where(i)}: synonyms muss eine Liste von Texten sein`)
       if (!stringList(units)) errors.push(`${where(i)}: units muss eine Liste von Texten sein`)
-      if (diet !== undefined && !DIETS.has(diet)) errors.push(`${where(i)}: unbekannte Ernährungsform „${diet}“`)
+      if (diet !== undefined && !DIETS.has(diet))
+        errors.push(`${where(i)}: unbekannte Ernährungsform „${diet}“`)
       if (typeof id !== 'string' || typeof name !== 'string') return
 
       if (ids.has(id)) errors.push(`${where(i)}: id „${id}“ doppelt (auch in ${ids.get(id)})`)
@@ -72,7 +77,8 @@ export function loadCatalog(dir = SOURCE) {
       for (const label of [name, ...(stringList(synonyms) ? synonyms : [])]) {
         const key = normalizeName(label)
         const other = names.get(key)
-        if (other && other !== id) errors.push(`${where(i)}: „${label}“ ist schon bei „${other}“ vergeben`)
+        if (other && other !== id)
+          errors.push(`${where(i)}: „${label}“ ist schon bei „${other}“ vergeben`)
         names.set(key, id)
       }
       const item = { id, name: name.trim(), category }
