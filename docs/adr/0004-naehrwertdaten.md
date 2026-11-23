@@ -1,6 +1,6 @@
 # ADR 0004 – Nährwertdaten: Bundeslebensmittelschlüssel 4.0
 
-- **Status:** vorgeschlagen – Lizenz geprüft; Datenformat noch offen (siehe unten)
+- **Status:** vorgeschlagen – alle Prüfpunkte erledigt, umgesetzt in Phase 4 Teil B; Annahme durch den Maintainer offen
 - **Datum:** 2026-11-23
 - **Bezug:** plan/06-phase-4-import-naehrwerte.md, 4.5
 
@@ -40,7 +40,7 @@ CC BY 4.0 erlaubt Weitergabe und Bearbeitung, auch kommerziell, unter der Beding
 **BLS 4.0** wird die Nährwertquelle, als Auszug im Repo.
 
 - **Ordner `catalog/nutrition/`** mit eigenem `LICENSE`-Hinweis:
-  - `bls-auszug.*` – nur die Lebensmittel, die der Zutatenkatalog braucht, und nur die angezeigten Nährstoffe (Energie, Fett, davon gesättigte Fettsäuren, Kohlenhydrate, davon Zucker, Ballaststoffe, Eiweiß, Salz), je 100 g. **Lizenz CC BY 4.0**, Herausgeber MRI, Hinweis „Auszug, gekürzt auf ausgewählte Lebensmittel und Nährstoffe“ (Kennzeichnung der Änderung).
+  - `bls-4.0-auszug.csv` – nur die Lebensmittel, die der Zutatenkatalog braucht, und nur die angezeigten Nährstoffe (Energie, Fett, davon gesättigte Fettsäuren, Kohlenhydrate, davon Zucker, Ballaststoffe, Eiweiß, Salz), je 100 g. **Lizenz CC BY 4.0**, Herausgeber MRI, Hinweis „Auszug, gekürzt auf ausgewählte Lebensmittel und Nährstoffe“ (Kennzeichnung der Änderung).
   - `zuordnung.yaml` – Katalog-ID → BLS-Code (4.6). Eigene Arbeit, **CC BY-SA 4.0** wie der übrige Katalog.
   - `gewichte.yaml` – Gewicht je Stück, EL, TL, Prise, Bund, Dose, Becher (4.6). Eigene Werte, **CC BY-SA 4.0**; keine Übernahme aus Quellen mit unklaren Rechten.
 - `REUSE.toml` bekommt eine eigene Annotation `catalog/nutrition/bls-*` → `CC-BY-4.0`, `LICENSES/CC-BY-4.0.txt` kommt dazu.
@@ -55,9 +55,9 @@ Die Recherche stützte sich zunächst auf Suchergebnisse; die Originalseiten war
 
 - [x] [blsdb.de/download](https://blsdb.de/download): CC BY 4.0 gilt für die **Daten** („stehen als Open Data zur freien Verfügung“). Die Seite nennt keine Zusatzbedingungen außer der Nennung des MRI als Herausgeber.
 - [x] Zitierweise mit DOI (siehe oben).
-- [ ] Datenformat und Nährstoffspalten im Download (`BLS_4_0_2025_DE.zip`): Bezeichnungen, Einheit je 100 g; ob Portions- oder Stückgewichte enthalten sind. Erst beim Bau des Auszugs (4.6) nötig.
-- [ ] Haftungsausschluss in der Dokumentation, falls er in abgeleiteten Daten erhalten bleiben soll.
-- [ ] Lizenztext CC BY 4.0 nach `LICENSES/` (REUSE), zusammen mit dem Auszug.
+- [x] Datenformat (Download `BLS_4_0_2025_DE.zip`, geprüft am 2026-11-23): eine xlsx-Datei mit 7 140 Lebensmitteln und 138 Nährstoffen, alle Werte je 100 g essbaren Anteil; Spalten `ENERCC`, `ENERCJ`, `FAT`, `FASAT`, `CHO`, `SUGAR`, `FIBT`, `PROT625`, `NACL`. **Keine Portions- oder Stückgewichte** – die Gewichtstabelle ist Eigenarbeit. Spuren (`TR`) und Werte unter der Nachweisgrenze (`<LOD`, `<LOQ`) werden als 0 übernommen; fehlende Werte (`-`) laut Dokumentation (4.3) ausdrücklich nicht als 0, die App meldet sie.
+- [x] Dokumentation, Abschnitt 9.3 „Nutzungsbedingungen“: kostenfrei und ohne Lizenzbarrieren, ausdrücklich auch für App- und Softwareentwicklung; kein Haftungsausschluss, der weitergegeben werden müsste.
+- [x] Lizenztext CC BY 4.0 in `LICENSES/`, REUSE-Annotation für den Auszug, Hinweis in `catalog/nutrition/LICENSE`.
 
 ## Folgen
 

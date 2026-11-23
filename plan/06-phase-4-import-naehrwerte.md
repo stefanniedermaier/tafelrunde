@@ -36,21 +36,21 @@ Recherche und Vorschlag: [ADR 0004](../docs/adr/0004-naehrwertdaten.md) – BLS 
 - [x] Sind sie nicht vereinbar, Alternativen bewerten, z. B. USDA FoodData Central (gemeinfrei) mit Zuordnung deutscher Namen
 
 ### 4.6 Daten
-- [ ] Zuordnung Katalog-Zutat → BLS-Code
-- [ ] Gewichtstabelle je Zutat: Stück, EL, TL, Prise, Bund, Dose, Becher
-- [ ] Eigener Ordner `catalog/nutrition/` mit eigenem Lizenzhinweis
+- [x] Zuordnung Katalog-Zutat → BLS-Code
+- [x] Gewichtstabelle je Zutat: Stück, EL, TL, Prise, Bund, Dose, Becher
+- [x] Eigener Ordner `catalog/nutrition/` mit eigenem Lizenzhinweis
 
 ### 4.7 Berechnung
-- [ ] Pro Rezept und Portion, inklusive Unterrezepten
-- [ ] Abdeckung anzeigen („87 % der Zutaten erfasst“), Werte mit „≈“ kennzeichnen
+- [x] Pro Rezept und Portion, inklusive Unterrezepten
+- [x] Abdeckung anzeigen („87 % der Zutaten erfasst“), Werte mit „≈“ kennzeichnen
 
 ### 4.8 Darstellung
-- [ ] Nährwerte in der Rezeptansicht
-- [ ] Tages- und Wochensumme im Plan
-- [ ] Sortieren und Filtern nach Kalorien
+- [x] Nährwerte in der Rezeptansicht
+- [x] Tages- und Wochensumme im Plan
+- [x] Sortieren und Filtern nach Kalorien
 
 ### 4.9 Qualität
-- [ ] Unit-Tests: Zutaten-Parser mit echten Beispielzeilen, Umrechnung, Rundung
+- [x] Unit-Tests: Zutaten-Parser mit echten Beispielzeilen, Umrechnung, Rundung
 - [x] E2E-Tests: Import per Bookmarklet (Testseite mit JSON-LD), Text-Import
 
 ## Akzeptanzkriterien

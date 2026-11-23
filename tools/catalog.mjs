@@ -3,7 +3,7 @@
  * Artikel-Katalog prüfen und für die App bauen (plan/01-architektur.md, „Katalog-Pipeline“).
  *
  *   node tools/catalog.mjs validate   Prüft catalog/ingredients/*.yaml und die .cook-Dateien unter catalog/recipes/
- *   node tools/catalog.mjs build      Prüft und schreibt public/catalog/ingredients.json und recipes.json
+ *   node tools/catalog.mjs build      Prüft und schreibt public/catalog/ingredients.json, recipes.json und nutrition.json
  *
  * Artikel: eine Datei je Kategorie; der Dateiname ist die Kategorie-ID.
  * Rezepte: werden mit demselben Parser wie in der App gelesen (src/core, über Vite geladen).
@@ -11,6 +11,7 @@
 import { createHash } from 'node:crypto'
 import {
   copyFileSync,
+  existsSync,
   mkdirSync,
   readFileSync,
   readdirSync,
@@ -28,6 +29,21 @@ const SOURCE = join(root, 'catalog', 'ingredients')
 const TARGET = join(root, 'public', 'catalog', 'ingredients.json')
 const RECIPES = join(root, 'catalog', 'recipes')
 const RECIPES_TARGET = join(root, 'public', 'catalog', 'recipes.json')
+const NUTRITION = join(root, 'catalog', 'nutrition')
+const NUTRITION_TARGET = join(root, 'public', 'catalog', 'nutrition.json')
+/** Spalten des BLS-Auszugs in der Reihenfolge von NUTRIENTS (src/core/nutrition). */
+const NUTRIENT_COLUMNS = [
+  'kcal',
+  'kj',
+  'fett',
+  'fett_gesaettigt',
+  'kohlenhydrate',
+  'zucker',
+  'ballaststoffe',
+  'eiweiss',
+  'salz',
+]
+const WEIGHT_KEY = /^[a-z]{1,20}$/
 const IMAGES = join(root, 'catalog', 'images')
 const IMAGES_TARGET = join(root, 'public', 'catalog', 'images')
 /** Fotos im Katalog: klein halten, die App lädt sie offline vor. */
@@ -243,6 +259,78 @@ export function loadRecipes(core, ingredients, dir = RECIPES) {
   }
 }
 
+/**
+ * Nährwerte (ADR 0004): BLS-Auszug (CC BY 4.0), Zuordnung Artikel → BLS-Code
+ * und Gewichtstabelle (beide CC BY-SA 4.0). Fehlt der Ordner, gibt es keine Nährwerte.
+ */
+export function loadNutrition(items, dir = NUTRITION) {
+  const errors = []
+  const files = ['zuordnung.yaml', 'gewichte.yaml', 'bls-4.0-auszug.csv']
+  if (!files.every((f) => existsSync(join(dir, f)))) return undefined
+  const ids = new Set(items.map((i) => i.id))
+
+  const bls = new Map()
+  const lines = readFileSync(join(dir, 'bls-4.0-auszug.csv'), 'utf8')
+    .split('\n')
+    .filter((l) => l && !l.startsWith('#'))
+  const header = lines.shift()?.split(';') ?? []
+  const columns = NUTRIENT_COLUMNS.map((c) => header.indexOf(c))
+  if (header[0] !== 'bls' || columns.some((i) => i < 0))
+    errors.push('bls-4.0-auszug.csv: Kopfzeile')
+  for (const line of lines) {
+    const cells = line.split(';')
+    // Leer = fehlender Wert (nicht 0, siehe BLS-Dokumentation 4.3) → null
+    const values = columns.map((i) => (cells[i] === '' ? null : Number(cells[i])))
+    const bad = values.some((v) => v !== null && (!Number.isFinite(v) || v < 0))
+    if (!/^[A-Z][0-9A-Z]{6}$/.test(cells[0]) || bad)
+      errors.push(`bls-4.0-auszug.csv: Zeile „${cells[0]}“ ungültig`)
+    else bls.set(cells[0], values)
+  }
+
+  const mapping = parse(readFileSync(join(dir, 'zuordnung.yaml'), 'utf8')) ?? {}
+  const foods = {}
+  for (const [i, m] of (mapping.items ?? []).entries()) {
+    if (!ids.has(m?.id)) errors.push(`zuordnung.yaml[${i}]: unbekannter Artikel „${m?.id}“`)
+    else if (!bls.has(m.bls))
+      errors.push(`zuordnung.yaml[${i}]: BLS-Code „${m.bls}“ fehlt im Auszug`)
+    else if (foods[m.id]) errors.push(`zuordnung.yaml[${i}]: „${m.id}“ doppelt`)
+    else foods[m.id] = { n: bls.get(m.bls) }
+  }
+  for (const [i, m] of (mapping.unmapped ?? []).entries())
+    if (!ids.has(m?.id))
+      errors.push(`zuordnung.yaml unmapped[${i}]: unbekannter Artikel „${m?.id}“`)
+
+  const weights = parse(readFileSync(join(dir, 'gewichte.yaml'), 'utf8')) ?? {}
+  const units = {}
+  for (const [key, u] of Object.entries(weights.einheiten ?? {})) {
+    const ok = WEIGHT_KEY.test(key) && (u?.ml > 0 || u?.g > 0) && Object.keys(u).length === 1
+    if (!ok) errors.push(`gewichte.yaml einheiten.${key}: ungültig`)
+    else units[key] = u
+  }
+  for (const [i, w] of (weights.artikel ?? []).entries()) {
+    const where = `gewichte.yaml artikel[${i}] (${w?.id})`
+    if (!foods[w?.id]) {
+      errors.push(`${where}: Artikel hat keine Nährwerte`)
+      continue
+    }
+    const entry = {}
+    for (const [key, value] of Object.entries(w)) {
+      if (key === 'id') continue
+      if (!(typeof value === 'number' && value > 0)) errors.push(`${where}: ${key} ungültig`)
+      else if (key === 'dichte') foods[w.id].d = value
+      else if (WEIGHT_KEY.test(key)) entry[key] = value
+      else errors.push(`${where}: unbekanntes Feld ${key}`)
+    }
+    if (Object.keys(entry).length) foods[w.id].w = entry
+  }
+  if (errors.length) {
+    const error = new Error(`Nährwerte fehlerhaft:\n  ${errors.join('\n  ')}`)
+    error.errors = errors
+    throw error
+  }
+  return { foods, units }
+}
+
 async function main() {
   const command = process.argv[2]
   if (command !== 'validate' && command !== 'build') {
@@ -251,8 +339,10 @@ async function main() {
   }
   let items
   let recipes
+  let nutrition
   try {
     items = loadCatalog()
+    nutrition = loadNutrition(items)
     const result = loadRecipes(await loadCore(), items)
     for (const note of result.notes) console.warn(`Hinweis: ${note}`)
     const images = loadImages(new Set(result.recipes.map((r) => r.path)))
@@ -268,6 +358,18 @@ async function main() {
     mkdirSync(dirname(TARGET), { recursive: true })
     writeFileSync(TARGET, JSON.stringify({ version: 1, license: 'CC-BY-SA-4.0', items }))
     writeFileSync(RECIPES_TARGET, JSON.stringify({ version: 1, license: 'CC-BY-SA-4.0', recipes }))
+    if (nutrition) {
+      writeFileSync(
+        NUTRITION_TARGET,
+        JSON.stringify({
+          version: 1,
+          license: 'CC-BY-4.0 (BLS-Auszug), CC-BY-SA-4.0 (Zuordnung, Gewichte)',
+          attribution:
+            'Max Rubner-Institut (2025): Bundeslebensmittelschlüssel (BLS), Version 4.0 — Deutsche Nährstoffdatenbank. Karlsruhe. DOI: 10.25826/Data20251217-134202-0',
+          ...nutrition,
+        }),
+      )
+    } else rmSync(NUTRITION_TARGET, { force: true })
     rmSync(IMAGES_TARGET, { recursive: true, force: true })
     for (const { file, image } of recipes.images.values()) {
       const target = join(root, 'public', 'catalog', image)
@@ -275,10 +377,12 @@ async function main() {
       copyFileSync(file, target)
     }
     console.log(
-      `Katalog gebaut: ${items.length} Artikel, ${recipes.length} Rezepte → public/catalog/`,
+      `Katalog gebaut: ${items.length} Artikel, ${recipes.length} Rezepte, ${Object.keys(nutrition?.foods ?? {}).length} mit Nährwerten → public/catalog/`,
     )
   } else {
-    console.log(`Katalog in Ordnung: ${items.length} Artikel, ${recipes.length} Rezepte`)
+    console.log(
+      `Katalog in Ordnung: ${items.length} Artikel, ${recipes.length} Rezepte, ${Object.keys(nutrition?.foods ?? {}).length} mit Nährwerten`,
+    )
   }
 }
 

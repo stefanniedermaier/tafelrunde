@@ -43,7 +43,9 @@ import CookMode from './CookMode.vue'
 import ShoppingPreview from './ShoppingPreview.vue'
 import RecipeCollections from './RecipeCollections.vue'
 import RecipePhotos from './RecipePhotos.vue'
+import RecipeNutrition from './RecipeNutrition.vue'
 import RecipeReviews from './RecipeReviews.vue'
+import { loadNutrition, nutritionOf } from '../nutrition'
 
 /**
  * Rezeptansicht. Kann auch ein Katalogrezept zeigen (`entry` gesetzt, ohne Bereich).
@@ -61,6 +63,7 @@ const route = useRoute()
 const { recipes, index, handles } = useRecipes()
 // Für Referenzen auf Katalogrezepte und den Hinweis „Original geändert“.
 void loadCatalogRecipes()
+void loadNutrition()
 
 const current = computed<RecipeEntry | undefined>(
   () =>
@@ -166,6 +169,10 @@ const referenceByIngredient = computed(() => {
   return map
 })
 const ingredientList = computed(() => (recipe.value ? listIngredients(recipe.value) : []))
+/** Nährwerte für die gewählten Portionen, inklusive Unterrezepten (4.7, 4.8). */
+const nutrition = computed(() =>
+  base.value ? nutritionOf(index.value, base.value, scope.value, factor.value) : undefined,
+)
 const diet = computed(() =>
   base.value ? recipeDiet(index.value, base.value, scope.value, catalogDiet) : undefined,
 )
@@ -463,6 +470,8 @@ const stepBlocks = (blocks: Block[]) => blocks
       }}</a>
       <template v-else>{{ base.meta.source }}</template>
     </p>
+
+    <RecipeNutrition v-if="nutrition" :nutrition="nutrition" />
 
     <RecipeReviews
       v-if="library && props.recipeId"

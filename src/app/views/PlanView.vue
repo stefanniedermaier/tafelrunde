@@ -35,6 +35,7 @@ import AppDialog from '@/ui/components/AppDialog.vue'
 import AppTextField from '@/ui/components/AppTextField.vue'
 import AppToast from '@/ui/components/AppToast.vue'
 import { dayLabel, planRequest, planSpaces, servingsFactor } from '../plan/plan-helpers'
+import { loadNutrition, nutritionOf } from '../nutrition'
 import { loadCatalogRecipes } from '../recipes/catalog-recipes'
 import { useRecipes } from '../recipes/recipe-store'
 import { recipeRoute } from '../recipes/routes'
@@ -48,6 +49,7 @@ const route = useRoute()
 const router = useRouter()
 const { handles, index } = useRecipes()
 void loadCatalogRecipes()
+void loadNutrition()
 const profile = shallowRef<{ deviceId: string; personId: string }>()
 void workspace().then((ws) => (profile.value = ws.profile))
 
@@ -268,6 +270,27 @@ function openPreview() {
   previewOpen.value = true
 }
 
+// --- Nährwerte (4.8): Summe je Person über die Portionen des Tages bzw. der Woche ---
+
+function kcalOf(e: PlanEntry): number | undefined {
+  const r = recipeOf(e)
+  if (!r) return undefined
+  return nutritionOf(index.value, r.recipe, r.scope)?.perServing?.kcal
+}
+function kcalSum(list: PlanEntry[]): { kcal: number; open: number } | undefined {
+  const withRecipe = list.filter((e) => e.recipeKey)
+  if (!withRecipe.length) return undefined
+  const values = withRecipe.map(kcalOf)
+  const known = values.filter((v): v is number => v !== undefined && v > 0)
+  if (!known.length) return undefined
+  return { kcal: known.reduce((a, b) => a + b, 0), open: values.length - known.length }
+}
+const dayKcal = (date: string) => kcalSum(entries.value.filter((e) => e.date === date))
+const weekKcal = computed(() => kcalSum(entries.value))
+const kcalText = (s: { kcal: number; open: number }) =>
+  `≈ ${Math.round(s.kcal).toLocaleString('de-DE')} kcal je Person` +
+  (s.open ? ` (ohne ${s.open} ${s.open === 1 ? 'Eintrag' : 'Einträge'})` : '')
+
 const servingsText = (e: PlanEntry) =>
   e.servings ? `${String(e.servings).replace('.', ',')} P.` : undefined
 </script>
@@ -304,12 +327,15 @@ const servingsText = (e: PlanEntry) =>
       >
     </nav>
 
+    <p v-if="weekKcal" class="kcal">Woche: {{ kcalText(weekKcal) }}</p>
+
     <div class="days">
       <AppCard v-for="date in days" :key="date" :class="['day', { 'day--today': date === today }]">
         <h2 class="day__title">
           {{ dayLabel(date, 'long') }}
           <AppBadge v-if="date === today">Heute</AppBadge>
         </h2>
+        <p v-if="dayKcal(date)" class="kcal">{{ kcalText(dayKcal(date)!) }}</p>
         <div
           v-for="m in meals"
           :key="m.id"
@@ -514,6 +540,11 @@ const servingsText = (e: PlanEntry) =>
   gap: var(--space-2);
   margin: 0 0 var(--space-2);
   font-size: var(--font-size-md);
+}
+.kcal {
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
 }
 .slot {
   border-radius: var(--radius-sm);

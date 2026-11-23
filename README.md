@@ -6,7 +6,7 @@ Rezepte, Wochenplanung und geteilte Einkaufslisten für Familie und Freunde – 
 - **Deine Daten bleiben bei dir.** Sie liegen auf deinen Geräten und, Ende-zu-Ende verschlüsselt, in deinem eigenen Cloud-Speicher (zunächst Google Drive). Das Projekt sieht keine Nutzerdaten.
 - **Offen.** Code unter [AGPL-3.0-or-later](LICENSE), Rezepte und Zutatenkatalog unter [CC BY-SA 4.0](catalog/LICENSE).
 
-> **Stand:** Phase 4, Teil A (Rezept-Import) – siehe [Planung](plan/README.md).
+> **Stand:** Phase 4 (Rezept-Import und Nährwerte) – siehe [Planung](plan/README.md).
 
 ## Entwicklung
 

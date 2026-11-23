@@ -16,6 +16,13 @@ precedence = "override"
 SPDX-FileCopyrightText = "2026 Stefan Niedermaier und die Mitwirkenden von Tafelrunde"
 SPDX-License-Identifier = "CC-BY-SA-4.0"
 
+# Nährwerte: Auszug aus dem Bundeslebensmittelschlüssel 4.0 (ADR 0004)
+[[annotations]]
+path = "catalog/nutrition/bls-4.0-auszug.csv"
+precedence = "override"
+SPDX-FileCopyrightText = "2025 Max Rubner-Institut, Bundesforschungsinstitut für Ernährung und Lebensmittel"
+SPDX-License-Identifier = "CC-BY-4.0"
+
 # Konfiguration und generierte Dateien ohne Schöpfungshöhe
 [[annotations]]
 path = [

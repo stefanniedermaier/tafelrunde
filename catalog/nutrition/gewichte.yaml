@@ -1,0 +1,194 @@
+# Gewichte und Dichten für die Nährwertberechnung (ADR 0004, plan/06-phase-4-import-naehrwerte.md, 4.6).
+# Eigene Richtwerte, keine Messwerte und keine Übernahme aus anderen Datenbanken. Lizenz: CC BY-SA 4.0.
+# Gewichte in Gramm, bezogen auf den essbaren Anteil (wie die BLS-Werte je 100 g).
+#
+# einheiten: gelten für alle Artikel ohne eigenen Wert. ml wird mit der Dichte des Artikels
+#            (Standard 1 g/ml) in Gramm umgerechnet.
+# artikel:   eigene Werte je Artikel. Schlüssel wie in den Rezepten, klein und ohne Umlaute:
+#            stueck (auch für Mengen ohne Einheit), el, tl, scheibe, zehe, bund, dose, becher,
+#            pck, wuerfel, blatt, stange, knolle, kopf, tafel, kugel, beutel, rolle;
+#            dichte in g/ml.
+
+einheiten:
+  el: { ml: 15 }
+  tl: { ml: 5 }
+  prise: { g: 0.4 }
+  msp: { g: 0.3 }
+  tasse: { ml: 150 }
+  schuss: { ml: 10 }
+  spritzer: { ml: 2 }
+  tropfen: { ml: 0.05 }
+
+artikel:
+  # Backen
+  - { id: mehl, el: 10, tl: 3, tasse: 100 }
+  - { id: vollkornmehl, el: 10, tl: 3 }
+  - { id: dinkelmehl, el: 10, tl: 3 }
+  - { id: zucker, el: 15, tl: 5, tasse: 150 }
+  - { id: puderzucker, el: 8, tl: 3 }
+  - { id: brauner-zucker, el: 13, tl: 4 }
+  - { id: vanillezucker, pck: 8, tl: 4 }
+  - { id: backpulver, pck: 15, tl: 4 }
+  - { id: trockenhefe, pck: 7, tl: 3 }
+  - { id: frische-hefe, wuerfel: 42 }
+  - { id: speisestaerke, el: 9, tl: 3, pck: 37 }
+  - { id: kakaopulver, el: 7, tl: 3 }
+  - { id: gemahlene-mandeln, el: 7, pck: 200 }
+  - { id: gemahlene-haselnuesse, el: 7, pck: 200 }
+  - { id: rosinen, el: 12 }
+  - { id: gelatine, blatt: 1.7, pck: 9 }
+  - { id: streusel, el: 12, tl: 4 }
+  - { id: kuvertuere, tafel: 200 }
+  - { id: schokotropfen, el: 12 }
+  # Brot und Backwaren
+  - { id: brot, scheibe: 45 }
+  - { id: vollkornbrot, scheibe: 50 }
+  - { id: toastbrot, scheibe: 25 }
+  - { id: pumpernickel, scheibe: 40 }
+  - { id: broetchen, stueck: 55 }
+  - { id: vollkornbroetchen, stueck: 60 }
+  - { id: baguette, stueck: 250 }
+  - { id: brezeln, stueck: 70 }
+  - { id: laugenstangen, stueck: 70 }
+  - { id: croissants, stueck: 60 }
+  - { id: knaeckebrot, scheibe: 10, stueck: 10 }
+  - { id: wraps, stueck: 60 }
+  - { id: burgerbroetchen, stueck: 75 }
+  - { id: fladenbrot, stueck: 400 }
+  - { id: zwieback, stueck: 9, scheibe: 9 }
+  # Fleisch, Wurst, Fisch
+  - { id: haehnchenbrust, stueck: 150 }
+  - { id: schweineschnitzel, stueck: 150 }
+  - { id: schweinefilet, stueck: 450 }
+  - { id: rindersteak, stueck: 200 }
+  - { id: bratwuerste, stueck: 100 }
+  - { id: wiener-wuerstchen, stueck: 50 }
+  - { id: leberkaese, scheibe: 100 }
+  - { id: salami, scheibe: 5 }
+  - { id: kochschinken, scheibe: 20 }
+  - { id: rohschinken, scheibe: 15 }
+  - { id: speck, scheibe: 10 }
+  - { id: aufschnitt, scheibe: 10 }
+  - { id: lachs, stueck: 125 }
+  - { id: raeucherlachs, scheibe: 20 }
+  - { id: thunfisch, dose: 140 }
+  - { id: fischstaebchen, stueck: 30 }
+  - { id: garnelen, stueck: 10 }
+  - { id: forelle, stueck: 250 }
+  # Frühstück, Aufstriche, Saucen, Öle
+  - { id: honig, dichte: 1.4 }
+  - { id: ahornsirup, dichte: 1.32 }
+  - { id: sirup, dichte: 1.3 }
+  - { id: marmelade, el: 20, tl: 7 }
+  - { id: nuss-nougat-creme, el: 20, tl: 7 }
+  - { id: erdnussbutter, el: 16, tl: 6 }
+  - { id: hummus, el: 15 }
+  - { id: haferflocken, el: 8, tasse: 80 }
+  - { id: muesli, el: 10 }
+  - { id: salz, tl: 6, el: 18 }
+  - { id: pfeffer, tl: 2.5 }
+  - { id: olivenoel, dichte: 0.91 }
+  - { id: rapsoel, dichte: 0.92 }
+  - { id: senf, el: 15, tl: 5 }
+  - { id: ketchup, el: 17, tl: 6 }
+  - { id: mayonnaise, el: 15, tl: 5 }
+  - { id: sojasauce, dichte: 1.2 }
+  - { id: pesto, el: 15, tl: 5, glas: 190 }
+  - { id: tomatenmark, el: 15, tl: 5, dose: 70 }
+  # Milch, Käse, Eier
+  - { id: milch, dichte: 1.03 }
+  - { id: butter, el: 12, tl: 5, pck: 250 }
+  - { id: margarine, el: 12, tl: 5 }
+  - { id: sahne, becher: 200 }
+  - { id: saure-sahne, becher: 200, el: 15 }
+  - { id: creme-fraiche, becher: 150, el: 15 }
+  - { id: joghurt, becher: 150, el: 15 }
+  - { id: griechischer-joghurt, becher: 150, el: 15 }
+  - { id: fruchtjoghurt, becher: 150 }
+  - { id: quark, becher: 250, pck: 250, el: 20 }
+  - { id: frischkaese, pck: 200, el: 15 }
+  - { id: huettenkaese, becher: 200 }
+  - { id: mozzarella, stueck: 125, kugel: 125 }
+  - { id: gouda, scheibe: 25 }
+  - { id: emmentaler, scheibe: 25 }
+  - { id: bergkaese, scheibe: 25 }
+  - { id: scheibenkaese, scheibe: 20 }
+  - { id: reibekaese, el: 7, pck: 200 }
+  - { id: parmesan, el: 6, tl: 2 }
+  - { id: feta, pck: 200, stueck: 200 }
+  - { id: camembert, stueck: 125 }
+  - { id: eier, stueck: 55 }
+  - { id: skyr, becher: 150 }
+  - { id: pudding, becher: 125 }
+  - { id: tofu, pck: 200 }
+  # Nudeln, Reis, Konserven
+  - { id: reis, beutel: 125 }
+  - { id: tortellini, pck: 250 }
+  - { id: kichererbsen, dose: 240 }
+  - { id: kidneybohnen, dose: 250 }
+  - { id: weisse-bohnen, dose: 250 }
+  - { id: mais-in-der-dose, dose: 285 }
+  - { id: gehackte-tomaten, dose: 400 }
+  - { id: passierte-tomaten, pck: 500 }
+  - { id: kokosmilch, dose: 400 }
+  - { id: semmelbroesel, el: 8 }
+  # Obst
+  - { id: aepfel, stueck: 150 }
+  - { id: bananen, stueck: 115 }
+  - { id: birnen, stueck: 160 }
+  - { id: orangen, stueck: 150 }
+  - { id: mandarinen, stueck: 60 }
+  - { id: zitronen, stueck: 80 }
+  - { id: limetten, stueck: 45 }
+  - { id: kiwis, stueck: 75 }
+  - { id: ananas, stueck: 900 }
+  - { id: mango, stueck: 300 }
+  - { id: melone, stueck: 1000 }
+  - { id: zwetschgen, stueck: 30 }
+  - { id: pfirsiche, stueck: 130 }
+  - { id: avocado, stueck: 140 }
+  # Gemüse und Kräuter
+  - { id: tomaten, stueck: 80 }
+  - { id: gurke, stueck: 400 }
+  - { id: paprika, stueck: 160 }
+  - { id: karotten, stueck: 70 }
+  - { id: kartoffeln, stueck: 100 }
+  - { id: suesskartoffeln, stueck: 250 }
+  - { id: zwiebeln, stueck: 70 }
+  - { id: rote-zwiebeln, stueck: 70 }
+  - { id: fruehlingszwiebeln, stueck: 15, bund: 120, stange: 15 }
+  - { id: knoblauch, zehe: 4, knolle: 40, stueck: 4 }
+  - { id: ingwer, stueck: 20 }
+  - { id: lauch, stange: 200, stueck: 200 }
+  - { id: sellerie, knolle: 600, stueck: 600 }
+  - { id: zucchini, stueck: 250 }
+  - { id: aubergine, stueck: 300 }
+  - { id: brokkoli, stueck: 400, kopf: 400 }
+  - { id: blumenkohl, stueck: 700, kopf: 700 }
+  - { id: rosenkohl, stueck: 10 }
+  - { id: weisskohl, kopf: 1500, stueck: 1500 }
+  - { id: rotkohl, kopf: 1000, stueck: 1000 }
+  - { id: kopfsalat, kopf: 250, stueck: 250 }
+  - { id: champignons, stueck: 20 }
+  - { id: radieschen, stueck: 10, bund: 150 }
+  - { id: kuerbis, stueck: 1200 }
+  - { id: mais, stueck: 200 }
+  - { id: petersilie, bund: 30, el: 4 }
+  - { id: schnittlauch, bund: 30, el: 4 }
+  - { id: basilikum, bund: 20, el: 3, blatt: 0.5 }
+  - { id: rote-bete, stueck: 150, knolle: 150 }
+  - { id: spargel, stange: 25 }
+  - { id: fenchel, knolle: 250, stueck: 250 }
+  # Süßes und Snacks
+  - { id: schokolade, tafel: 100 }
+  - { id: kekse, stueck: 10 }
+  - { id: muesliriegel, stueck: 25 }
+  - { id: gummibaerchen, stueck: 2.5 }
+  - { id: bonbons, stueck: 4 }
+  # Tiefkühl
+  - { id: blaetterteig, rolle: 275, pck: 275 }
+  - { id: fischfilet-tiefgekuehlt, stueck: 100 }
+  - { id: kroketten, stueck: 25 }
+  - { id: tiefkuehlpizza, stueck: 350 }
+  - { id: eis, kugel: 60 }
+  - { id: eiswuerfel, stueck: 25 }

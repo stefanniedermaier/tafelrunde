@@ -1,0 +1,265 @@
+# Zuordnung Artikel (catalog/ingredients) → Lebensmittel im Bundeslebensmittelschlüssel 4.0 (ADR 0004).
+# Lizenz dieser Datei: CC BY-SA 4.0 wie der übrige Katalog. Der Kommentar nennt das BLS-Lebensmittel.
+# Gewählt wird die übliche Einkaufsform: roh, ungegart, Standard-Fettstufe; Hülsenfrüchte aus der
+# Dose abgetropft (außer Linsen). Codes mit X sind fertige Gerichte (z. B. Brühe), nur wo nichts anderes passt.
+items:
+  - { id: mehl, bls: C214100 } # Weizen Mehl, Type 405
+  - { id: vollkornmehl, bls: C211000 } # Weizen Vollkornmehl
+  - { id: dinkelmehl, bls: C234000 } # Dinkel Mehl, Type 630
+  - { id: zucker, bls: S111000 } # Zucker weiß (Raffinadezucker/Weißzucker)
+  - { id: puderzucker, bls: S111100 } # Puderzucker
+  - { id: brauner-zucker, bls: S112000 } # Zucker braun (Kandisfarin/Rohzucker)
+  - { id: vanillezucker, bls: S114000 } # Vanillezucker
+  - { id: backpulver, bls: R421100 } # Backpulver
+  - { id: trockenhefe, bls: R458000 } # Backhefe getrocknet (Trockenbackhefe)
+  - { id: frische-hefe, bls: R459000 } # Backhefe frisch (Frischbackhefe)
+  - { id: speisestaerke, bls: C446000 } # Mais Stärke
+  - { id: kakaopulver, bls: S711000 } # Kakaopulver schwach entölt
+  - { id: kuvertuere, bls: S671000 } # Zartbitter-/Halbbitter-Kuvertüre
+  - { id: schokotropfen, bls: S560000 } # Zartbitter-/Halbbitterschokolade
+  - { id: gemahlene-mandeln, bls: H210400 } # Mandel süß, gemahlen
+  - { id: gemahlene-haselnuesse, bls: H130400 } # Haselnuss gemahlen
+  - { id: rosinen, bls: F840100 } # Rosine/Sultanine (Weinbeere getrocknet)
+  - { id: gelatine, bls: R468000 } # Gelatine/Speisegelatine
+  - { id: streusel, bls: S462000 } # Zuckerperlen (Liebesperlen)
+  - { id: brot, bls: B271000 } # Roggenmischbrot
+  - { id: vollkornbrot, bls: B101000 } # Vollkornbrot
+  - { id: toastbrot, bls: B314000 } # Weizentoastbrot/Buttertoastbrot
+  - { id: broetchen, bls: B511000 } # Weizenbrötchen
+  - { id: vollkornbroetchen, bls: B401000 } # Vollkornbrötchen
+  - { id: baguette, bls: B781200 } # Weizenbaguette
+  - { id: brezeln, bls: B723000 } # Laugengebäck mit Hagelsalz
+  - { id: laugenstangen, bls: B723000 } # Laugengebäck mit Hagelsalz
+  - { id: croissants, bls: D771600 } # Croissant (Hefeblätterteig/Plunderteig)
+  - { id: knaeckebrot, bls: B6A2100 } # Roggenvollkornknäckebrot
+  - { id: wraps, bls: B783012 } # Weizentortilla
+  - { id: burgerbroetchen, bls: B314000 } # Weizentoastbrot/Buttertoastbrot
+  - { id: fladenbrot, bls: B782100 } # Weizenfladenbrot
+  - { id: zwieback, bls: D032000 } # Nährzwieback
+  - { id: kuchen, bls: D422600 } # Kuchen aus Rührmasse/Rührkuchen
+  - { id: hefezopf, bls: D4A6100 } # Hefezopf mit Sultaninen
+  - { id: pumpernickel, bls: B780500 } # Pumpernickel
+  - { id: hackfleisch, bls: U050100 } # Rind/Schwein, Hackfleisch gemischt, roh
+  - { id: rinderhack, bls: U010100 } # Rind Hackfleisch, roh
+  - { id: haehnchenbrust, bls: V416100 } # Hähnchen Brustfilet, roh
+  - { id: haehnchenschenkel, bls: V4A5100 } # Hähnchen Oberschenkel, mit Haut, roh
+  - { id: putenbrust, bls: V486100 } # Pute Brust, ohne Haut, roh
+  - { id: schweineschnitzel, bls: U541100 } # Schwein Schnitzel (Oberschale) roh
+  - { id: schweinefilet, bls: U611100 } # Schwein Filet/Lende, roh
+  - { id: rindersteak, bls: U131100 } # Rind Steak (Rücken) roh
+  - { id: gulasch, bls: U151100 } # Rind Gulasch (Bug) roh
+  - { id: bratwuerste, bls: W222100 } # Bratwurst mittelgrob
+  - { id: wiener-wuerstchen, bls: W211200 } # Wiener Würstchen
+  - { id: leberkaese, bls: W233000 } # Fleischkäse einfach, fein/Original Bayerischer Leberkäse fein
+  - { id: salami, bls: W140000 } # Salami
+  - { id: kochschinken, bls: W424000 } # Schwein Kochschinken, Kochpökelware
+  - { id: rohschinken, bls: W441000 } # Parmaschinken
+  - { id: speck, bls: W411300 } # Schwein Bauchspeck, Rohpökelware, geräuchert
+  - { id: aufschnitt, bls: W231100 } # Lyoner/Lyoner Wurst
+  - { id: lachs, bls: T410100 } # Lachs roh
+  - { id: raeucherlachs, bls: T410600 } # Lachs geräuchert (Räucherlachs)
+  - { id: thunfisch, bls: T121902 } # Thunfisch im eigenen Saft, Konserve, abgetropft
+  - { id: fischstaebchen, bls: T930100 } # Fischstäbchen (Alaska-Seelachs) paniert, tiefgefroren
+  - { id: garnelen, bls: T753100 } # Garnele/Granat/Krabbe, roh
+  - { id: forelle, bls: T422100 } # Forelle roh
+  - { id: hering, bls: T102100 } # Hering roh
+  - { id: muesli, bls: C512300 } # Müslimischung mit Trockenfrüchten, ungesüßt
+  - { id: cornflakes, bls: C515000 } # Cornflakes gesüßt
+  - { id: honig, bls: S120000 } # Honig
+  - { id: marmelade, bls: S132000 } # Konfitüre extra
+  - { id: nuss-nougat-creme, bls: S145000 } # Nuss-Nougat-Creme
+  - { id: erdnussbutter, bls: H880200 } # Erdnussbutter/Erdnusscreme
+  - { id: kaffee, bls: N410100 } # Kaffee (Getränk)
+  - { id: espresso, bls: N411100 } # Espresso (Getränk)
+  - { id: tee, bls: N630000 } # Schwarztee (Getränk)
+  - { id: kakao, bls: M206300 } # Milchmischgetränk 3,5 % Fett, mit Kakao/Schokolade, gesüßt
+  - { id: ahornsirup, bls: S151100 } # Ahornsirup
+  - { id: aufstrich, bls: G940100 } # Gemüseaufstrich, Brotaufstrich pflanzlich
+  - { id: hummus, bls: H960000 } # Hummus/Kichererbsenmus
+  - { id: granola, bls: C514200 } # Knuspermüslimischung, klassisch, gesüßt
+  - { id: wasser, bls: N127000 } # Natürliches Mineralwasser mit Kohlensäure
+  - { id: stilles-wasser, bls: N128000 } # Natürliches Mineralwasser still
+  - { id: apfelsaft, bls: F110600 } # Apfelsaft
+  - { id: orangensaft, bls: F603600 } # Orangensaft
+  - { id: apfelschorle, bls: N256000 } # Fruchtsaftschorle Apfel
+  - { id: cola, bls: N330000 } # Colagetränk koffeinhaltig
+  - { id: limonade, bls: N310400 } # Zitronenlimonade
+  - { id: eistee, bls: N019000 } # Eistee mit Zitronen-/Pfirsichgeschmack, gesüßt
+  - { id: bier, bls: P163000 } # Pilsner Bier
+  - { id: alkoholfreies-bier, bls: P163100 } # Pilsner Bier, alkoholfrei
+  - { id: weisswein, bls: P210000 } # Weißwein trocken
+  - { id: rotwein, bls: P2A3000 } # Rotwein trocken
+  - { id: sekt, bls: P2A6000 } # Qualitätsschaumwein, Sekt, trocken
+  - { id: sirup, bls: S154000 } # Fruchtsirup
+  - { id: salz, bls: R111000 } # Speisesalz/Siedesalz/Tafelsalz
+  - { id: pfeffer, bls: R258100 } # Pfeffer schwarz, getrocknet
+  - { id: olivenoel, bls: Q120000 } # Olivenöl
+  - { id: rapsoel, bls: Q180000 } # Rapsöl/Rüböl
+  - { id: essig, bls: R121000 } # Weinessig
+  - { id: balsamico, bls: R125000 } # Balsamicoessig
+  - { id: senf, bls: R132000 } # Senf mittelscharf
+  - { id: ketchup, bls: R141100 } # Tomatenketchup
+  - { id: mayonnaise, bls: Q991000 } # Mayonnaise (Fertigprodukt)
+  - { id: sojasauce, bls: R143000 } # Sojasauce/Sojasoße
+  - { id: pesto, bls: X372012 } # Pesto verde
+  - { id: grillsauce, bls: R148200 } # Feinkostsauce/Grillsauce, Tomaten-Basis
+  - { id: remoulade, bls: Q999000 } # Remoulade (Fertigprodukt)
+  - { id: fertigsauce, bls: X331353 } # Tomatensauce italienische Art
+  - { id: milch, bls: M111300 } # Vollmilch frisch, 3,5 % Fett, pasteurisiert
+  - { id: hafermilch, bls: C660000 } # Haferdrink ungesüßt
+  - { id: sojamilch, bls: H841100 } # Sojadrink ungesüßt
+  - { id: mandelmilch, bls: H800000 } # Mandeldrink ungesüßt
+  - { id: butter, bls: Q630000 } # Süßrahmbutter
+  - { id: margarine, bls: Q400000 } # Pflanzenmargarine Vollfett, angereichert mit Vitaminen
+  - { id: sahne, bls: M173800 } # Schlagsahne mind. 30 % Fett
+  - { id: saure-sahne, bls: M172500 } # Sauerrahm/Saure Sahne, mind. 10 % Fett
+  - { id: creme-fraiche, bls: M176800 } # Sauerrahm/Creme fraiche, 30 % Fett
+  - { id: joghurt, bls: M141300 } # Joghurt mild, mind. 3,5 % Fett
+  - { id: griechischer-joghurt, bls: M141500 } # Sahnejoghurt mind. 10 % Fett
+  - { id: fruchtjoghurt, bls: M241300 } # Joghurt mild, max. 3,8 % Fett, mit Fruchtzubereitung, gesüßt
+  - { id: quark, bls: M713100 } # Speisequark Magerstufe, Magerquark < 10 % Fett i. Tr.
+  - { id: frischkaese, bls: M710800 } # Frischkäsezubereitung Natur, mind. 60 % Fett i. Tr.
+  - { id: huettenkaese, bls: M711300 } # Körniger Frischkäse mind. 20 % Fett i. Tr.
+  - { id: mozzarella, bls: M032100 } # Mozzarella mind. 45 % Fett i. Tr.
+  - { id: gouda, bls: M402600 } # Gouda 48 % Fett i. Tr.
+  - { id: emmentaler, bls: M304600 } # Emmentaler mind. 45 % Fett i. Tr.
+  - { id: bergkaese, bls: M302600 } # Bergkäse mind. 45 % Fett i. Tr.
+  - { id: parmesan, bls: M306400 } # Parmesan mind. 30 % Fett i. Tr.
+  - { id: feta, bls: M012200 } # Feta mind. 45 % Fett i. Tr.
+  - { id: reibekaese, bls: M402600 } # Gouda 48 % Fett i. Tr.
+  - { id: scheibenkaese, bls: M402600 } # Gouda 48 % Fett i. Tr.
+  - { id: camembert, bls: M602600 } # Camembert mind. 45 % Fett i. Tr.
+  - { id: eier, bls: E111100 } # Hühnerei roh
+  - { id: skyr, bls: M710100 } # Skyr, Frischkäse < 10 % Fett i. Tr.
+  - { id: kefir, bls: M130300 } # Kefir mind. 3,5 % Fett
+  - { id: buttermilch, bls: M150000 } # Buttermilch
+  - { id: pudding, bls: R481132 } # Vanillepudding, Flammeri, zubereitet aus Pulver und Milch 3,5 % Fett, gesüßt
+  - { id: tofu, bls: H861000 } # Tofu
+  - { id: nudeln, bls: E401000 } # Teigwaren eifrei, roh
+  - { id: spaghetti, bls: E401000 } # Teigwaren eifrei, roh
+  - { id: penne, bls: E401000 } # Teigwaren eifrei, roh
+  - { id: fusilli, bls: E401000 } # Teigwaren eifrei, roh
+  - { id: lasagneplatten, bls: E401000 } # Teigwaren eifrei, roh
+  - { id: eiernudeln, bls: E432000 } # Eierteigwaren roh
+  - { id: tortellini, bls: E609200 } # Eierteigwaren Tortellini (Fleischfüllung) getrocknet
+  - { id: reis, bls: C352000 } # Reis poliert, roh
+  - { id: risottoreis, bls: C352000 } # Reis poliert, roh
+  - { id: couscous, bls: C119200 } # Couscous (Hartweizen) roh
+  - { id: bulgur, bls: C119100 } # Bulgur (Hartweizen) roh
+  - { id: quinoa, bls: C118000 } # Quinoa weiß, roh
+  - { id: linsen, bls: H725100 } # Linse reif
+  - { id: kichererbsen, bls: H720902 } # Kichererbse reif, Konserve, abgetropft
+  - { id: kidneybohnen, bls: H742902 } # Kidneybohne reif, Konserve, abgetropft
+  - { id: weisse-bohnen, bls: H740902 } # Gartenbohne reif, Konserve, abgetropft
+  - { id: mais-in-der-dose, bls: G570902 } # Zuckermais Konserve, abgetropft
+  - { id: gehackte-tomaten, bls: G560900 } # Tomate Konserve
+  - { id: passierte-tomaten, bls: R161200 } # Tomaten passiert/Tomatenpüree
+  - { id: tomatenmark, bls: R160000 } # Tomatenmark
+  - { id: kokosmilch, bls: H154000 } # Kokosmilch/Kokosnussmilch
+  - { id: gemuesebruehe, bls: X416243 } # Gemüsebrühe
+  - { id: huehnerbruehe, bls: X411243 } # Hühnerbrühe
+  - { id: fertigsuppe, bls: G850132 } # Gemüsecremesuppe aus Instantpulver (mit Wasser zubereitet)
+  - { id: haferflocken, bls: C133000 } # Hafer Flocken
+  - { id: semmelbroesel, bls: B821000 } # Paniermehl/Semmelbrösel/Semmelmehl
+  - { id: aepfel, bls: F110100 } # Apfel roh
+  - { id: bananen, bls: F503100 } # Banane roh
+  - { id: birnen, bls: F130100 } # Birne roh
+  - { id: orangen, bls: F603100 } # Orange roh
+  - { id: mandarinen, bls: F606100 } # Mandarine roh
+  - { id: zitronen, bls: F601100 } # Zitrone roh
+  - { id: limetten, bls: F602100 } # Limette roh
+  - { id: weintrauben, bls: F310100 } # Weintraube roh
+  - { id: erdbeeren, bls: F301100 } # Erdbeere roh
+  - { id: himbeeren, bls: F302100 } # Himbeere roh
+  - { id: heidelbeeren, bls: F304100 } # Heidelbeere roh
+  - { id: kiwis, bls: F514100 } # Kiwi roh
+  - { id: ananas, bls: F501100 } # Ananas roh
+  - { id: mango, bls: F516100 } # Mango roh
+  - { id: melone, bls: F535100 } # Wassermelone roh
+  - { id: zwetschgen, bls: F223100 } # Zwetschge roh
+  - { id: pfirsiche, bls: F203100 } # Pfirsich roh
+  - { id: avocado, bls: F502100 } # Avocado roh
+  - { id: tomaten, bls: G561100 } # Tomate roh
+  - { id: gurke, bls: G520100 } # Gurke roh
+  - { id: paprika, bls: G543100 } # Gemüsepaprika rot, roh
+  - { id: karotten, bls: G620100 } # Karotte/Möhre, roh
+  - { id: kartoffeln, bls: K110100 } # Kartoffel geschält, roh
+  - { id: suesskartoffeln, bls: K420100 } # Batate/Süßkartoffel, roh
+  - { id: zwiebeln, bls: G480100 } # Speisezwiebel roh
+  - { id: rote-zwiebeln, bls: G480100 } # Speisezwiebel roh
+  - { id: fruehlingszwiebeln, bls: G482100 } # Frühlingszwiebel/Lauchzwiebel, roh
+  - { id: knoblauch, bls: G490100 } # Knoblauch roh
+  - { id: ingwer, bls: R211200 } # Ingwer/Ingwerwurzel, roh
+  - { id: lauch, bls: G470100 } # Porree/Lauch, roh
+  - { id: sellerie, bls: G660100 } # Knollensellerie roh
+  - { id: zucchini, bls: G582100 } # Zucchini roh
+  - { id: aubergine, bls: G510100 } # Aubergine roh
+  - { id: brokkoli, bls: G312100 } # Broccoli roh
+  - { id: blumenkohl, bls: G311100 } # Blumenkohl roh
+  - { id: rosenkohl, bls: G332100 } # Rosenkohl roh
+  - { id: weisskohl, bls: G342100 } # Weißkohl roh
+  - { id: rotkohl, bls: G341100 } # Rotkohl roh
+  - { id: spinat, bls: G211100 } # Spinat roh
+  - { id: kopfsalat, bls: G105100 } # Kopfsalat roh
+  - { id: rucola, bls: G130100 } # Rucola roh
+  - { id: feldsalat, bls: G104100 } # Feldsalat/Rapunzel, roh
+  - { id: champignons, bls: K701100 } # Champignon roh
+  - { id: radieschen, bls: G691100 } # Radieschen roh
+  - { id: kuerbis, bls: G581000 } # Kürbis Hokkaido (C. maxima) roh
+  - { id: mais, bls: G570100 } # Zuckermais roh
+  - { id: petersilie, bls: G250100 } # Petersilienblatt roh
+  - { id: schnittlauch, bls: G081100 } # Schnittlauch roh
+  - { id: basilikum, bls: G061000 } # Basilikum roh
+  - { id: rote-bete, bls: G613100 } # Rote Rübe/Rote Bete, roh
+  - { id: spargel, bls: G450100 } # Spargel roh
+  - { id: fenchel, bls: G430100 } # Gemüsefenchel roh
+  - { id: schokolade, bls: S539900 } # Vollmilchschokolade
+  - { id: gummibaerchen, bls: S361000 } # Fruchtgummi (Gummibonbon)
+  - { id: kekse, bls: D630400 } # Butterkekse/Butterplätzchen (Mürbeteig)
+  - { id: chips, bls: K280100 } # Kartoffelchips/Stapelchips, diverse Sorten
+  - { id: salzstangen, bls: D064000 } # Salzbrezeln/Salzstangen (Laugendauergebäck)
+  - { id: erdnuesse, bls: H110700 } # Erdnuss geröstet, gesalzen
+  - { id: studentenfutter, bls: H810000 } # Studentenfutter
+  - { id: mandeln, bls: H210100 } # Mandel süß
+  - { id: walnuesse, bls: H120100 } # Walnuss
+  - { id: popcorn, bls: C519000 } # Popcorn gesüßt
+  - { id: muesliriegel, bls: S830000 } # Müsli-Riegel
+  - { id: kuchen-fertig, bls: D431100 } # Marmorkuchen (Rührmasse)
+  - { id: bonbons, bls: S311000 } # Hartkaramelle (Bonbon)
+  - { id: cracker, bls: D050000 } # Cracker
+  - { id: reiswaffeln, bls: C532700 } # Reiswaffeln ungesalzen
+  - { id: tiefkuehlpizza, bls: X912033 } # Pizza Margherita (mit Tomatensauce, Mozzarella)
+  - { id: pommes, bls: K130200 } # Pommes frites tiefgefroren
+  - { id: tiefkuehlgemuese, bls: G090200 } # Gemüsemischung Kaisergemüse, tiefgefroren
+  - { id: tiefkuehlspinat, bls: G211200 } # Spinat tiefgefroren
+  - { id: erbsen, bls: G760200 } # Erbse grün, tiefgefroren
+  - { id: tiefkuehlbeeren, bls: F092100 } # Beerenmischung mit Sauerkirschen, ungesüßt, roh
+  - { id: eis, bls: S241000 } # Vanilleeis
+  - { id: kraeuter-tiefgekuehlt, bls: G250200 } # Petersilienblatt tiefgefroren
+  - { id: blaetterteig, bls: D072000 } # Blätterteig eifrei, roh
+  - { id: kroketten, bls: K282200 } # Kartoffelkroketten tiefgefroren
+  - { id: fischfilet-tiefgekuehlt, bls: T213200 } # Alaska-Pollack/Alaska-Seelachs, tiefgefroren
+  - { id: rahmspinat, bls: X521043 } # Spinat gedünstet, mit Sahne
+  - { id: eiswuerfel, bls: N110000 } # Trinkwasser
+unmapped:
+  - { id: natron, reason: 'Natron (Natriumhydrogencarbonat) nicht im BLS' }
+  - { id: agar-agar, reason: 'Agar-Agar nicht im BLS' }
+  - { id: kaffeepads, reason: 'Produkt (Kapseln/Pads), kein eigenes Lebensmittel im BLS' }
+  - { id: energydrink, reason: 'Energydrink nicht im BLS' }
+  - { id: paprikapulver, reason: 'Gewürz nicht im BLS' }
+  - { id: currypulver, reason: 'Gewürz nicht im BLS' }
+  - { id: zimt, reason: 'Gewürz nicht im BLS' }
+  - { id: muskatnuss, reason: 'Gewürz nicht im BLS' }
+  - { id: oregano, reason: 'Gewürz/getrocknetes Kraut nicht im BLS' }
+  - { id: thymian, reason: 'Gewürz/getrocknetes Kraut nicht im BLS' }
+  - { id: rosmarin, reason: 'Gewürz/getrocknetes Kraut nicht im BLS' }
+  - { id: chili, reason: 'Chilipulver/-flocken nicht im BLS (nur frische Pfefferschote)' }
+  - { id: kreuzkuemmel, reason: 'Gewürz nicht im BLS' }
+  - { id: kurkuma, reason: 'Gewürz nicht im BLS' }
+  - { id: lorbeerblaetter, reason: 'Gewürz nicht im BLS' }
+  - { id: worcestersauce, reason: 'Worcestersauce nicht im BLS' }
+  - { id: tabasco, reason: 'Scharfe Sauce/Tabasco nicht im BLS' }
+  - { id: koriander, reason: 'Koriandergrün nicht im BLS' }
+  - { id: dill, reason: 'Dill nicht im BLS' }
+  - { id: minze, reason: 'Minze nicht im BLS (nur Pfefferminztee)' }
+  - { id: nuesse, reason: 'Keine Nussmischung im BLS (Studentenfutter enthält Rosinen)' }
