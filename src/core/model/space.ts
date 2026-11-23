@@ -4,13 +4,12 @@
  * Bereich und Mitglieder-Register im Dokument `live`
  * (siehe plan/01-architektur.md, „Datenmodell“).
  *
- * Mitglieder sind Geräte. Jeder Eintrag ist eine eigene `Y.Map`, damit
- * gleichzeitige Änderungen an verschiedenen Feldern (z. B. Gerätename und
- * Datei-IDs) zusammengeführt werden statt sich zu überschreiben.
+ * Mitglieder sind Geräte. Gleichzeitige Änderungen an verschiedenen Feldern
+ * (z. B. Gerätename und Datei-IDs) werden zusammengeführt, siehe `membersMap`.
  */
 
-import * as Y from 'yjs'
-import type { DocKind } from '../crypto/envelope'
+import type * as Y from 'yjs'
+import { type DocKind, DOC_KINDS } from '../crypto/envelope'
 import { isValidId } from '../crypto/ids'
 
 export type SpaceKind = 'personal' | 'household' | 'shared-list'
@@ -38,8 +37,41 @@ export const LIVE_ROOT = {
   categoryOverrides: 'categoryOverrides',
 } as const
 
-export function membersMap(doc: Y.Doc): Y.Map<Y.Map<unknown>> {
+/**
+ * Das Register ist flach: ein Schlüssel `<deviceId>/<feld>` je Feld.
+ *
+ * Verschachtelte `Y.Map`s je Gerät wären hier falsch: Einladendes und neues
+ * Gerät legen den Eintrag für das neue Gerät gleichzeitig an. Yjs behält bei
+ * gleichzeitigem Setzen desselben Schlüssels nur einen Wert – die andere Map
+ * samt späterer Änderungen (z. B. der Datei-ID) ginge verloren. Flache Felder
+ * werden dagegen einzeln zusammengeführt. Geräte-IDs enthalten kein `/`.
+ */
+export function membersMap(doc: Y.Doc): Y.Map<unknown> {
   return doc.getMap(LIVE_ROOT.members)
+}
+
+type MemberField =
+  'person' | 'deviceName' | 'provider' | 'joinedAt' | 'removedAt' | `file:${DocKind}`
+
+function entry(doc: Y.Doc, deviceId: string) {
+  const map = membersMap(doc)
+  const k = (field: MemberField) => `${deviceId}/${field}`
+  return {
+    get: (field: MemberField) => map.get(k(field)),
+    has: (field: MemberField) => map.has(k(field)),
+    set: (field: MemberField, value: string | number) => {
+      if (map.get(k(field)) !== value) map.set(k(field), value)
+    },
+  }
+}
+
+function deviceIds(doc: Y.Doc): Set<string> {
+  const ids = new Set<string>()
+  for (const key of membersMap(doc).keys()) {
+    const slash = key.indexOf('/')
+    if (slash > 0) ids.add(key.slice(0, slash))
+  }
+  return ids
 }
 
 export function initSpace(doc: Y.Doc, name: string, kind: SpaceKind): void {
@@ -69,72 +101,75 @@ export function upsertMember(
   member: Omit<Member, 'files'> & { files?: FileRefs },
 ): void {
   if (!isValidId(member.deviceId)) throw new Error('ungültige Geräte-ID')
-  const members = membersMap(doc)
+  const e = entry(doc, member.deviceId)
   doc.transact(() => {
-    let entry = members.get(member.deviceId)
-    if (!entry) {
-      entry = new Y.Map<unknown>()
-      members.set(member.deviceId, entry)
-    }
-    entry.set('person', member.person)
-    entry.set('deviceName', member.deviceName)
-    entry.set('provider', member.provider)
-    if (!entry.has('joinedAt')) entry.set('joinedAt', member.joinedAt)
-    for (const [kind, fileId] of Object.entries(member.files ?? {})) {
-      if (fileId) entry.set(`file:${kind}`, fileId)
+    e.set('person', member.person)
+    e.set('deviceName', member.deviceName)
+    e.set('provider', member.provider)
+    if (!e.has('joinedAt')) e.set('joinedAt', member.joinedAt)
+    for (const kind of DOC_KINDS) {
+      const fileId = member.files?.[kind]
+      if (fileId) e.set(`file:${kind}`, fileId)
     }
   })
 }
 
 export function setMemberFile(doc: Y.Doc, deviceId: string, kind: DocKind, fileId: string): void {
-  const entry = membersMap(doc).get(deviceId)
-  if (!entry) throw new Error('unbekanntes Gerät')
-  if (entry.get(`file:${kind}`) !== fileId) entry.set(`file:${kind}`, fileId)
+  if (!isValidId(fileId)) throw new Error('ungültige Datei-ID')
+  const e = entry(doc, deviceId)
+  if (!e.has('joinedAt')) throw new Error('unbekanntes Gerät')
+  e.set(`file:${kind}`, fileId)
 }
 
 export function renameDevice(doc: Y.Doc, deviceId: string, deviceName: string): void {
-  membersMap(doc).get(deviceId)?.set('deviceName', deviceName.trim())
+  const e = entry(doc, deviceId)
+  if (e.has('joinedAt')) e.set('deviceName', deviceName.trim())
 }
 
 /** Ein entferntes Gerät bleibt als Grabstein im Register, damit es nicht wieder auftaucht. */
 export function markRemoved(doc: Y.Doc, deviceId: string, at: number): void {
-  membersMap(doc).get(deviceId)?.set('removedAt', at)
+  const e = entry(doc, deviceId)
+  if (e.has('joinedAt')) e.set('removedAt', at)
 }
 
-function readMember(deviceId: string, entry: Y.Map<unknown>): Member | undefined {
-  const str = (k: string) => {
-    const v = entry.get(k)
+function readMember(doc: Y.Doc, deviceId: string): Member | undefined {
+  if (!isValidId(deviceId)) return undefined
+  const e = entry(doc, deviceId)
+  const str = (f: MemberField) => {
+    const v = e.get(f)
     return typeof v === 'string' ? v : undefined
   }
-  const num = (k: string) => {
-    const v = entry.get(k)
-    return typeof v === 'number' ? v : undefined
+  const num = (f: MemberField) => {
+    const v = e.get(f)
+    return typeof v === 'number' && Number.isFinite(v) ? v : undefined
   }
+  const joinedAt = num('joinedAt')
+  // Ohne Beitrittszeitpunkt gibt es das Gerät nicht (z. B. nur eine verwaiste Datei-ID).
+  if (joinedAt === undefined) return undefined
   const files: FileRefs = {}
-  const live = str('file:live')
-  const library = str('file:library')
-  if (live) files.live = live
-  if (library) files.library = library
+  for (const kind of DOC_KINDS) {
+    const fileId = str(`file:${kind}`)
+    if (fileId && isValidId(fileId)) files[kind] = fileId
+  }
   const member: Member = {
     deviceId,
     person: str('person') ?? '',
     deviceName: str('deviceName') ?? '',
     provider: str('provider') ?? '',
     files,
-    joinedAt: num('joinedAt') ?? 0,
+    joinedAt,
   }
   const removedAt = num('removedAt')
   if (removedAt !== undefined) member.removedAt = removedAt
-  return isValidId(deviceId) ? member : undefined
+  return member
 }
 
 export function listMembers(doc: Y.Doc, { includeRemoved = false } = {}): Member[] {
   const out: Member[] = []
-  membersMap(doc).forEach((entry, deviceId) => {
-    if (!(entry instanceof Y.Map)) return
-    const m = readMember(deviceId, entry)
+  for (const id of deviceIds(doc)) {
+    const m = readMember(doc, id)
     if (m && (includeRemoved || m.removedAt === undefined)) out.push(m)
-  })
+  }
   return out.sort((a, b) => a.joinedAt - b.joinedAt || a.deviceId.localeCompare(b.deviceId))
 }
 
@@ -151,6 +186,5 @@ export function peerFiles(
 }
 
 export function getMember(doc: Y.Doc, deviceId: string): Member | undefined {
-  const entry = membersMap(doc).get(deviceId)
-  return entry instanceof Y.Map ? readMember(deviceId, entry) : undefined
+  return readMember(doc, deviceId)
 }

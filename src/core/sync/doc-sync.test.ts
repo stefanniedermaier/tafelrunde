@@ -370,4 +370,12 @@ describe('DocSync', () => {
       vi.useRealTimers()
     }
   })
+
+  it('meldet einen nie synchronisierten Bereich ohne Anmeldung als „nur lokal“', async () => {
+    const a = await device('Anna')
+    a.provider.loggedIn = false
+    initSpace(a.doc, 'X', 'personal')
+    await a.sync.flush()
+    expect(a.sync.snapshot().status).toBe('local')
+  })
 })

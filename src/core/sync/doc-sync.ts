@@ -150,11 +150,13 @@ export class DocSync {
   }
 
   private status(): SyncStatus {
-    if (this.dirty && !this.o.provider.canWrite()) return 'login-required'
+    // Nie synchronisiert und allein: Das ist ein rein lokaler Bereich, keine fehlende Anmeldung.
+    const isolated = !this.state.ownFileId && this.o.peers().length === 0
+    if (this.dirty && !this.o.provider.canWrite()) return isolated ? 'local' : 'login-required'
     if (this.networkError) return 'offline'
     if (this.dirty || this.writing) return 'pending'
     if (Object.keys(this.problems).length > 0) return 'member-unreachable'
-    if (!this.state.ownFileId && this.o.peers().length === 0) return 'local'
+    if (isolated) return 'local'
     return 'synced'
   }
 

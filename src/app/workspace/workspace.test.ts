@@ -1,0 +1,160 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+import 'fake-indexeddb/auto'
+import { afterEach, describe, expect, it } from 'vitest'
+import { IndexeddbPersistence } from 'y-indexeddb'
+import {
+  addItem,
+  createList,
+  decodeCode,
+  encodeCode,
+  getItems,
+  getLists,
+  listMembers,
+  spaceName,
+} from '@/core'
+import { FakeCloud, FakeProvider } from '@/core/sync/fake-provider'
+import { IdbKeyValueStore, MemoryKeyValueStore } from './kv'
+import { type DocPersistence, Workspace } from './workspace'
+
+const noPersistence: DocPersistence = () => Promise.resolve({ destroy: () => undefined })
+
+const idbPersistence: DocPersistence = async (name, doc) => {
+  const p = new IndexeddbPersistence(name, doc)
+  await p.whenSynced
+  return p
+}
+
+const open: Workspace[] = []
+afterEach(async () => {
+  for (const ws of open.splice(0)) await ws.close()
+})
+
+async function workspace(cloud: FakeCloud, account: string, kv = new MemoryKeyValueStore()) {
+  const provider = new FakeProvider(cloud, account)
+  const ws = await Workspace.open({ kv, provider, persistDoc: noPersistence, debounceMs: 10 })
+  open.push(ws)
+  return { ws, provider, kv }
+}
+
+/** Code wie über QR/Link übertragen. */
+const transfer = <T extends Parameters<typeof encodeCode>[0]>(code: T) =>
+  decodeCode(encodeCode(code)) as T
+
+describe('Workspace', () => {
+  it('legt beim Einrichten Profil und persönlichen Bereich an', async () => {
+    const { ws } = await workspace(new FakeCloud(), 'anna')
+    expect(ws.profile).toBeUndefined()
+    await ws.setup(' Anna ', 'Handy')
+    expect(ws.profile).toMatchObject({ person: 'Anna', deviceName: 'Handy' })
+    const personal = ws.personalSpace()!
+    const handle = await ws.space(personal.id)
+    expect(spaceName(handle.doc)).toBe('Persönlich')
+    expect(listMembers(handle.doc).map((m) => m.person)).toEqual(['Anna'])
+  })
+
+  it('übersteht einen Neustart (Profil, Bereiche, Schlüssel, Inhalte)', async () => {
+    const kv = await IdbKeyValueStore.open(`test-${Math.random()}`)
+    const provider = new FakeProvider(new FakeCloud(), 'anna')
+    const first = await Workspace.open({ kv, provider, persistDoc: idbPersistence })
+    await first.setup('Anna', 'Laptop')
+    const household = await first.createSpace('Familie', 'household')
+    createList(household.doc, 'Wocheneinkauf')
+    await first.close()
+
+    const second = await Workspace.open({ kv, provider, persistDoc: idbPersistence })
+    open.push(second)
+    expect(second.profile?.person).toBe('Anna')
+    expect(second.spaces().map((s) => s.kind)).toEqual(['personal', 'household'])
+    const again = await second.space(household.record.id)
+    expect(getLists(again.doc).map((l) => l.name)).toEqual(['Wocheneinkauf'])
+    expect(again.record.key.algorithm).toMatchObject({ name: 'AES-GCM' })
+  })
+
+  it('lädt ein, tritt bei und synchronisiert in beide Richtungen', async () => {
+    const cloud = new FakeCloud()
+    const { ws: anna } = await workspace(cloud, 'anna')
+    const { ws: ben } = await workspace(cloud, 'ben')
+    await anna.setup('Anna', 'Laptop')
+    await ben.setup('Ben', 'Handy')
+
+    const family = await anna.createSpace('Familie', 'household')
+    const listId = createList(family.doc, 'Wocheneinkauf')
+    addItem(family.doc, listId, { name: 'Milch' }, anna.profile!.deviceId)
+    await family.sync.flush()
+    await family.sync.flush()
+
+    const invite = transfer(await anna.invite(family.record.id))
+    expect(invite.peers).toHaveLength(1)
+    const joined = await ben.join(invite)
+    expect(spaceName(joined.doc)).toBe('Familie')
+    expect(getItems(joined.doc, listId).map((i) => i.name)).toEqual(['Milch'])
+
+    const reply = transfer(await ben.reply(family.record.id))
+    await anna.acceptReply(reply)
+    await family.sync.flush()
+
+    addItem(joined.doc, listId, { name: 'Brot' }, ben.profile!.deviceId)
+    await joined.sync.flush()
+    await family.sync.poll()
+    expect(
+      getItems(family.doc, listId)
+        .map((i) => i.name)
+        .sort(),
+    ).toEqual(['Brot', 'Milch'])
+    expect(listMembers(family.doc).map((m) => m.person)).toEqual(['Anna', 'Ben'])
+    await joined.sync.poll()
+    expect(listMembers(joined.doc).map((m) => m.person)).toEqual(['Anna', 'Ben'])
+  })
+
+  it('verweigert Einladungen vor dem ersten Abgleich', async () => {
+    const { ws, provider } = await workspace(new FakeCloud(), 'anna')
+    provider.loggedIn = false
+    await ws.setup('Anna', 'Laptop')
+    const family = await ws.createSpace('Familie', 'household')
+    await expect(ws.invite(family.record.id)).rejects.toThrow(/synchronisiert/)
+    expect(family.sync.snapshot().status).toBe('local')
+  })
+
+  it('stellt einen Bereich auf einem neuen Gerät aus dem Wiederherstellungscode her', async () => {
+    const cloud = new FakeCloud()
+    const { ws: old } = await workspace(cloud, 'anna')
+    await old.setup('Anna', 'Altes Handy')
+    const family = await old.createSpace('Familie', 'household')
+    createList(family.doc, 'Vorräte')
+    await family.sync.flush()
+    await family.sync.flush()
+    const code = transfer(await old.recoveryCode(family.record.id))
+    expect(code.type).toBe('recovery')
+    await old.close()
+
+    const { ws: fresh } = await workspace(cloud, 'anna')
+    await fresh.setup('Anna', 'Neues Handy')
+    const restored = await fresh.join(code)
+    expect(getLists(restored.doc).map((l) => l.name)).toEqual(['Vorräte'])
+    expect(listMembers(restored.doc).map((m) => m.deviceName)).toEqual([
+      'Altes Handy',
+      'Neues Handy',
+    ])
+  })
+
+  it('nimmt entfernte Geräte nicht wieder auf', async () => {
+    const cloud = new FakeCloud()
+    const { ws } = await workspace(cloud, 'anna')
+    await ws.setup('Anna', 'Laptop')
+    const family = await ws.createSpace('Familie', 'household')
+    const { markRemoved } = await import('@/core')
+    const reply = {
+      type: 'reply' as const,
+      spaceId: family.record.id,
+      deviceId: 'evil',
+      person: 'X',
+      deviceName: 'Y',
+      provider: 'fake',
+      files: { live: 'f' },
+    }
+    await ws.acceptReply(reply)
+    markRemoved(family.doc, 'evil', 1)
+    await expect(ws.acceptReply(reply)).rejects.toThrow(/entfernt/)
+  })
+})

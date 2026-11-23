@@ -81,4 +81,27 @@ describe('Mitglieder-Register', () => {
     expect(peerFiles(doc, 'live', 'a')).toEqual([{ deviceId: 'c', fileId: 'fc' }])
     expect(peerFiles(doc, 'library', 'a')).toEqual([{ deviceId: 'c', fileId: 'lc' }])
   })
+
+  it('verliert keine Felder, wenn zwei Geräte denselben Eintrag gleichzeitig anlegen', () => {
+    // Einladendes Gerät trägt das neue ein (Antwort-Code), das neue sich selbst.
+    const inviter = new Y.Doc()
+    const joiner = new Y.Doc()
+    upsertMember(inviter, { ...member('neu', 5), files: { live: 'f-neu' } })
+    upsertMember(joiner, member('neu', 4))
+    renameDevice(joiner, 'neu', 'Tablet')
+    Y.applyUpdate(inviter, Y.encodeStateAsUpdate(joiner))
+    Y.applyUpdate(joiner, Y.encodeStateAsUpdate(inviter))
+    // Datei-ID nur beim Einladenden, Gerätename von beiden gesetzt (einer gewinnt).
+    expect(getMember(inviter, 'neu')).toEqual(getMember(joiner, 'neu'))
+    expect(getMember(joiner, 'neu')?.files).toEqual({ live: 'f-neu' })
+    expect(['Tablet', 'G-neu']).toContain(getMember(joiner, 'neu')?.deviceName)
+  })
+
+  it('ignoriert Einträge ohne Beitrittszeitpunkt und ungültige Datei-IDs', () => {
+    const doc = new Y.Doc()
+    doc.getMap('members').set('x/file:live', 'f')
+    doc.getMap('members').set('y/joinedAt', 1)
+    doc.getMap('members').set('y/file:live', '../evil')
+    expect(listMembers(doc).map((m) => [m.deviceId, m.files])).toEqual([['y', {}]])
+  })
 })
