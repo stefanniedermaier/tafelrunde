@@ -1,0 +1,56 @@
+# Bedrohungsmodell
+
+Version 0 (Phase 0), Stand 2026-11-20. Abgeleitet aus dem [Sicherheitskonzept](../plan/01-architektur.md#sicherheitskonzept); wird mit jeder Phase fortgeschrieben.
+
+## Schutzziele
+
+| Gut                                                   | Ziel                                                               |
+| ----------------------------------------------------- | ------------------------------------------------------------------ |
+| Inhalte der Bereiche (Listen, Rezepte, Notizen, Plan) | Vertraulichkeit gegenüber Speicheranbieter und Dritten, Integrität |
+| Bereichsschlüssel                                     | verlassen das Gerät nur über Einladung oder Wiederherstellungscode |
+| OAuth-Token (`drive.file`)                            | kein Abfluss; höchstens 1 h gültig                                 |
+| App-Code                                              | wird unverändert ausgeliefert (Supply-Chain, Hosting, Domain)      |
+| Verfügbarkeit                                         | App funktioniert offline; Daten liegen lokal vollständig vor       |
+
+## Vertrauensgrenzen
+
+- **Vertrauenswürdig:** die Geräte der Mitglieder eines Bereichs; die Mitglieder untereinander.
+- **Nicht vertrauenswürdig:** Speicheranbieter (Google), Netzwerk, Empfänger eines Lese-Links ohne Schlüssel, importierte oder geteilte Inhalte, Browser-Erweiterungen fremder Herkunft.
+- **Bedingt vertrauenswürdig:** GitHub (liefert den Code aus), DNS und Domain-Anbieter (bestimmen die Herkunft).
+
+## Bedrohungen und Maßnahmen
+
+| #   | Bedrohung                                            | Maßnahme                                                                                                                                                                          | Status                                                           |
+| --- | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| T1  | Speicheranbieter liest Daten                         | AES-256-GCM, Schlüssel nur auf Geräten, neutrale Dateinamen                                                                                                                       | Phase 1                                                          |
+| T2  | Lese-Link gelangt an Fremde                          | Inhalt verschlüsselt; Link allein nützt nichts                                                                                                                                    | Phase 1                                                          |
+| T3  | Einladungslink im Messenger-Verlauf                  | QR-Code bevorzugt, Hinweis, Schlüsselwechsel                                                                                                                                      | Phase 1                                                          |
+| T4  | Manipulierte, vertauschte, alte Dateien              | GCM-Authentizität, AAD `tafelrunde/v1/<space>/<doc>/<device>/<seq>`, monotones `seq`                                                                                              | Phase 1                                                          |
+| T5  | XSS über Rezepte oder Importe                        | kein `v-html`/`innerHTML` (ESLint), CSP ohne `unsafe-inline`/`unsafe-eval`, Trusted Types                                                                                         | **umgesetzt**                                                    |
+| T6  | Token-Diebstahl                                      | Scope `drive.file`, `state`-Prüfung, Token sofort aus URL entfernt, nur App-interne Rücksprungziele, strikte CSP, keine Fremdskripte                                              | **umgesetzt** (Callback); Speicherort offen, ADR 0001            |
+| T7  | Supply-Chain                                         | Lockfile, `--frozen-lockfile`, Renovate mit Mindestalter 3 Tage, Dependency Review, OSV-Scanner, gitleaks, CodeQL, SHA-gepinnte Actions, minimale `permissions`, Build-Provenance | **umgesetzt** (Repo-Einstellungen siehe `docs/setup/hosting.md`) |
+| T8  | Clickjacking                                         | Frame-Erkennung, App rendert in fremden Frames nicht                                                                                                                              | **umgesetzt**                                                    |
+| T9  | Übernahme von Domain/DNS                             | 2FA beim Domain-Anbieter, Domain bei GitHub verifiziert                                                                                                                           | manuell, siehe Setup                                             |
+| T10 | Verlust aller Geräte                                 | Wiederherstellungscode                                                                                                                                                            | Phase 1                                                          |
+| T11 | Metadaten beim Anbieter (Größe, Zeit, Zugriffe)      | nicht vermeidbar; dokumentiert                                                                                                                                                    | akzeptiert                                                       |
+| T12 | Entferntes Mitglied liest weiter                     | Schlüsselwechsel; bereits Gesehenes bleibt bekannt                                                                                                                                | Phase 1, akzeptiertes Restrisiko                                 |
+| T13 | Open Redirect über die OAuth-Rückkehr                | Rücksprungziel nur `#/…` (`sanitizeReturnTo`)                                                                                                                                     | **umgesetzt**                                                    |
+| T14 | Ausgelieferte Quelltext-Karten verraten Interna      | `.map`-Dateien werden vor dem Deployment entfernt                                                                                                                                 | **umgesetzt**                                                    |
+| T15 | Service Worker liefert veraltete oder fremde Skripte | nur eigene SW-URL per Trusted-Types-Richtlinie `tafelrunde-sw`, Update per Hinweis                                                                                                | **umgesetzt**                                                    |
+
+## Content-Security-Policy (Produktion)
+
+```
+default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:;
+font-src 'self'; connect-src 'self' https://www.googleapis.com; manifest-src 'self';
+worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none';
+require-trusted-types-for 'script'; trusted-types vue tafelrunde-sw
+```
+
+Quelle: `build/csp.ts`, geprüft von `build/csp.test.ts` und E2E-Tests (keine CSP-Verstöße in Chromium).
+
+## Restrisiken
+
+- Eine kompromittierte Abhängigkeit im Bundle hätte vollen Zugriff auf Schlüssel. Gegenmaßnahmen: wenige Abhängigkeiten, Mindestalter für Updates, Prüfungen in CI.
+- Wer DNS kontrolliert, kontrolliert die Herkunft. Gegenmaßnahme: 2FA, Domain-Verifizierung.
+- Browser-Erweiterungen mit Zugriff auf alle Seiten können Daten lesen. Nicht durch die App lösbar; Hinweis in der Hilfe.

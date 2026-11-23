@@ -1,0 +1,45 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommits",
+    "helpers:pinGitHubActionDigests",
+    ":maintainLockFilesWeekly"
+  ],
+  "timezone": "Europe/Berlin",
+  "schedule": ["before 6am on monday"],
+  "minimumReleaseAge": "3 days",
+  "vulnerabilityAlerts": { "enabled": true, "schedule": ["at any time"] },
+  "packageRules": [
+    {
+      "groupName": "GitHub Actions",
+      "matchManagers": ["github-actions"]
+    },
+    {
+      "groupName": "Vue und Vite",
+      "matchPackageNames": [
+        "vue",
+        "vue-router",
+        "vue-tsc",
+        "@vue/**",
+        "vite",
+        "@vitejs/**",
+        "vite-plugin-pwa",
+        "workbox-*"
+      ]
+    },
+    {
+      "groupName": "Lint und Format",
+      "matchPackageNames": ["eslint", "@eslint/**", "eslint-*", "typescript-eslint", "prettier"]
+    },
+    {
+      "groupName": "Tests",
+      "matchPackageNames": ["vitest", "@vitest/**", "@playwright/test", "@axe-core/**", "jsdom"]
+    },
+    {
+      "description": "TypeScript 7 erst, wenn vue-tsc es unterstützt",
+      "matchPackageNames": ["typescript"],
+      "allowedVersions": "<7"
+    }
+  ]
+}
