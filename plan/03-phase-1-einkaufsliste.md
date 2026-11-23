@@ -70,9 +70,9 @@
 ### 1.12 Qualität
 - [x] Unit-Tests: Krypto, Zusammenführen, Kategorisierung
 - [x] Integrationstests: drei Geräte mit Fake-Provider, Offline-Szenarien, Rollback, untergeschobene Dateien
-- [ ] E2E-Tests mit Playwright: zwei Browser-Kontexte, Einladen, gemeinsames Abhaken
+- [x] E2E-Tests mit Playwright: zwei Browser-Kontexte, Einladen, gemeinsames Abhaken (Google und Drive nachgebildet)
 - [ ] Familientest auf Android und Desktop, mindestens zwei Wochen
-- [ ] `docs/threat-model.md` und den Datenschutzhinweis („welche Daten liegen wo“) aktualisieren
+- [x] `docs/threat-model.md` und den Datenschutzhinweis („welche Daten liegen wo“) aktualisieren (`docs/datenschutz.md`)
 
 ## Akzeptanzkriterien
 - Bei offener App erscheinen Änderungen auf anderen Geräten nach höchstens 5 s (P90)

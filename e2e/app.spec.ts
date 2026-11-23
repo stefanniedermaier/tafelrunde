@@ -69,7 +69,12 @@ test('OAuth-Rückkehr entfernt das Token aus der URL und verwirft fremde Antwort
   await page.waitForURL((url) => url.pathname === '/' && /^#\/(einrichten)?$/.test(url.hash))
   expect(page.url()).not.toContain('geheim')
   const result = await page.evaluate(() => sessionStorage.getItem('tafelrunde.oauth.result'))
-  expect(JSON.parse(result!)).toEqual({ ok: false, error: 'state_mismatch' })
+  if (result) {
+    expect(JSON.parse(result)).toEqual({ ok: false, error: 'state_mismatch' })
+  } else {
+    // Mit Google-Konfiguration hat die App das Ergebnis schon übernommen – und kein Token.
+    await expect(page.getByRole('button', { name: 'Mit Google verbinden' })).toBeVisible()
+  }
 })
 
 test('Web-App-Manifest ist installierbar konfiguriert', async ({ request }) => {

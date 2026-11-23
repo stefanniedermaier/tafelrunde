@@ -42,6 +42,7 @@ const lastSync = computed(() =>
 <style scoped>
 .app-header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
@@ -51,6 +52,8 @@ const lastSync = computed(() =>
 }
 .app-header__tools {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   align-items: center;
   gap: var(--space-3);
 }
