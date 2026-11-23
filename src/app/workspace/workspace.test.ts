@@ -271,4 +271,54 @@ describe('Workspace', () => {
     ).toEqual(['Kohle', 'Würstchen'])
     expect(gast.spaces().map((s) => s.kind)).toEqual(['personal', 'shared-list'])
   })
+
+  it('synchronisiert das Dokument library über eine eigene Datei', async () => {
+    const cloud = new FakeCloud()
+    const { ws: anna } = await workspace(cloud, 'anna')
+    const { ws: ben } = await workspace(cloud, 'ben')
+    await anna.setup('Anna', 'Laptop')
+    await ben.setup('Ben', 'Handy')
+    const family = await anna.createSpace('Familie', 'household')
+    await family.sync.flush()
+    await family.sync.flush()
+    const benFamily = await ben.join(transfer(await anna.invite(family.record.id)))
+    await anna.acceptReply(transfer(await ben.reply(family.record.id)))
+
+    const { createRecipe, listRecipes, setReview, getReviews } = await import('@/core')
+    const id = createRecipe(
+      family.library!.doc,
+      '---\ntitle: Hefeteig\n---\n',
+      anna.profile!.personId,
+    )
+    await family.library!.sync.flush()
+    // Die library-Datei steht danach im Register von live.
+    await family.sync.flush()
+    await benFamily.sync.poll()
+    await benFamily.library!.sync.poll()
+    expect(listRecipes(benFamily.library!.doc).map((r) => r.id)).toEqual([id])
+
+    setReview(benFamily.library!.doc, id, ben.profile!.personId, { stars: 4 })
+    await benFamily.library!.sync.flush()
+    await benFamily.sync.flush()
+    await family.sync.poll()
+    await family.library!.sync.poll()
+    expect(getReviews(family.library!.doc, id)).toMatchObject([
+      { personId: ben.profile!.personId, stars: 4 },
+    ])
+    expect(cloud.files.size).toBeGreaterThanOrEqual(4)
+  })
+
+  it('übernimmt die Person beim Beitritt zum eigenen persönlichen Bereich', async () => {
+    const cloud = new FakeCloud()
+    const { ws: laptop } = await workspace(cloud, 'anna')
+    const { ws: phone } = await workspace(cloud, 'anna')
+    await laptop.setup('Anna', 'Laptop')
+    await phone.setup('Anna', 'Handy')
+    expect(phone.profile!.personId).not.toBe(laptop.profile!.personId)
+    const personal = await laptop.space(laptop.personalSpace()!.id)
+    await personal.sync.flush()
+    await personal.sync.flush()
+    await phone.join(transfer(await laptop.invite(personal.record.id)))
+    expect(phone.profile!.personId).toBe(laptop.profile!.personId)
+  })
 })

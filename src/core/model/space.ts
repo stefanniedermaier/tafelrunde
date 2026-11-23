@@ -93,6 +93,16 @@ export function spaceKind(doc: Y.Doc): SpaceKind | undefined {
   return kind === 'personal' || kind === 'household' || kind === 'shared-list' ? kind : undefined
 }
 
+/** Personen-ID der Eigentümerin eines persönlichen Bereichs. */
+export function setSpaceOwner(doc: Y.Doc, personId: string): void {
+  if (isValidId(personId)) doc.getMap<unknown>(LIVE_ROOT.meta).set('owner', personId)
+}
+
+export function spaceOwner(doc: Y.Doc): string | undefined {
+  const owner = doc.getMap<unknown>(LIVE_ROOT.meta).get('owner')
+  return isValidId(owner) ? owner : undefined
+}
+
 export function renameSpace(doc: Y.Doc, name: string): void {
   doc.getMap<unknown>(LIVE_ROOT.meta).set('name', name.trim())
 }

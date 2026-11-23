@@ -10,8 +10,8 @@
 - [x] Konventionen festlegen: Front Matter (Titel, Portionen bzw. Ausbeute, Zeiten, Tags, Quelle), deutsche Einheiten, Referenzpfade für Katalog- und eigene Rezepte
 
 ### 2.2 Dokument `library`
-- [ ] Rezepte (Cooklang-Quelltext als `Y.Text` mit Metadaten), Notizen, Bewertungen, Koch-Protokoll
-- [ ] Eigene Datei je Gerät, langsameres Abfrage-Intervall als bei `live`
+- [x] Rezepte (Cooklang-Quelltext als `Y.Text` mit Metadaten), Notizen, Bewertungen, Koch-Protokoll
+- [x] Eigene Datei je Gerät, langsameres Abfrage-Intervall als bei `live`
 
 ### 2.3 Rezeptansicht
 - [ ] Zutaten im Fließtext hervorgehoben, Mengen in `--text`

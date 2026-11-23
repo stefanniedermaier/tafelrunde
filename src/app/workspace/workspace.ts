@@ -30,6 +30,8 @@ import {
   linkSpace,
   listMembers,
   markRemoved,
+  setSpaceOwner,
+  spaceOwner,
   reportLinkedFile,
   peerFiles,
   randomId,
@@ -41,6 +43,8 @@ import type { KeyValueStore } from './kv'
 
 export interface Profile {
   deviceId: string
+  /** Person über alle eigenen Geräte (für Notizen und Bewertungen). */
+  personId: string
   person: string
   deviceName: string
   createdAt: number
@@ -70,17 +74,30 @@ export interface WorkspaceDeps {
   debounceMs?: number
 }
 
-export interface SpaceHandle {
-  readonly record: SpaceRecord
+export interface DocHandle {
   readonly doc: Y.Doc
   readonly sync: DocSync
   readonly loop: PollLoop
 }
 
+export interface SpaceHandle extends DocHandle {
+  readonly record: SpaceRecord
+  /** Dokument `library` (Rezepte, Notizen, Bewertungen); fehlt bei geteilten Listen. */
+  readonly library: DocHandle | undefined
+}
+
+/** Abfrage-Intervall für `library` (plan/01-architektur.md): 30 s, sofort beim Öffnen. */
+const LIBRARY_INTERVAL_MS = 30_000
+
 const K = {
   profile: 'profile',
   space: (id: string) => `space/${id}`,
   sync: (key: string) => `sync/${key}`,
+}
+
+/** `live` und, falls vorhanden, `library` eines Bereichs. */
+function docHandles(handle: SpaceHandle): DocHandle[] {
+  return handle.library ? [handle, handle.library] : [handle]
 }
 
 /** Höchstens drei alte Schlüssel behalten – genug für Geräte, die noch nicht gewechselt haben. */
@@ -102,7 +119,7 @@ export class Workspace {
   private profileValue: Profile | undefined
   private records = new Map<string, SpaceRecord>()
   private readonly handles = new Map<string, Promise<SpaceHandle>>()
-  private readonly persistence = new Map<string, { destroy(): unknown }>()
+  private readonly persistence = new Map<string, { destroy(): unknown }[]>()
   private readonly syncStore: SyncStateStore
   private readonly now: () => number
   private visible = true
@@ -115,6 +132,11 @@ export class Workspace {
   static async open(deps: WorkspaceDeps): Promise<Workspace> {
     const ws = new Workspace(deps)
     ws.profileValue = await deps.kv.get<Profile>(K.profile)
+    if (ws.profileValue && !ws.profileValue.personId) {
+      // Profile aus Phase 1 bekommen nachträglich eine Personen-ID.
+      ws.profileValue = { ...ws.profileValue, personId: randomId() }
+      await deps.kv.set(K.profile, ws.profileValue)
+    }
     for (const key of await deps.kv.keys('space/')) {
       const record = await deps.kv.get<SpaceRecord>(key)
       if (record) ws.records.set(record.id, record)
@@ -135,6 +157,7 @@ export class Workspace {
     if (this.profileValue) throw new Error('Profil existiert bereits')
     const profile: Profile = {
       deviceId: randomId(),
+      personId: randomId(),
       person: person.trim(),
       deviceName: deviceName.trim(),
       createdAt: this.now(),
@@ -146,7 +169,9 @@ export class Workspace {
     return profile
   }
 
-  async updateProfile(patch: Partial<Pick<Profile, 'person' | 'deviceName'>>): Promise<void> {
+  async updateProfile(
+    patch: Partial<Pick<Profile, 'person' | 'deviceName' | 'personId'>>,
+  ): Promise<void> {
     const profile = this.requireProfile()
     const next = { ...profile, ...patch }
     await this.deps.kv.set(K.profile, next)
@@ -186,6 +211,7 @@ export class Workspace {
     await this.saveRecord(record)
     const handle = await this.space(record.id)
     initSpace(handle.doc, name.trim() || 'Ohne Namen', kind)
+    if (kind === 'personal') setSpaceOwner(handle.doc, this.requireProfile().personId)
     this.registerSelf(handle.doc)
     return handle
   }
@@ -223,7 +249,8 @@ export class Workspace {
     if (!record) throw new Error('unbekannter Bereich')
     const profile = this.requireProfile()
     const doc = new Y.Doc()
-    this.persistence.set(id, await this.deps.persistDoc(`tafelrunde/${id}/live`, doc))
+    const persisted = [await this.deps.persistDoc(`tafelrunde/${id}/live`, doc)]
+    this.persistence.set(id, persisted)
 
     const sync = new DocSync({
       doc,
@@ -255,6 +282,39 @@ export class Workspace {
     loop.setVisible(this.visible)
     // Haushalt: verknüpfte Bereiche (geteilte Listen) automatisch übernehmen.
     if (record.kind !== 'shared-list') doc.on('update', () => this.scheduleLinkSync())
+
+    let library: DocHandle | undefined
+    if (record.kind !== 'shared-list') {
+      const libDoc = new Y.Doc()
+      persisted.push(await this.deps.persistDoc(`tafelrunde/${id}/library`, libDoc))
+      const libSync = new DocSync({
+        doc: libDoc,
+        kind: 'library',
+        spaceId: id,
+        key: record.key,
+        previousKeys: record.previousKeys ?? [],
+        deviceId: profile.deviceId,
+        provider: this.deps.provider,
+        store: this.syncStore,
+        ...(this.deps.debounceMs !== undefined ? { debounceMs: this.deps.debounceMs } : {}),
+        now: this.now,
+        // Die Dateien für `library` stehen im Register des Dokuments `live`.
+        peers: () => peerFiles(doc, 'library', profile.deviceId),
+        onOwnFile: (fileId) => {
+          this.registerSelf(doc)
+          setMemberFile(doc, profile.deviceId, 'library', fileId)
+        },
+      })
+      await libSync.start()
+      const libLoop = new PollLoop({
+        poll: () => libSync.poll(),
+        intervalMs: LIBRARY_INTERVAL_MS,
+        onUnexpectedError: (error) => console.error('Sync-Fehler', error),
+      })
+      libLoop.setVisible(this.visible)
+      library = { doc: libDoc, sync: libSync, loop: libLoop }
+    }
+
     const records = this.records
     return {
       // Immer der aktuelle Datensatz (Schlüssel ändern sich beim Schlüsselwechsel).
@@ -264,6 +324,7 @@ export class Workspace {
       doc,
       sync,
       loop,
+      library,
     }
   }
 
@@ -288,7 +349,9 @@ export class Workspace {
   /** Abfragen nur, solange die App sichtbar ist (Page Visibility). */
   async setVisible(visible: boolean): Promise<void> {
     this.visible = visible
-    for (const handle of this.handles.values()) (await handle).loop.setVisible(visible)
+    for (const handle of this.handles.values()) {
+      for (const h of docHandles(await handle)) h.loop.setVisible(visible)
+    }
   }
 
   /** Startet Sync für alle Bereiche; `activeSpaceId` wird schneller abgefragt. */
@@ -298,17 +361,20 @@ export class Workspace {
       const handle = await this.space(record.id)
       handle.loop.setInterval(record.id === activeSpaceId ? intervals.active : intervals.idle)
       handle.loop.start()
+      handle.library?.loop.start()
     }
   }
 
   /** Nach dem Login: ausstehende Änderungen aller Bereiche schreiben. */
   async flushAll(): Promise<void> {
-    for (const record of this.spaces()) await (await this.space(record.id)).sync.flush()
+    for (const record of this.spaces()) {
+      for (const h of docHandles(await this.space(record.id))) await h.sync.flush()
+    }
   }
 
   get hasPendingChanges(): Promise<boolean> {
     return Promise.all([...this.handles.values()]).then((hs) =>
-      hs.some((h) => h.sync.hasPendingChanges),
+      hs.some((h) => docHandles(h).some((d) => d.sync.hasPendingChanges)),
     )
   }
 
@@ -367,7 +433,10 @@ export class Workspace {
       }
       await this.saveRecord(updated)
       const open = this.handles.get(access.spaceId)
-      if (open) (await open).sync.setKeys(updated.key, updated.previousKeys ?? [])
+      if (open) {
+        for (const h of docHandles(await open))
+          h.sync.setKeys(updated.key, updated.previousKeys ?? [])
+      }
     } else {
       await this.saveRecord({
         id: access.spaceId,
@@ -380,6 +449,10 @@ export class Workspace {
     const handle = await this.space(access.spaceId)
     await handle.sync.poll().catch(() => undefined)
     this.registerSelf(handle.doc)
+    // Eigenes weiteres Gerät: dieselbe Person wie auf dem ersten Gerät.
+    const owner = access.kind === 'personal' ? spaceOwner(handle.doc) : undefined
+    if (owner && owner !== this.requireProfile().personId)
+      await this.updateProfile({ personId: owner })
     return handle
   }
 
@@ -530,8 +603,10 @@ export class Workspace {
       bootstrap: record.bootstrap.filter((b) => b.deviceId !== deviceId),
     }
     await this.saveRecord(updated)
-    before.sync.setKeys(updated.key, updated.previousKeys ?? [])
-    await before.sync.flush()
+    for (const h of docHandles(before)) {
+      h.sync.setKeys(updated.key, updated.previousKeys ?? [])
+      await h.sync.flush()
+    }
     return before
   }
 
@@ -540,11 +615,13 @@ export class Workspace {
     if (!handle) return
     this.handles.delete(id)
     const h = await handle
-    h.loop.stop()
-    h.sync.stop()
-    this.persistence.get(id)?.destroy()
+    for (const d of docHandles(h)) {
+      d.loop.stop()
+      d.sync.stop()
+    }
+    for (const p of this.persistence.get(id) ?? []) p.destroy()
     this.persistence.delete(id)
-    h.doc.destroy()
+    for (const d of docHandles(h)) d.doc.destroy()
   }
 
   async close(): Promise<void> {
