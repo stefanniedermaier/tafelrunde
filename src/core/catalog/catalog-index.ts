@@ -18,14 +18,22 @@ export interface CatalogIndex {
   lookup(normalizedName: string): CategoryId | undefined
   /** Ernährungsform eines Artikels, falls im Katalog bekannt. */
   diet(normalizedName: string): Diet | undefined
+  /** Katalog-ID und Anzeigename zu einem Namen oder Synonym („Zwiebel“ → `zwiebeln`, „Zwiebeln“). */
+  item(normalizedName: string): CatalogRef | undefined
   /** Anzeigenamen für Vorschläge. */
   names: string[]
   size: number
 }
 
+export interface CatalogRef {
+  id: string
+  name: string
+}
+
 export const EMPTY_CATALOG: CatalogIndex = {
   lookup: () => undefined,
   diet: () => undefined,
+  item: () => undefined,
   names: [],
   size: 0,
 }
@@ -40,13 +48,19 @@ export function buildCatalogIndex(data: unknown): CatalogIndex {
       : []
   const byName = new Map<string, CategoryId>()
   const diets = new Map<string, Diet>()
+  const refs = new Map<string, CatalogRef>()
   const names: string[] = []
   for (const item of items) {
     if (typeof item?.name !== 'string' || !isCategoryId(item.category)) continue
     names.push(item.name)
+    const ref: CatalogRef | undefined =
+      typeof item.id === 'string' && /^[a-z0-9-]{1,60}$/.test(item.id)
+        ? { id: item.id, name: item.name }
+        : undefined
     for (const label of [item.name, ...(Array.isArray(item.synonyms) ? item.synonyms : [])]) {
       if (typeof label !== 'string') continue
       byName.set(normalizeName(label), item.category)
+      if (ref) refs.set(normalizeName(label), ref)
       if (typeof item.diet === 'string' && DIETS.has(item.diet))
         diets.set(normalizeName(label), item.diet)
     }
@@ -54,6 +68,7 @@ export function buildCatalogIndex(data: unknown): CatalogIndex {
   return {
     lookup: (key) => byName.get(key),
     diet: (key) => diets.get(key),
+    item: (key) => refs.get(key),
     names: names.sort((a, b) => a.localeCompare(b, 'de')),
     size: names.length,
   }

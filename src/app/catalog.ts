@@ -38,5 +38,8 @@ export function catalogNames(): string[] {
   return index.value.names
 }
 
+/** Katalog-ID und Anzeigename eines Artikels (reaktiv wie `catalogLookup`). */
+export const catalogItem = (name: string) => index.value.item(name)
+
 /** Ernährungsform eines Artikels laut Katalog (reaktiv wie `catalogLookup`). */
 export const catalogDiet: DietLookup = (name) => index.value.diet(name)

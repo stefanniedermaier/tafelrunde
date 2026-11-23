@@ -7,8 +7,18 @@ export type Amount =
   | { kind: 'range'; min: number; max: number; unit: string; scalable: boolean }
   | { kind: 'text'; text: string; unit: string }
 
-/** Basiseinheiten für Umrechnung und Zusammenfassen (Gewicht, Volumen). */
+/**
+ * Basiseinheiten für Umrechnung und Zusammenfassen: Masse (g), Volumen (ml)
+ * und Stück (leere Einheit). EL, TL, Prise usw. bleiben eigene Einheiten,
+ * solange keine Umrechnung bekannt ist (plan/05-phase-3-planung.md, 3.4).
+ */
 const UNITS: Record<string, { base: string; factor: number }> = {
+  '': { base: '', factor: 1 },
+  stück: { base: '', factor: 1 },
+  stk: { base: '', factor: 1 },
+  'stk.': { base: '', factor: 1 },
+  st: { base: '', factor: 1 },
+  'st.': { base: '', factor: 1 },
   mg: { base: 'g', factor: 0.001 },
   g: { base: 'g', factor: 1 },
   kg: { base: 'g', factor: 1000 },
@@ -19,7 +29,7 @@ const UNITS: Record<string, { base: string; factor: number }> = {
 }
 
 export function unitInfo(unit: string): { base: string; factor: number } {
-  return UNITS[unit.trim().toLowerCase()] ?? { base: unit.trim(), factor: 1 }
+  return UNITS[unit.trim().toLocaleLowerCase('de-DE')] ?? { base: unit.trim(), factor: 1 }
 }
 
 /** Umrechnungsfaktor von `from` nach `to`, falls gleiche Größe (z. B. kg → g = 1000). */
@@ -59,18 +69,38 @@ function readableUnit(value: number, unit: string): { value: number; unit: strin
   return { value, unit }
 }
 
-export function formatAmount(amount: Amount | undefined): string {
-  if (!amount) return ''
-  if (amount.kind === 'text') return [amount.text, amount.unit].filter(Boolean).join(' ')
+/** Menge und Einheit getrennt, lesbar gerundet (für die Felder eines Listeneintrags). */
+export function amountParts(amount: Amount): { quantity: string; unit: string } {
+  if (amount.kind === 'text') return { quantity: amount.text, unit: amount.unit }
   if (amount.kind === 'number') {
     const r = readableUnit(amount.value, amount.unit)
-    return [formatNumber(r.value), r.unit].filter(Boolean).join(' ')
+    return { quantity: formatNumber(r.value), unit: r.unit }
   }
   const r = readableUnit(amount.max, amount.unit)
   const f = r.value / amount.max || 1
-  return [`${formatNumber(amount.min * f)}–${formatNumber(r.value)}`, r.unit]
-    .filter(Boolean)
-    .join(' ')
+  return { quantity: `${formatNumber(amount.min * f)}–${formatNumber(r.value)}`, unit: r.unit }
+}
+
+export function formatAmount(amount: Amount | undefined): string {
+  if (!amount) return ''
+  const { quantity, unit } = amountParts(amount)
+  return [quantity, unit].filter(Boolean).join(' ')
+}
+
+/** Prüft eine gespeicherte Menge (aus einem synchronisierten Dokument). */
+export function readAmount(value: unknown): Amount | undefined {
+  if (typeof value !== 'object' || value === null) return undefined
+  const a = value as Record<string, unknown>
+  const unit = typeof a.unit === 'string' ? a.unit.slice(0, 30) : ''
+  const finite = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v)
+  const scalable = a.scalable !== false
+  if (a.kind === 'number' && finite(a.value))
+    return { kind: 'number', value: a.value, unit, scalable }
+  if (a.kind === 'range' && finite(a.min) && finite(a.max))
+    return { kind: 'range', min: a.min, max: a.max, unit, scalable }
+  if (a.kind === 'text' && typeof a.text === 'string')
+    return { kind: 'text', text: a.text.slice(0, 60), unit }
+  return undefined
 }
 
 /** Summe zweier Mengen, falls zusammenfassbar (gleiche Größe, beide Zahlen). */
@@ -79,6 +109,38 @@ export function addAmounts(a: Amount, b: Amount): Amount | undefined {
   const factor = conversion(b.unit, a.unit)
   if (factor === undefined) return undefined
   return { ...a, value: a.value + b.value * factor, scalable: a.scalable || b.scalable }
+}
+
+/**
+ * Fasst Mengen je Größe zusammen (500 g + 0,2 kg = 700 g; 2 + 1 Stück = 3).
+ * Zahlen landen in der Basiseinheit; Spannen und Texte bleiben einzeln stehen.
+ */
+export function sumAmounts(amounts: readonly Amount[]): Amount[] {
+  const out: Amount[] = []
+  const byBase = new Map<string, Extract<Amount, { kind: 'number' }>>()
+  for (const amount of amounts) {
+    if (amount.kind !== 'number') {
+      out.push(amount)
+      continue
+    }
+    const info = unitInfo(amount.unit)
+    const key = info.base.toLocaleLowerCase('de-DE')
+    const existing = byBase.get(key)
+    if (existing) {
+      existing.value += amount.value * info.factor
+      existing.scalable ||= amount.scalable
+    } else {
+      const sum = {
+        kind: 'number' as const,
+        value: amount.value * info.factor,
+        unit: info.base,
+        scalable: amount.scalable,
+      }
+      byBase.set(key, sum)
+      out.push(sum)
+    }
+  }
+  return out
 }
 
 /** Liest Mengenangaben wie „800 g“, „1,5 kg“ oder „2 Bleche“. */

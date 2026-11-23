@@ -22,6 +22,11 @@ describe('Katalog-Index', () => {
     expect(index.lookup('unbekannt')).toBeUndefined()
   })
 
+  it('liefert Katalog-ID und Anzeigename auch für Synonyme', () => {
+    expect(index.item(normalizeName('Apfel'))).toEqual({ id: 'aepfel', name: 'Äpfel' })
+    expect(index.item(normalizeName('Birne'))).toBeUndefined()
+  })
+
   it('überspringt ungültige Einträge', () => {
     expect(index.names).toEqual(['Äpfel', 'Zahnpasta'])
     expect(index.size).toBe(2)
