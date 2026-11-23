@@ -29,6 +29,9 @@
 **Ziel:** Überblick über Nährwerte und Kalorien je Rezept, Portion und Woche.
 
 ### 4.5 Lizenzprüfung (ADR)
+
+Recherche und Vorschlag: [ADR 0004](../docs/adr/0004-naehrwertdaten.md) – BLS 4.0 unter CC BY 4.0; Prüfung der Originalquellen noch offen.
+
 - [ ] Nutzungsbedingungen des BLS 4.0 prüfen: Weitergabe im öffentlichen Repo, Vereinbarkeit mit CC BY-SA 4.0, Quellenangabe
 - [ ] Sind sie nicht vereinbar, Alternativen bewerten, z. B. USDA FoodData Central (gemeinfrei) mit Zuordnung deutscher Namen
 
