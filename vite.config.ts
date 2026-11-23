@@ -56,7 +56,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,webmanifest,json}'],
         navigateFallback: 'index.html',
         // Die OAuth-Rückkehr muss immer die echte Seite laden, nie die App-Shell.
         navigateFallbackDenylist: [/^\/auth\//],

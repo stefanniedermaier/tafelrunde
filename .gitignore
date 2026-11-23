@@ -10,3 +10,5 @@ playwright-report/
 .env.local
 .env.*.local
 .DS_Store
+# vom Build erzeugt (tools/catalog.mjs)
+public/catalog/

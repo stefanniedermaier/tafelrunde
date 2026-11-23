@@ -9,7 +9,7 @@ export default defineConfig({
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
   test: {
-    include: ['src/**/*.test.ts', 'build/**/*.test.ts'],
+    include: ['src/**/*.test.ts', 'build/**/*.test.ts', 'tools/**/*.test.mjs'],
     environment: 'node',
     coverage: {
       provider: 'v8',

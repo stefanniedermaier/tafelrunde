@@ -47,9 +47,9 @@
 - [x] Bereich auf einem neuen Gerät aus dem Code wiederherstellen
 
 ### 1.9 Artikel-Grundkatalog
-- [ ] `catalog/ingredients/` mit etwa 300 häufigen Artikeln samt Kategorie und Synonymen, auch Nicht-Lebensmittel wie Drogerieartikel
+- [x] `catalog/ingredients/` mit etwa 300 häufigen Artikeln samt Kategorie und Synonymen, auch Nicht-Lebensmittel wie Drogerieartikel
 - [x] Standard-Kategorien: Obst & Gemüse · Brot & Backwaren · Milch, Käse & Eier · Fleisch, Wurst & Fisch · Tiefkühl · Nudeln, Reis & Konserven · Backen · Gewürze, Öle & Saucen · Frühstück & Aufstriche · Süßes & Snacks · Getränke · Drogerie & Haushalt · Sonstiges
-- [ ] Build-Skript erzeugt die Katalogdateien für die App (siehe [Katalog-Pipeline](01-architektur.md#katalog-pipeline))
+- [x] Build-Skript erzeugt die Katalogdateien für die App (siehe [Katalog-Pipeline](01-architektur.md#katalog-pipeline))
 
 ### 1.10 Einkaufsliste
 - [x] Mehrere Listen pro Bereich

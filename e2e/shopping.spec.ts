@@ -84,6 +84,20 @@ test('Doppelte Einträge zusammenführen und Kategorie merken', async ({ page })
   await expect(page.getByRole('heading', { level: 2, name: 'Obst & Gemüse' })).toBeVisible()
 })
 
+test('Katalog ordnet bekannte Artikel ein und schlägt Namen vor', async ({ page }) => {
+  await setup(page)
+  await newList(page, 'Liste')
+  await addItem(page, 'Apfel')
+  await addItem(page, 'Klopapier')
+  await addItem(page, 'Etwas Unbekanntes')
+  await expect(page.getByRole('heading', { level: 2 })).toHaveText([
+    'Obst & Gemüse',
+    'Drogerie & Haushalt',
+    'Sonstiges',
+  ])
+  await expect(page.locator('datalist option[value="Zahnpasta"]')).toHaveCount(1)
+})
+
 test('Haushalt anlegen; Einladung braucht einen verbundenen Speicher', async ({ page }) => {
   await setup(page)
   await page.getByRole('button', { name: 'Haushalt anlegen' }).click()

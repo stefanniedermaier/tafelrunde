@@ -1,0 +1,16 @@
+# Kategorie: fruehstueck-aufstriche. Eine Zeile je Artikel; siehe catalog/README.md.
+- { id: muesli, name: Müsli, diet: vegan }
+- { id: cornflakes, name: Cornflakes, diet: vegan }
+- { id: honig, name: Honig, diet: vegetarisch }
+- { id: marmelade, name: Marmelade, synonyms: [Konfitüre], diet: vegan }
+- { id: nuss-nougat-creme, name: Nuss-Nougat-Creme, synonyms: [Nutella], diet: vegetarisch }
+- { id: erdnussbutter, name: Erdnussbutter, diet: vegan }
+- { id: kaffee, name: Kaffee, synonyms: [Kaffeebohnen, Filterkaffee], diet: vegan }
+- { id: espresso, name: Espresso, diet: vegan }
+- { id: kaffeepads, name: Kaffeepads, synonyms: [Kapseln, Kaffeekapseln], diet: vegan }
+- { id: tee, name: Tee, synonyms: [Teebeutel, Schwarztee, Kräutertee, Pfefferminztee, Grüner Tee], diet: vegan }
+- { id: kakao, name: Kakao, synonyms: [Trinkkakao], diet: vegetarisch }
+- { id: ahornsirup, name: Ahornsirup, diet: vegan }
+- { id: aufstrich, name: Aufstrich, synonyms: [Brotaufstrich], diet: vegan }
+- { id: hummus, name: Hummus, diet: vegan }
+- { id: granola, name: Granola, diet: vegan }

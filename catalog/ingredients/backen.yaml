@@ -1,0 +1,22 @@
+# Kategorie: backen. Eine Zeile je Artikel; siehe catalog/README.md.
+- { id: mehl, name: Mehl, synonyms: [Weizenmehl, Mehl Type 405], diet: vegan }
+- { id: vollkornmehl, name: Vollkornmehl, synonyms: [Dinkelvollkornmehl], diet: vegan }
+- { id: dinkelmehl, name: Dinkelmehl, diet: vegan }
+- { id: zucker, name: Zucker, synonyms: [Weißer Zucker], diet: vegan }
+- { id: puderzucker, name: Puderzucker, diet: vegan }
+- { id: brauner-zucker, name: Brauner Zucker, synonyms: [Rohrzucker], diet: vegan }
+- { id: vanillezucker, name: Vanillezucker, diet: vegan }
+- { id: backpulver, name: Backpulver, diet: vegan }
+- { id: trockenhefe, name: Trockenhefe, diet: vegan }
+- { id: frische-hefe, name: Frische Hefe, synonyms: [Hefe], diet: vegan }
+- { id: speisestaerke, name: Speisestärke, synonyms: [Maisstärke], diet: vegan }
+- { id: kakaopulver, name: Kakaopulver, synonyms: [Backkakao], diet: vegan }
+- { id: kuvertuere, name: Kuvertüre, synonyms: [Schokoglasur], diet: vegetarisch }
+- { id: schokotropfen, name: Schokotropfen, diet: vegetarisch }
+- { id: gemahlene-mandeln, name: Gemahlene Mandeln, diet: vegan }
+- { id: gemahlene-haselnuesse, name: Gemahlene Haselnüsse, diet: vegan }
+- { id: rosinen, name: Rosinen, diet: vegan }
+- { id: natron, name: Natron, diet: vegan }
+- { id: gelatine, name: Gelatine, diet: omnivor }
+- { id: agar-agar, name: Agar-Agar, diet: vegan }
+- { id: streusel, name: Streusel, synonyms: [Zuckerstreusel], diet: vegan }

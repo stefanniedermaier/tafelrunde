@@ -1,0 +1,16 @@
+# Kategorie: getraenke. Eine Zeile je Artikel; siehe catalog/README.md.
+- { id: wasser, name: Wasser, synonyms: [Mineralwasser, Sprudel], diet: vegan }
+- { id: stilles-wasser, name: Stilles Wasser, diet: vegan }
+- { id: apfelsaft, name: Apfelsaft, synonyms: [Saft], diet: vegan }
+- { id: orangensaft, name: Orangensaft, synonyms: [O-Saft], diet: vegan }
+- { id: apfelschorle, name: Apfelschorle, synonyms: [Schorle], diet: vegan }
+- { id: cola, name: Cola, diet: vegan }
+- { id: limonade, name: Limonade, synonyms: [Limo], diet: vegan }
+- { id: eistee, name: Eistee, diet: vegan }
+- { id: bier, name: Bier, diet: vegan }
+- { id: alkoholfreies-bier, name: Alkoholfreies Bier, diet: vegan }
+- { id: weisswein, name: Weißwein, synonyms: [Wein], diet: vegan }
+- { id: rotwein, name: Rotwein, diet: vegan }
+- { id: sekt, name: Sekt, synonyms: [Prosecco], diet: vegan }
+- { id: sirup, name: Sirup, diet: vegan }
+- { id: energydrink, name: Energydrink, diet: vegan }

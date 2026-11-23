@@ -2,6 +2,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import { router } from './router'
+import { loadCatalog } from './catalog'
 import { isFramed } from './frame-guard'
 import { applyStoredTheme } from '@/ui/theme'
 import '@/ui/tokens.css'
@@ -12,5 +13,6 @@ if (isFramed(window)) {
   document.body.textContent = 'Tafelrunde kann nicht in einem fremden Rahmen angezeigt werden.'
 } else {
   applyStoredTheme()
+  void loadCatalog()
   createApp(App).use(router).mount('#app')
 }

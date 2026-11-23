@@ -1,0 +1,33 @@
+# Kategorie: drogerie-haushalt. Eine Zeile je Artikel; siehe catalog/README.md.
+- { id: toilettenpapier, name: Toilettenpapier, synonyms: [Klopapier] }
+- { id: kuechenrolle, name: Küchenrolle, synonyms: [Küchenpapier] }
+- { id: taschentuecher, name: Taschentücher }
+- { id: spuelmittel, name: Spülmittel }
+- { id: spuelmaschinentabs, name: Spülmaschinentabs, synonyms: [Spültabs] }
+- { id: waschmittel, name: Waschmittel }
+- { id: weichspueler, name: Weichspüler }
+- { id: muellbeutel, name: Müllbeutel, synonyms: [Mülltüten] }
+- { id: gefrierbeutel, name: Gefrierbeutel }
+- { id: frischhaltefolie, name: Frischhaltefolie }
+- { id: alufolie, name: Alufolie, synonyms: [Aluminiumfolie] }
+- { id: backpapier, name: Backpapier }
+- { id: schwaemme, name: Schwämme, synonyms: [Spülschwamm] }
+- { id: allzweckreiniger, name: Allzweckreiniger, synonyms: [Reiniger] }
+- { id: wc-reiniger, name: WC-Reiniger }
+- { id: glasreiniger, name: Glasreiniger }
+- { id: zahnpasta, name: Zahnpasta, synonyms: [Zahncreme] }
+- { id: zahnbuerste, name: Zahnbürste, synonyms: [Zahnbürsten] }
+- { id: shampoo, name: Shampoo }
+- { id: duschgel, name: Duschgel }
+- { id: seife, name: Seife, synonyms: [Handseife, Flüssigseife] }
+- { id: deo, name: Deo, synonyms: [Deodorant] }
+- { id: rasierer, name: Rasierer, synonyms: [Rasierklingen] }
+- { id: sonnencreme, name: Sonnencreme }
+- { id: windeln, name: Windeln }
+- { id: feuchttuecher, name: Feuchttücher }
+- { id: wattepads, name: Wattepads }
+- { id: batterien, name: Batterien }
+- { id: gluehbirnen, name: Glühbirnen, synonyms: [Leuchtmittel] }
+- { id: kerzen, name: Kerzen, synonyms: [Teelichter] }
+- { id: katzenfutter, name: Katzenfutter }
+- { id: hundefutter, name: Hundefutter }

@@ -1,0 +1,17 @@
+# Kategorie: suesses-snacks. Eine Zeile je Artikel; siehe catalog/README.md.
+- { id: schokolade, name: Schokolade, synonyms: [Tafelschokolade], diet: vegetarisch }
+- { id: gummibaerchen, name: Gummibärchen, synonyms: [Fruchtgummi, Gummibären], diet: omnivor }
+- { id: kekse, name: Kekse, synonyms: [Plätzchen], diet: vegetarisch }
+- { id: chips, name: Chips, synonyms: [Kartoffelchips], diet: vegan }
+- { id: salzstangen, name: Salzstangen, diet: vegan }
+- { id: erdnuesse, name: Erdnüsse, diet: vegan }
+- { id: nuesse, name: Nüsse, synonyms: [Nussmischung], diet: vegan }
+- { id: studentenfutter, name: Studentenfutter, diet: vegan }
+- { id: mandeln, name: Mandeln, diet: vegan }
+- { id: walnuesse, name: Walnüsse, diet: vegan }
+- { id: popcorn, name: Popcorn, diet: vegan }
+- { id: muesliriegel, name: Müsliriegel, diet: vegetarisch }
+- { id: kuchen-fertig, name: Kuchen fertig, synonyms: [Fertigkuchen], diet: vegetarisch }
+- { id: bonbons, name: Bonbons, diet: vegan }
+- { id: cracker, name: Cracker, diet: vegan }
+- { id: reiswaffeln, name: Reiswaffeln, diet: vegan }
