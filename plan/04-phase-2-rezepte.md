@@ -5,9 +5,9 @@
 ## Aufgaben
 
 ### 2.1 Cooklang-Parser (ADR)
-- [ ] `@cooklang/cooklang` (offiziell, WASM) und `@tmlmt/cooklang-parser` (TypeScript, mit Skalierung) vergleichen: Referenzen, Skalierung, fixe Mengen, Fehlermeldungen, Bundle-Größe, Lizenz, Pflege
-- [ ] Den Parser hinter einer eigenen Schnittstelle in `src/core/recipe` kapseln
-- [ ] Konventionen festlegen: Front Matter (Titel, Portionen bzw. Ausbeute, Zeiten, Tags, Quelle), deutsche Einheiten, Referenzpfade für Katalog- und eigene Rezepte
+- [x] `@cooklang/cooklang` (offiziell, WASM) und `@tmlmt/cooklang-parser` (TypeScript, mit Skalierung) vergleichen: Referenzen, Skalierung, fixe Mengen, Fehlermeldungen, Bundle-Größe, Lizenz, Pflege
+- [x] Den Parser hinter einer eigenen Schnittstelle in `src/core/recipe` kapseln
+- [x] Konventionen festlegen: Front Matter (Titel, Portionen bzw. Ausbeute, Zeiten, Tags, Quelle), deutsche Einheiten, Referenzpfade für Katalog- und eigene Rezepte
 
 ### 2.2 Dokument `library`
 - [ ] Rezepte (Cooklang-Quelltext als `Y.Text` mit Metadaten), Notizen, Bewertungen, Koch-Protokoll
