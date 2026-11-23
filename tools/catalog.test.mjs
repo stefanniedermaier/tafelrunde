@@ -3,7 +3,8 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { loadCatalog } from './catalog.mjs'
+import * as core from '../src/core/index.ts'
+import { loadCatalog, loadRecipes } from './catalog.mjs'
 
 const dirs = []
 function fixture(files) {
@@ -61,5 +62,38 @@ describe('Katalog', () => {
     ],
   ])('meldet %s', (_, files, message) => {
     expect(() => loadCatalog(fixture(files))).toThrow(message)
+  })
+})
+
+describe('Katalogrezepte', () => {
+  const ingredients = [{ id: 'mehl', name: 'Mehl', category: 'backen' }]
+  const cook = (title, body = '') => `---\ntitle: ${title}\n---\n${body}`
+
+  it('die echten Rezepte sind gültig und haben eine Version', () => {
+    const { recipes } = loadRecipes(core, loadCatalog())
+    expect(recipes.map((r) => r.path)).toContain('backen/hefeteig')
+    expect(recipes.find((r) => r.path === 'backen/hefeteig').version).toMatch(/^[0-9a-f]{16}$/)
+  })
+
+  it('meldet unbekannte Zutaten nur als Hinweis', () => {
+    const dir = fixture({ 'a.cook': cook('A', '@Mehl{1%g} @Drachenfrucht{1}') })
+    expect(loadRecipes(core, ingredients, dir).notes).toEqual([
+      'a.cook: Zutat „Drachenfrucht“ fehlt im Artikelkatalog',
+    ])
+  })
+
+  it.each([
+    [
+      'nicht auflösbare Referenz',
+      { 'a.cook': cook('A', '@./Fehlt{1}') },
+      /Referenz „Fehlt“ nicht im Katalog/,
+    ],
+    ['Zyklus', { 'a.cook': cook('A', '@./b{1}'), 'b.cook': cook('B', '@./a{1}') }, /Zyklus/],
+    ['fehlender Titel', { 'a.cook': 'Nur Text' }, /Titel fehlt/],
+    ['falscher Pfad', { 'Groß.cook': cook('A') }, /Pfad nur aus Kleinbuchstaben/],
+    ['falsche Endung', { 'a.txt': 'x' }, /nur .cook-Dateien/],
+    ['zu groß', { 'a.cook': cook('A', 'x'.repeat(60_000)) }, /größer als/],
+  ])('meldet %s', (_, files, message) => {
+    expect(() => loadRecipes(core, ingredients, fixture(files))).toThrow(message)
   })
 })

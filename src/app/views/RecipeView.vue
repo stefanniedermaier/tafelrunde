@@ -16,16 +16,23 @@ import {
   recipeDiet,
   resolveAll,
   scaleRecipe,
+  safeFileName,
+  spaceKind,
+  spaceName,
+  spaceOwner,
   subRecipeIngredients,
   timerSeconds,
 } from '@/core'
+import { downloadFile } from '../download'
+import { catalogSources } from '../recipes/catalog-recipes'
 import AppButton from '@/ui/components/AppButton.vue'
 import AppDialog from '@/ui/components/AppDialog.vue'
 import TimerButton from '@/ui/components/TimerButton.vue'
 import { catalogDiet } from '../catalog'
 import { useRecipes } from '../recipes/recipe-store'
 import { recipeRoute } from '../recipes/routes'
-import { workspace } from '../workspace/use-workspace'
+import { catalogVersions } from '../recipes/catalog-recipes'
+import { bumpWorkspace, workspace } from '../workspace/use-workspace'
 import CookMode from './CookMode.vue'
 import RecipeCollections from './RecipeCollections.vue'
 import RecipeReviews from './RecipeReviews.vue'
@@ -44,8 +51,71 @@ const current = computed<RecipeEntry | undefined>(
     recipes.value.find((r) => r.spaceId === props.spaceId && r.id === props.recipeId),
 )
 const base = computed(() => current.value?.recipe)
+/** Übernommenes Rezept, dessen Original im Katalog sich seitdem geändert hat (2.11). */
+const origin = computed(() => {
+  const stored = recipes.value.find(
+    (r) => r.spaceId === props.spaceId && r.id === props.recipeId,
+  )?.stored
+  return stored?.origin
+})
+const originChanged = computed(() => {
+  const o = origin.value
+  if (o?.kind !== 'catalog') return false
+  const now = catalogVersions.value.get(o.ref)
+  return now !== undefined && now !== o.version
+})
 const scope = computed(() => current.value?.scope ?? '')
-const library = computed(() => handles.value.find((h) => h.record.id === props.spaceId)?.library)
+const handle = computed(() => handles.value.find((h) => h.record.id === props.spaceId))
+const ownPersonId = ref<string>()
+void workspace().then((ws) => (ownPersonId.value = ws.profile?.personId))
+/** In einer Rezept-Freigabe dürfen nur die Ersteller ändern; Empfänger übernehmen. */
+const isReceivedShare = computed(() => {
+  const h = handle.value
+  return !!h && spaceKind(h.doc) === 'recipe-share' && spaceOwner(h.doc) !== ownPersonId.value
+})
+const library = computed(() => (isReceivedShare.value ? undefined : handle.value?.library))
+
+// --- Teilen, Übernehmen, Export (2.11, 2.12) -----------------------------------------
+
+const confirmShare = ref(false)
+const actionError = ref<string>()
+async function share() {
+  actionError.value = undefined
+  try {
+    const target = await (await workspace()).shareRecipe(props.spaceId!, props.recipeId!)
+    confirmShare.value = false
+    bumpWorkspace()
+    await router.push({ name: 'space', params: { spaceId: target.record.id } })
+  } catch (e) {
+    actionError.value = e instanceof Error ? e.message : String(e)
+  }
+}
+
+const adoptTargets = computed(() =>
+  handles.value
+    .filter((h) => spaceKind(h.doc) === 'personal' || spaceKind(h.doc) === 'household')
+    .map((h) => ({
+      id: h.record.id,
+      name: spaceName(h.doc) || (spaceKind(h.doc) === 'personal' ? 'Persönlich' : 'Bereich'),
+    })),
+)
+const adoptTarget = ref<string>()
+async function adopt() {
+  const to = adoptTarget.value ?? adoptTargets.value[0]?.id
+  if (!to || !props.spaceId || !props.recipeId) return
+  const id = await (await workspace()).adoptRecipe(props.spaceId, props.recipeId, to)
+  await router.push({ name: 'recipe', params: { spaceId: to, recipeId: id } })
+}
+
+function exportCook() {
+  const stored = recipes.value.find(
+    (r) => r.spaceId === props.spaceId && r.id === props.recipeId,
+  )?.stored
+  const source =
+    stored?.source ?? (props.entry ? catalogSources.value.get(props.entry.path ?? '') : undefined)
+  if (source === undefined || !base.value) return
+  downloadFile(`${safeFileName(base.value.meta.title)}.cook`, source, 'text/plain;charset=utf-8')
+}
 
 // --- Portionen ----------------------------------------------------------------
 
@@ -167,6 +237,14 @@ const stepBlocks = (blocks: Block[]) => blocks
       <li v-for="tag in base.meta.tags" :key="tag" class="tag">{{ tag }}</li>
     </ul>
 
+    <p v-if="origin?.kind === 'catalog'" class="origin">
+      Übernommen aus dem Katalog:
+      <RouterLink :to="{ name: 'catalog-recipe', params: { path: origin.ref.split('/') } }">
+        Original ansehen
+      </RouterLink>
+      <strong v-if="originChanged"> – das Original wurde seitdem geändert.</strong>
+    </p>
+
     <ul v-if="base.warnings.length" class="warnings" aria-label="Hinweise zum Rezepttext">
       <li v-for="w in base.warnings" :key="w">{{ w }}</li>
     </ul>
@@ -186,7 +264,25 @@ const stepBlocks = (blocks: Block[]) => blocks
           Bearbeiten
         </RouterLink>
         <AppButton @click="markCooked">Heute gekocht</AppButton>
+        <AppButton
+          v-if="handle && spaceKind(handle.doc) !== 'recipe-share'"
+          @click="confirmShare = true"
+        >
+          Teilen
+        </AppButton>
       </template>
+      <form v-if="isReceivedShare" class="adopt" @submit.prevent="adopt">
+        <div v-if="adoptTargets.length > 1" class="field">
+          <label for="adopt-shared">Übernehmen nach</label>
+          <select id="adopt-shared" v-model="adoptTarget">
+            <option v-for="t in adoptTargets" :key="t.id" :value="t.id">{{ t.name }}</option>
+          </select>
+        </div>
+        <AppButton type="submit" :disabled="!adoptTargets.length"
+          >In meine Rezepte übernehmen</AppButton
+        >
+      </form>
+      <AppButton variant="ghost" @click="exportCook">Als .cook speichern</AppButton>
       <slot name="actions" />
     </div>
     <p v-if="cookedAt" class="muted">
@@ -306,6 +402,19 @@ const stepBlocks = (blocks: Block[]) => blocks
 
     <CookMode v-if="cooking" :recipe="recipe" @close="cooking = false" />
 
+    <AppDialog v-model:open="confirmShare" title="Rezept teilen?">
+      <p>
+        Es entsteht eine Freigabe mit einer Kopie von „{{ base.meta.title }}“ und allen verwendeten
+        eigenen Unterrezepten. Wer den Link bekommt, kann sie ohne Konto lesen und übernehmen.
+        Spätere Änderungen an deinem Rezept gelangen nicht in die Freigabe.
+      </p>
+      <p v-if="actionError" role="alert" class="warning">{{ actionError }}</p>
+      <template #actions>
+        <AppButton @click="confirmShare = false">Abbrechen</AppButton>
+        <AppButton variant="primary" @click="share">Freigabe erstellen</AppButton>
+      </template>
+    </AppDialog>
+
     <AppDialog v-model:open="confirmDelete" title="Rezept löschen?">
       <p>„{{ base.meta.title }}“ wird mit Notizen und Bewertungen auf allen Geräten gelöscht.</p>
       <template #actions>
@@ -344,6 +453,11 @@ const stepBlocks = (blocks: Block[]) => blocks
 .warnings {
   padding: var(--space-3) var(--space-3) var(--space-3) var(--space-6);
   border-left: 4px solid var(--warning);
+  background: var(--surface);
+}
+.origin {
+  padding: var(--space-2) var(--space-3);
+  border-left: 4px solid var(--primary);
   background: var(--surface);
 }
 .actions {
@@ -426,6 +540,28 @@ const stepBlocks = (blocks: Block[]) => blocks
 }
 .warning {
   color: var(--warning);
+}
+.adopt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+.field {
+  display: grid;
+  gap: var(--space-1);
+}
+.field label {
+  font-weight: 600;
+}
+select {
+  min-height: var(--touch-target);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
 }
 .danger-zone {
   margin-top: var(--space-8);

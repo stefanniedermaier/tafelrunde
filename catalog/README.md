@@ -22,4 +22,6 @@ Ein Eintrag je Zeile:
 
 Prüfen mit `pnpm catalog:validate`; `pnpm build` erzeugt daraus `public/catalog/ingredients.json`.
 
-Rezept-Beiträge werden ab Phase 2 angenommen.
+## Rezepte (`recipes/`)
+
+Cooklang-Dateien, eine je Rezept, z. B. `recipes/backen/hefeteig.cook`. Schreibweise: [`docs/rezepte.md`](../docs/rezepte.md), Beitragsregeln: [`CONTRIBUTING.md`](../CONTRIBUTING.md#rezepte-und-zutaten). `pnpm catalog:validate` prüft sie mit demselben Parser wie die App.

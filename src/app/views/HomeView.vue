@@ -19,7 +19,8 @@ onMounted(async () => {
 /** Haushalte zuerst, der persönliche Bereich am Ende. */
 const spaces = computed(() => {
   void workspaceVersion.value
-  const all = ws.value?.spaces() ?? []
+  // Rezept-Freigaben gehören zu den Rezepten, nicht zu den Einkaufslisten.
+  const all = (ws.value?.spaces() ?? []).filter((s) => s.kind !== 'recipe-share')
   return [...all.filter((s) => s.kind !== 'personal'), ...all.filter((s) => s.kind === 'personal')]
 })
 

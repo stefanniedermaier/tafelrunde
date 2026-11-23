@@ -1,17 +1,21 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
 <script setup lang="ts">
 import { computed, onMounted, ref, shallowRef } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { type RouteLocationRaw, RouterLink, useRouter } from 'vue-router'
 import {
   type Diet,
+  type ParsedRecipe,
   type RecipeSort,
   type SearchableRecipe,
   DIET_LABELS,
   SORT_LABELS,
   allTags,
   averageStars,
+  MAX_RECIPE_CHARS,
   createRecipe,
   createRecipeSearch,
+  createZip,
+  safeFileName,
   getReviews,
   lastCooked,
   listCollections,
@@ -20,6 +24,9 @@ import {
   spaceName,
 } from '@/core'
 import { catalogDiet } from '../catalog'
+import { downloadFile } from '../download'
+import { loadCatalogRecipes } from '../recipes/catalog-recipes'
+import { catalogEntries } from '../recipes/recipe-store'
 import AppButton from '@/ui/components/AppButton.vue'
 import AppCard from '@/ui/components/AppCard.vue'
 import { useRecipes } from '../recipes/recipe-store'
@@ -29,7 +36,11 @@ import type { Workspace } from '../workspace/workspace'
 const router = useRouter()
 const { recipes, handles, index } = useRecipes()
 const ws = shallowRef<Workspace>()
-onMounted(async () => (ws.value = await workspace()))
+onMounted(async () => {
+  ws.value = await workspace()
+  await loadCatalogRecipes()
+})
+const source = ref<'all' | 'own' | 'catalog'>('all')
 
 // --- Suche, Filter, Sortierung (2.6) -----------------------------------------------
 
@@ -52,8 +63,8 @@ const collections = computed(() =>
   ),
 )
 
-const searchable = computed<SearchableRecipe[]>(() =>
-  recipes.value.map((r) => {
+const searchable = computed<SearchableRecipe[]>(() => [
+  ...(source.value === 'catalog' ? [] : recipes.value).map((r) => {
     const lib = handles.value.find((h) => h.record.id === r.spaceId)?.library
     return {
       key: r.key,
@@ -65,10 +76,42 @@ const searchable = computed<SearchableRecipe[]>(() =>
       collections: collections.value.filter((c) => c.recipeKeys.includes(r.key)).map((c) => c.key),
     }
   }),
-)
+  ...(source.value === 'own' ? [] : catalogEntries.value).map((e) => ({
+    key: e.key,
+    recipe: e.recipe,
+    diet: recipeDiet(index.value, e.recipe, e.scope, catalogDiet).diet,
+    createdAt: 0,
+  })),
+])
 const search = computed(() => createRecipeSearch(searchable.value))
 const tags = computed(() => allTags(searchable.value))
-const byKey = computed(() => new Map(recipes.value.map((r) => [r.key, r])))
+/** Einheitliche Karte für eigene und Katalogrezepte. */
+interface Card {
+  key: string
+  recipe: ParsedRecipe
+  label: string
+  to: RouteLocationRaw
+}
+const cards = computed(() => {
+  const map = new Map<string, Card>()
+  for (const r of recipes.value) {
+    map.set(r.key, {
+      key: r.key,
+      recipe: r.recipe,
+      label: r.spaceName,
+      to: { name: 'recipe', params: { spaceId: r.spaceId, recipeId: r.id } },
+    })
+  }
+  for (const e of catalogEntries.value) {
+    map.set(e.key, {
+      key: e.key,
+      recipe: e.recipe,
+      label: 'Katalog',
+      to: { name: 'catalog-recipe', params: { path: (e.path ?? '').split('/') } },
+    })
+  }
+  return map
+})
 const meta = computed(() => new Map(searchable.value.map((s) => [s.key, s])))
 
 const sorted = computed(() =>
@@ -83,7 +126,7 @@ const sorted = computed(() =>
       },
       sort.value,
     )
-    .flatMap((s) => byKey.value.get(s.key) ?? []),
+    .flatMap((s) => cards.value.get(s.key) ?? []),
 )
 const filtered = computed(
   () =>
@@ -108,10 +151,12 @@ function toggleTag(tag: string) {
 
 /** Bereiche, in denen Rezepte liegen können (persönlich und Haushalte). */
 const targets = computed(() =>
-  handles.value.map((h) => ({
-    id: h.record.id,
-    name: spaceName(h.doc) || (spaceKind(h.doc) === 'personal' ? 'Persönlich' : 'Bereich'),
-  })),
+  handles.value
+    .filter((h) => spaceKind(h.doc) === 'personal' || spaceKind(h.doc) === 'household')
+    .map((h) => ({
+      id: h.record.id,
+      name: spaceName(h.doc) || (spaceKind(h.doc) === 'personal' ? 'Persönlich' : 'Bereich'),
+    })),
 )
 const target = ref<string>()
 
@@ -122,6 +167,41 @@ tags: []
 ---
 Beschreibe hier die Schritte. Zutaten schreibst du so: @Mehl{500%g}.
 `
+
+// --- Import und Backup (2.12) ---------------------------------------------------
+
+const importError = ref<string>()
+async function importFiles(event: Event) {
+  importError.value = undefined
+  const input = event.target as HTMLInputElement
+  const h = handles.value.find((x) => x.record.id === (target.value ?? targets.value[0]?.id))
+  if (!h?.library || !ws.value?.profile) return
+  let last: string | undefined
+  for (const file of Array.from(input.files ?? [])) {
+    if (file.size > MAX_RECIPE_CHARS * 4) {
+      importError.value = `„${file.name}“ ist zu groß.`
+      continue
+    }
+    const text = await file.text()
+    last = createRecipe(h.library.doc, text, ws.value.profile.personId)
+  }
+  input.value = ''
+  if (last) await router.push({ name: 'recipe', params: { spaceId: h.record.id, recipeId: last } })
+}
+
+function exportAll() {
+  const used = new Set<string>()
+  const entries = recipes.value
+    .filter((r) => r.recipe.meta.title || r.stored.source)
+    .map((r) => {
+      let name = `${safeFileName(r.spaceName, 'Bereich')}/${safeFileName(r.recipe.meta.title)}`
+      for (let n = 2; used.has(name); n++) name = `${name.replace(/ \(\d+\)$/, '')} (${n})`
+      used.add(name)
+      return { name: `${name}.cook`, content: r.stored.source }
+    })
+  const date = new Date().toISOString().slice(0, 10)
+  downloadFile(`tafelrunde-rezepte-${date}.zip`, createZip(entries), 'application/zip')
+}
 
 async function create() {
   const id = target.value ?? targets.value[0]?.id
@@ -144,7 +224,15 @@ const minutes = (m?: number) => (m ? `${m} min` : '')
       </select>
     </div>
     <AppButton type="submit" variant="primary" :disabled="!targets.length">Neues Rezept</AppButton>
+    <label class="file-button">
+      .cook importieren
+      <input type="file" accept=".cook,.txt,text/plain" multiple @change="importFiles" />
+    </label>
+    <AppButton variant="ghost" :disabled="!recipes.length" @click="exportAll">
+      Alle als ZIP sichern
+    </AppButton>
   </form>
+  <p v-if="importError" role="alert" class="error">{{ importError }}</p>
 
   <form class="filters" role="search" aria-label="Rezepte suchen" @submit.prevent>
     <div class="field field--grow">
@@ -181,6 +269,14 @@ const minutes = (m?: number) => (m ? `${m} min` : '')
       </select>
     </div>
     <div class="field">
+      <label for="recipe-source">Quelle</label>
+      <select id="recipe-source" v-model="source">
+        <option value="all">alle</option>
+        <option value="own">eigene</option>
+        <option value="catalog">Katalog</option>
+      </select>
+    </div>
+    <div class="field">
       <label for="recipe-sort">Sortieren nach</label>
       <select id="recipe-sort" v-model="sort">
         <option v-for="(label, key) in SORT_LABELS" :key="key" :value="key">{{ label }}</option>
@@ -204,17 +300,17 @@ const minutes = (m?: number) => (m ? `${m} min` : '')
     <AppButton v-if="filtered" variant="ghost" @click="resetFilters">Filter zurücksetzen</AppButton>
   </p>
 
-  <p v-if="!recipes.length" class="muted">Noch keine Rezepte.</p>
+  <p v-if="!cards.size" class="muted">Noch keine Rezepte.</p>
   <ul class="cards">
     <li v-for="r in sorted" :key="r.key">
       <AppCard>
         <h2>
-          <RouterLink :to="{ name: 'recipe', params: { spaceId: r.spaceId, recipeId: r.id } }">
+          <RouterLink :to="r.to">
             {{ r.recipe.meta.title || 'Ohne Titel' }}
           </RouterLink>
         </h2>
         <p class="meta">
-          <span>{{ r.spaceName }}</span>
+          <span>{{ r.label }}</span>
           <span v-if="r.recipe.meta.prepMinutes || r.recipe.meta.cookMinutes">
             {{ minutes((r.recipe.meta.prepMinutes ?? 0) + (r.recipe.meta.cookMinutes ?? 0)) }}
           </span>
@@ -254,6 +350,31 @@ select {
   background: var(--surface);
   color: var(--text);
   font: inherit;
+}
+.file-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-weight: 600;
+  cursor: pointer;
+}
+.file-button:focus-within {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+.file-button input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.error {
+  color: var(--error);
 }
 .filters {
   display: flex;

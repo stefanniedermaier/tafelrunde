@@ -212,7 +212,7 @@ async function acceptReply(input = replyInput.value) {
         <p v-if="replyOk" role="status">{{ replyOk }}</p>
       </AppCard>
 
-      <StoresCard v-if="kind !== 'personal'" :doc="doc" :version="version" />
+      <StoresCard v-if="kind === 'household'" :doc="doc" :version="version" />
 
       <AppCard>
         <h2>Wiederherstellung</h2>

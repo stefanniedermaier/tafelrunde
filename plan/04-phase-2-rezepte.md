@@ -49,19 +49,19 @@
 - [ ] Fotos im Katalog liegen im Repo, mit Größenlimit und Lizenzangabe
 
 ### 2.10 Öffentlicher Katalog auf GitHub
-- [ ] `catalog/recipes/**/*.cook` mit Front Matter
-- [ ] `tools/catalog validate` und `build` mit demselben Parser wie die App; CI-Job bei jedem PR
-- [ ] PR-Vorlage „Neues Rezept“ und Beitragsanleitung mit Lizenzhinweis (nur eigene Texte und Fotos)
-- [ ] Erste Rezepte der Familie einpflegen, z. B. einen Hefeteig und einen Kuchen, der ihn referenziert
+- [x] `catalog/recipes/**/*.cook` mit Front Matter
+- [x] `tools/catalog validate` und `build` mit demselben Parser wie die App; CI-Job bei jedem PR
+- [x] PR-Vorlage „Neues Rezept“ und Beitragsanleitung mit Lizenzhinweis (nur eigene Texte und Fotos)
+- [x] Erste Rezepte der Familie einpflegen, z. B. einen Hefeteig und einen Kuchen, der ihn referenziert
 
 ### 2.11 Übernehmen und Anpassen
-- [ ] Ein Katalog- oder geteiltes Rezept als Kopie in einen Bereich übernehmen; Quelle und Version stehen in den Metadaten
-- [ ] Hinweis, wenn sich das Original geändert hat
+- [x] Ein Katalog- oder geteiltes Rezept als Kopie in einen Bereich übernehmen; Quelle und Version stehen in den Metadaten
+- [x] Hinweis, wenn sich das Original geändert hat
 
 ### 2.12 Rezepte teilen
-- [ ] Rezept-Freigabe: eigener Bereich (nur Lesen) mit Link oder QR-Code; referenzierte Unterrezepte werden mitgeteilt
-- [ ] Empfänger brauchen zum Lesen kein Konto und können das Rezept übernehmen
-- [ ] Einzelne Rezepte als `.cook` exportieren und importieren; alle Rezepte als ZIP exportieren (Backup)
+- [x] Rezept-Freigabe: eigener Bereich (nur Lesen) mit Link oder QR-Code; referenzierte Unterrezepte werden mitgeteilt
+- [x] Empfänger brauchen zum Lesen kein Konto und können das Rezept übernehmen
+- [x] Einzelne Rezepte als `.cook` exportieren und importieren; alle Rezepte als ZIP exportieren (Backup)
 
 ### 2.13 Qualität
 - [ ] Unit-Tests: Skalierung, Referenzen, Zyklen, Ernährungsform

@@ -30,6 +30,12 @@ export const router = createRouter({
       component: () => import('./views/RecipesView.vue'),
     },
     {
+      path: '/katalog/:path+',
+      name: 'catalog-recipe',
+      component: () => import('./views/CatalogRecipeView.vue'),
+      props: true,
+    },
+    {
       path: '/b/:spaceId/r/:recipeId',
       name: 'recipe',
       component: () => import('./views/RecipeView.vue'),

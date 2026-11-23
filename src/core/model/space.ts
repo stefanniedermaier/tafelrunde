@@ -12,7 +12,15 @@ import type * as Y from 'yjs'
 import { type DocKind, DOC_KINDS } from '../crypto/envelope'
 import { isValidId } from '../crypto/ids'
 
-export type SpaceKind = 'personal' | 'household' | 'shared-list'
+/** `recipe-share`: Rezept-Freigabe, nur der Ersteller schreibt (2.12). */
+export type SpaceKind = 'personal' | 'household' | 'shared-list' | 'recipe-share'
+
+export const SPACE_KINDS: readonly SpaceKind[] = [
+  'personal',
+  'household',
+  'shared-list',
+  'recipe-share',
+]
 
 export interface FileRefs {
   live?: string
@@ -92,7 +100,7 @@ export function spaceName(doc: Y.Doc): string {
 
 export function spaceKind(doc: Y.Doc): SpaceKind | undefined {
   const kind = doc.getMap<unknown>(LIVE_ROOT.meta).get('kind')
-  return kind === 'personal' || kind === 'household' || kind === 'shared-list' ? kind : undefined
+  return SPACE_KINDS.includes(kind as SpaceKind) ? (kind as SpaceKind) : undefined
 }
 
 /** Personen-ID der Eigentümerin eines persönlichen Bereichs. */

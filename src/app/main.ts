@@ -3,6 +3,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import { router } from './router'
 import { loadCatalog } from './catalog'
+import { loadCatalogRecipes } from './recipes/catalog-recipes'
 import { auth, currentRoute } from './storage'
 import { initWorkspace } from './workspace/use-workspace'
 import { isFramed } from './frame-guard'
@@ -16,6 +17,7 @@ if (isFramed(window)) {
 } else {
   applyStoredTheme()
   void loadCatalog()
+  void loadCatalogRecipes()
   // Ergebnis einer Google-Anmeldung übernehmen, bevor irgendetwas schreibt.
   auth?.takeResult()
   createApp(App).use(router).mount('#app')

@@ -30,6 +30,11 @@ import {
   linkSpace,
   listMembers,
   markRemoved,
+  createRecipe,
+  getRecipe,
+  listRecipes,
+  parseRecipe,
+  resolveReference,
   setSpaceOwner,
   spaceOwner,
   reportLinkedFile,
@@ -578,6 +583,66 @@ export class Workspace {
       if (this.linkRun === next) this.linkRun = undefined
     })
     return next
+  }
+
+  // --- Rezepte teilen (2.12) und übernehmen (2.11) ------------------------------
+
+  /**
+   * Rezept-Freigabe: eigener Bereich mit einer Kopie des Rezepts und aller
+   * Unterrezepte aus demselben Bereich. Empfänger lesen ohne Konto und
+   * können das Rezept übernehmen; nur der Ersteller schreibt.
+   */
+  async shareRecipe(fromSpaceId: string, recipeId: string): Promise<SpaceHandle> {
+    const from = await this.space(fromSpaceId)
+    if (!from.library) throw new Error('Dieser Bereich hat keine Rezepte.')
+    const all = listRecipes(from.library.doc)
+    const start = all.find((r) => r.id === recipeId)
+    if (!start) throw new Error('Rezept nicht gefunden.')
+    const entries = all.map((r) => ({
+      key: r.id,
+      scope: fromSpaceId,
+      recipe: parseRecipe(r.source),
+    }))
+    const index = { entries }
+    // Unterrezepte aus demselben Bereich mitnehmen (Katalogrezepte sind ohnehin öffentlich).
+    const include = new Set<string>([recipeId])
+    const queue = [recipeId]
+    while (queue.length) {
+      const id = queue.shift()!
+      const entry = entries.find((e) => e.key === id)
+      for (const ingredient of entry?.recipe.ingredients ?? []) {
+        if (!ingredient.reference) continue
+        const target = resolveReference(index, ingredient.reference, fromSpaceId)
+        if (target && target.scope === fromSpaceId && !include.has(target.key)) {
+          include.add(target.key)
+          queue.push(target.key)
+        }
+      }
+    }
+    const title = entries.find((e) => e.key === recipeId)?.recipe.meta.title || 'Rezept'
+    const share = await this.createSpace(title, 'recipe-share')
+    setSpaceOwner(share.doc, this.requireProfile().personId)
+    for (const r of all.filter((x) => include.has(x.id))) {
+      createRecipe(share.library!.doc, r.source, this.requireProfile().personId, this.now(), {
+        kind: 'shared',
+        ref: `${fromSpaceId}/${r.id}`,
+        version: String(r.updatedAt),
+      })
+    }
+    return share
+  }
+
+  /** Kopie eines Rezepts (z. B. aus einer Freigabe) in einen eigenen Bereich. */
+  async adoptRecipe(fromSpaceId: string, recipeId: string, toSpaceId: string): Promise<string> {
+    const from = await this.space(fromSpaceId)
+    const to = await this.space(toSpaceId)
+    const recipe = from.library && getRecipe(from.library.doc, recipeId)
+    if (!recipe || !to.library) throw new Error('Rezept nicht gefunden.')
+    return createRecipe(to.library.doc, recipe.source, this.requireProfile().personId, this.now(), {
+      kind: 'shared',
+      ref: `${fromSpaceId}/${recipeId}`,
+      version: String(recipe.updatedAt),
+    })
   }
 
   /** Wird aufgerufen, wenn Bereiche ohne Zutun der Oberfläche hinzukommen. */

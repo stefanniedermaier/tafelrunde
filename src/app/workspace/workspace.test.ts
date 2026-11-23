@@ -321,4 +321,44 @@ describe('Workspace', () => {
     await phone.join(transfer(await laptop.invite(personal.record.id)))
     expect(phone.profile!.personId).toBe(laptop.profile!.personId)
   })
+
+  it('teilt ein Rezept samt Unterrezept; Empfänger liest ohne Konto und übernimmt es', async () => {
+    const cloud = new FakeCloud()
+    const { ws: anna } = await workspace(cloud, 'anna')
+    const { ws: gast, provider: gastProvider } = await workspace(cloud, 'gast')
+    gastProvider.loggedIn = false
+    await anna.setup('Anna', 'Laptop')
+    await gast.setup('Gast', 'Handy')
+    const { createRecipe, listRecipes, spaceKind } = await import('@/core')
+    const personal = await anna.space(anna.personalSpace()!.id)
+    const me = anna.profile!.personId
+    createRecipe(personal.library!.doc, '---\ntitle: Hefeteig\nyield: 800 g\n---\n@Mehl{500%g}', me)
+    const kuchen = createRecipe(
+      personal.library!.doc,
+      '---\ntitle: Kuchen\n---\n@./Hefeteig{400%g}',
+      me,
+    )
+    createRecipe(personal.library!.doc, '---\ntitle: Geheim\n---\nNicht teilen', me)
+
+    const share = await anna.shareRecipe(personal.record.id, kuchen)
+    expect(spaceKind(share.doc)).toBe('recipe-share')
+    expect(
+      listRecipes(share.library!.doc)
+        .map((r) => r.source.split('\n')[1])
+        .sort(),
+    ).toEqual(['title: Hefeteig', 'title: Kuchen'])
+    for (const h of [share.library!, share]) await h.sync.flush()
+    await share.sync.flush()
+
+    const received = await gast.join(transfer(await anna.invite(share.record.id)))
+    await received.library!.sync.poll()
+    const recipes = listRecipes(received.library!.doc)
+    expect(recipes).toHaveLength(2)
+    const kuchenCopy = recipes.find((r) => r.source.includes('Kuchen'))!
+    const adopted = await gast.adoptRecipe(share.record.id, kuchenCopy.id, gast.personalSpace()!.id)
+    const mine = await gast.space(gast.personalSpace()!.id)
+    expect(listRecipes(mine.library!.doc).find((r) => r.id === adopted)?.origin).toMatchObject({
+      kind: 'shared',
+    })
+  })
 })

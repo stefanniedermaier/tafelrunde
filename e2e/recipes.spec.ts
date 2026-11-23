@@ -190,6 +190,7 @@ test('Suchen, filtern und Sammlungen', async ({ page }) => {
   await expect(page.getByRole('checkbox', { name: 'Sommer' })).toBeChecked()
 
   await page.getByRole('link', { name: '← Alle Rezepte' }).click()
+  await page.getByLabel('Quelle').selectOption({ label: 'eigene' })
   const cards = page.locator('.cards h2')
   await expect(cards).toHaveText(['Hefeteig', 'Rucolasalat'])
   await page.getByLabel('Suchen', { exact: true }).fill('Mehl')
@@ -204,6 +205,54 @@ test('Suchen, filtern und Sammlungen', async ({ page }) => {
   await page.getByLabel('Sammlung').selectOption({ label: 'Sommer' })
   await expect(cards).toHaveText(['Rucolasalat'])
   await expect(page.getByRole('status').filter({ hasText: '1 Rezept' })).toBeVisible()
+})
+
+test('Katalogrezept ansehen und übernehmen; Unterrezept aus dem Katalog', async ({ page }) => {
+  await setup(page)
+  await page
+    .getByRole('navigation', { name: 'Hauptmenü' })
+    .getByRole('link', { name: 'Rezepte' })
+    .click()
+  await page.getByLabel('Quelle').selectOption({ label: 'Katalog' })
+  await page.getByRole('link', { name: 'Zwetschgendatschi' }).click()
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Zwetschgendatschi')
+  await page.locator('summary', { hasText: 'Hefeteig' }).click()
+  await expect(page.locator('.ingredients details')).toContainText('500 g Weizenmehl')
+  await expect(page.getByText('vegetarisch')).toBeVisible()
+  await page.getByRole('button', { name: 'In meine Rezepte übernehmen' }).click()
+  await expect(page.getByText('Übernommen aus dem Katalog')).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Bearbeiten' })).toBeVisible()
+  // Die Referenz auf den Katalog-Hefeteig löst weiterhin auf.
+  await expect(page.locator('.ingredients details summary')).toContainText('Hefeteig')
+})
+
+test('Rezept teilen, als .cook speichern und wieder importieren', async ({ page }) => {
+  await setup(page)
+  await createRecipe(page, HEFETEIG)
+  await page.getByRole('button', { name: 'Fertig' }).click()
+
+  const download = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Als .cook speichern' }).click()
+  const file = await download
+  expect(file.suggestedFilename()).toBe('Hefeteig.cook')
+  const path = await file.path()
+
+  await page.getByRole('link', { name: '← Alle Rezepte' }).click()
+  await page.locator('input[type=file]').setInputFiles(path)
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Hefeteig')
+  await page.getByRole('link', { name: '← Alle Rezepte' }).click()
+  await page.getByLabel('Quelle').selectOption({ label: 'eigene' })
+  await expect(page.locator('.cards h2')).toHaveText(['Hefeteig', 'Hefeteig'])
+
+  const zip = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Alle als ZIP sichern' }).click()
+  expect((await zip).suggestedFilename()).toMatch(/^tafelrunde-rezepte-\d{4}-\d{2}-\d{2}\.zip$/)
+
+  await page.locator('.cards a').first().click()
+  await page.getByRole('button', { name: 'Teilen' }).click()
+  await page.getByRole('button', { name: 'Freigabe erstellen' }).click()
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Hefeteig')
+  await expect(page.getByRole('heading', { name: 'Jemanden einladen' })).toBeVisible()
 })
 
 for (const theme of ['light', 'dark'] as const) {

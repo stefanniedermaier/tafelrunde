@@ -16,7 +16,7 @@
 
 import { fromBase64url, toBase64url } from '../crypto/base64url'
 import { isValidId } from '../crypto/ids'
-import type { FileRefs, SpaceKind } from '../model/space'
+import { type FileRefs, type SpaceKind, SPACE_KINDS } from '../model/space'
 
 const VERSION = 1
 const MAX_PEERS = 32
@@ -127,7 +127,7 @@ function files(value: unknown): FileRefs {
 }
 
 function kind(value: unknown): SpaceKind {
-  if (value === 'personal' || value === 'household' || value === 'shared-list') return value
+  if (SPACE_KINDS.includes(value as SpaceKind)) return value as SpaceKind
   throw new CodeError('unbekannte Bereichsart')
 }
 

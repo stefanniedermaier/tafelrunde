@@ -14,6 +14,7 @@
 - { id: ananas, name: Ananas, diet: vegan }
 - { id: mango, name: Mango, synonyms: [Mangos], diet: vegan }
 - { id: melone, name: Melone, synonyms: [Wassermelone, Honigmelone], diet: vegan }
+- { id: zwetschgen, name: Zwetschgen, synonyms: [Zwetschge, Pflaumen, Pflaume], diet: vegan }
 - { id: pfirsiche, name: Pfirsiche, synonyms: [Pfirsich, Nektarinen, Nektarine], diet: vegan }
 - { id: avocado, name: Avocado, synonyms: [Avocados], diet: vegan }
 - { id: tomaten, name: Tomaten, synonyms: [Tomate, Cocktailtomaten, Kirschtomaten], diet: vegan }
