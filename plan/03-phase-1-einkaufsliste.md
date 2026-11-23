@@ -16,9 +16,12 @@
 - [x] Tests mit festen Testvektoren sowie für Manipulation und Rollback
 
 ### 1.3 Google-Drive-Provider
-- [ ] Login per Weiterleitung laut [Architektur](01-architektur.md#login-per-weiterleitung), Scope `drive.file`: `state`-Prüfung, Token sofort aus der URL entfernen, stille Erneuerung mit `prompt=none`, sonst „Anmeldung nötig“; Token-Speicherung wie in ADR 0001
-- [ ] Datei im Ordner `Tafelrunde/` anlegen, Freigabe setzen, aktualisieren
-- [ ] Lesen per API-Key; Fehlerbehandlung für fehlende Dateien, erschöpfte Kontingente und offline, jeweils mit Backoff
+
+> Umgesetzt und gegen eine nachgebildete Drive-API getestet. Der Test mit echtem Google-Konto steht mit ADR 0001 aus; bis dahin liegt das Token nur im Arbeitsspeicher, und Anfragen mit API-Key senden `strict-origin` als Referrer.
+
+- [x] Login per Weiterleitung laut [Architektur](01-architektur.md#login-per-weiterleitung), Scope `drive.file`: `state`-Prüfung, Token sofort aus der URL entfernen, stille Erneuerung mit `prompt=none`, sonst „Anmeldung nötig“; Token-Speicherung wie in ADR 0001
+- [x] Datei im Ordner `Tafelrunde/` anlegen, Freigabe setzen, aktualisieren
+- [x] Lesen per API-Key; Fehlerbehandlung für fehlende Dateien, erschöpfte Kontingente und offline, jeweils mit Backoff
 
 ### 1.4 Sync-Engine
 - [x] Lokale Persistenz mit y-indexeddb
@@ -29,7 +32,7 @@
 
 ### 1.5 Einrichtung
 - [x] Erster Start: eigener Name und Gerätename
-- [ ] „Mit Google verbinden“, nur fürs Schreiben nötig
+- [x] „Mit Google verbinden“, nur fürs Schreiben nötig
 - [x] Der persönliche Bereich wird automatisch angelegt
 - [x] Haushalt anlegen
 

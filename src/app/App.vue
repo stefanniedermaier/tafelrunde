@@ -4,6 +4,7 @@ import { RouterLink, RouterView } from 'vue-router'
 import SyncStatus from '@/ui/components/SyncStatus.vue'
 import ThemeSwitch from '@/ui/components/ThemeSwitch.vue'
 import UpdatePrompt from './UpdatePrompt.vue'
+import ConnectButton from './ConnectButton.vue'
 import { computed, onMounted, shallowRef } from 'vue'
 import type { Workspace } from './workspace/workspace'
 import { activeSpaceId, useSpace } from './workspace/use-space'
@@ -28,6 +29,7 @@ const lastSync = computed(() =>
     <RouterLink to="/" class="brand">Tafelrunde</RouterLink>
     <div class="app-header__tools">
       <SyncStatus :state="snapshot?.status ?? 'local'" :last-sync="lastSync" />
+      <ConnectButton />
       <ThemeSwitch />
     </div>
   </header>

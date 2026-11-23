@@ -378,4 +378,35 @@ describe('DocSync', () => {
     await a.sync.flush()
     expect(a.sync.snapshot().status).toBe('local')
   })
+
+  it('erkennt nach einem Neustart ungeschriebene Änderungen', async () => {
+    const a = await device('Anna')
+    initSpace(a.doc, 'X', 'personal')
+    await a.sync.flush()
+    a.sync.stop()
+    const restart = () =>
+      new DocSync({
+        doc: a.doc,
+        kind: 'live',
+        spaceId,
+        key,
+        deviceId: a.id,
+        provider: a.provider,
+        store: a.store,
+        peers: () => [],
+      })
+    // Alles geschrieben: nach dem Neustart nichts ausstehend.
+    const clean = restart()
+    await clean.start()
+    expect(clean.hasPendingChanges).toBe(false)
+    clean.stop()
+    // Änderung ohne laufenden Sync (z. B. App vor dem Schreiben geschlossen).
+    createList(a.doc, 'Offline angelegt')
+    const dirty = restart()
+    await dirty.start()
+    expect(dirty.hasPendingChanges).toBe(true)
+    await dirty.flush()
+    dirty.stop()
+    expect(dirty.hasPendingChanges).toBe(false)
+  })
 })

@@ -24,6 +24,7 @@ import {
   openEnvelope,
   sealEnvelope,
 } from '../crypto/envelope'
+import { toBase64url } from '../crypto/base64url'
 import { StorageError, type StorageProvider } from './provider'
 
 export const REMOTE_ORIGIN = Symbol('tafelrunde-remote')
@@ -38,6 +39,8 @@ export interface PeerState {
 export interface PersistedSyncState {
   ownFileId?: string
   seq: number
+  /** State Vector des zuletzt erfolgreich geschriebenen Stands (base64url). */
+  written?: string
   peers: Record<string, PeerState>
 }
 
@@ -125,8 +128,11 @@ export class DocSync {
     this.state = (await this.o.store.load(this.storeKey)) ?? { seq: 0, peers: {} }
     this.started = true
     this.o.doc.on('update', this.onUpdate)
-    // Noch nie geschrieben, aber schon Inhalt vorhanden: eigene Datei anlegen.
-    if (!this.state.ownFileId && Y.encodeStateVector(this.o.doc).length > 1) this.markDirty()
+    // Ungeschriebene Änderungen aus einer früheren Sitzung (oder noch nie geschrieben,
+    // aber schon Inhalt vorhanden): Der aktuelle Stand weicht vom zuletzt geschriebenen ab.
+    const current = Y.encodeStateVector(this.o.doc)
+    const hasContent = current.length > 1
+    if (hasContent && this.state.written !== toBase64url(current)) this.markDirty()
     this.emit()
   }
 
@@ -221,6 +227,7 @@ export class DocSync {
     this.state.seq = seq
     await this.o.store.save(this.storeKey, this.state)
     try {
+      const written = toBase64url(Y.encodeStateVector(this.o.doc))
       const envelope = await sealEnvelope(
         this.o.key,
         { space: this.o.spaceId, doc: this.o.kind, device: this.o.deviceId, seq },
@@ -235,6 +242,8 @@ export class DocSync {
         await this.o.store.save(this.storeKey, this.state)
         this.o.onOwnFile?.(fileId)
       }
+      this.state.written = written
+      await this.o.store.save(this.storeKey, this.state)
       this.networkError = undefined
       this.lastSyncAt = this.now()
       this.retryDelay = 0

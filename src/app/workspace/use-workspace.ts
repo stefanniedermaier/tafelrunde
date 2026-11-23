@@ -9,7 +9,7 @@ import { type Ref, onScopeDispose, ref, shallowRef, watch } from 'vue'
 import type * as Y from 'yjs'
 import { IndexeddbPersistence } from 'y-indexeddb'
 import type { DocSync, StorageProvider, SyncSnapshot } from '@/core'
-import { LocalOnlyProvider } from '@/providers/local/local-only'
+import { createProvider } from '../storage'
 import { IdbKeyValueStore } from './kv'
 import { type DocPersistence, Workspace } from './workspace'
 
@@ -23,7 +23,7 @@ let instance: Promise<Workspace> | undefined
 /** Wird erhöht, wenn sich Profil oder Bereichsliste ändern. */
 export const workspaceVersion = ref(0)
 
-export function initWorkspace(provider: StorageProvider = new LocalOnlyProvider()) {
+export function initWorkspace(provider: StorageProvider = createProvider()) {
   instance ??= (async () => {
     const ws = await Workspace.open({ kv: await IdbKeyValueStore.open(), provider, persistDoc })
     document.addEventListener('visibilitychange', () => {

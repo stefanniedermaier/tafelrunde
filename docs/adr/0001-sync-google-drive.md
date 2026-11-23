@@ -24,6 +24,17 @@ Der Machbarkeitstest liegt in `spikes/drive-sync/` (Wegwerf-Code, siehe dortiges
 | 1 h Abfrage alle 3 s: Latenz (p50/p95), Fehler, Kontingent                               | _offen_  |
 | Yjs + AES-GCM zwischen zwei Geräten, gleichzeitig online und offline                     | _offen_  |
 
+## Stand der Umsetzung (vorläufig)
+
+Der Provider (`src/providers/gdrive/`) ist umgesetzt und gegen eine nachgebildete API getestet:
+
+- Token nur im Arbeitsspeicher; stille Erneuerung beim Start, wenn Änderungen ausstehen, höchstens einmal je Sitzung.
+- Anfragen mit API-Key senden `Referrer-Policy: strict-origin` (nur die Herkunft), damit eine Referrer-Beschränkung des Keys greifen kann; alle anderen Anfragen `no-referrer`.
+- Dateien im Ordner `Tafelrunde/`, Name zufällig, Freigabe `anyone`/`reader` mit `allowFileDiscovery: false`.
+- Versionserkennung über `md5Checksum` (Ersatz: `modifiedTime`).
+
+Die Fragen oben sind damit nicht beantwortet; das klärt nur der Test mit echtem Konto.
+
 ## Entscheidung
 
 _Go / No-Go – nach Abschluss des Tests eintragen._

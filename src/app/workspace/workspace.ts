@@ -222,7 +222,8 @@ export class Workspace {
       now: this.now,
       peers: () => this.peersOf(id, doc),
       onOwnFile: (fileId) => {
-        if (!getMember(doc, profile.deviceId)) this.registerSelf(doc)
+        // Auch den Anbieter aktualisieren (z. B. erst lokal, dann mit Google verbunden).
+        this.registerSelf(doc)
         setMemberFile(doc, profile.deviceId, 'live', fileId)
       },
     })
@@ -273,7 +274,7 @@ export class Workspace {
 
   /** Nach dem Login: ausstehende Änderungen aller Bereiche schreiben. */
   async flushAll(): Promise<void> {
-    for (const handle of this.handles.values()) await (await handle).sync.flush()
+    for (const record of this.spaces()) await (await this.space(record.id)).sync.flush()
   }
 
   get hasPendingChanges(): Promise<boolean> {

@@ -3,6 +3,8 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import { router } from './router'
 import { loadCatalog } from './catalog'
+import { auth, currentRoute } from './storage'
+import { initWorkspace } from './workspace/use-workspace'
 import { isFramed } from './frame-guard'
 import { applyStoredTheme } from '@/ui/theme'
 import '@/ui/tokens.css'
@@ -14,5 +16,14 @@ if (isFramed(window)) {
 } else {
   applyStoredTheme()
   void loadCatalog()
+  // Ergebnis einer Google-Anmeldung übernehmen, bevor irgendetwas schreibt.
+  auth?.takeResult()
   createApp(App).use(router).mount('#app')
+  void initWorkspace().then(async (ws) => {
+    if (!ws.profile) return
+    await ws.startSync()
+    if (auth?.accessToken()) await ws.flushAll()
+    // Stille Erneuerung nur beim Start und nur, wenn wirklich etwas zu schreiben ist.
+    else if (await ws.hasPendingChanges) auth?.renewSilentlyIfNeeded(currentRoute(), true)
+  })
 }
