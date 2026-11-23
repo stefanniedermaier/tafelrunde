@@ -25,6 +25,11 @@ const access = computed<SpaceAccess | undefined>(() => {
   }
 })
 const isRecovery = computed(() => access.value?.type === 'recovery')
+/** Bereich gibt es hier schon: Der Code bringt einen neuen Schlüssel (nach dem Entfernen eines Geräts). */
+const isRekey = ref(false)
+void workspace().then((ws) => {
+  if (access.value && ws.hasSpace(access.value.spaceId)) isRekey.value = true
+})
 
 const busy = ref(false)
 const error = ref<string>()
@@ -92,7 +97,11 @@ async function showReply() {
   </AppCard>
 
   <AppCard v-else-if="access">
-    <p v-if="isRecovery">
+    <p v-if="isRekey">
+      Neuer Schlüssel für <strong>„{{ access.name || 'Ohne Namen' }}“</strong>. Übernimm ihn, damit
+      du die Änderungen der anderen weiter siehst.
+    </p>
+    <p v-else-if="isRecovery">
       Mit diesem Code stellst du <strong>„{{ access.name || 'Ohne Namen' }}“</strong> auf diesem
       Gerät wieder her.
     </p>
@@ -105,7 +114,7 @@ async function showReply() {
     </p>
     <div class="row">
       <AppButton variant="primary" :disabled="busy" @click="join">
-        {{ isRecovery ? 'Wiederherstellen' : 'Beitreten' }}
+        {{ isRekey ? 'Schlüssel übernehmen' : isRecovery ? 'Wiederherstellen' : 'Beitreten' }}
       </AppButton>
       <AppButton @click="router.replace({ name: 'home' })">Abbrechen</AppButton>
     </div>

@@ -43,7 +43,7 @@
 - [x] Liste der Mitglieder und Geräte, Geräte umbenennen
 
 ### 1.7 Entfernen und Schlüsselwechsel
-- [ ] Gerät entfernen, neuen Schlüssel erzeugen, verbleibende Geräte per QR aktualisieren
+- [x] Gerät entfernen, neuen Schlüssel erzeugen, verbleibende Geräte per QR aktualisieren
 
 ### 1.8 Wiederherstellung
 - [x] Wiederherstellungscode je Bereich anzeigen und drucken; beim Einrichten darauf hinweisen

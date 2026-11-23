@@ -18,6 +18,7 @@
 import * as Y from 'yjs'
 import {
   type DocKind,
+  type Envelope,
   EnvelopeError,
   decodeEnvelope,
   encodeEnvelope,
@@ -85,6 +86,12 @@ export interface DocSyncOptions {
   kind: DocKind
   spaceId: string
   key: CryptoKey
+  /**
+   * Frühere Schlüssel nach einem Schlüsselwechsel: nur zum Lesen von Geräten,
+   * die den neuen Schlüssel noch nicht übernommen haben. Geschrieben wird
+   * immer mit `key`.
+   */
+  previousKeys?: CryptoKey[]
   deviceId: string
   provider: StorageProvider
   store: SyncStateStore
@@ -185,6 +192,19 @@ export class DocSync {
       void this.flush()
     }, this.debounceMs)
     if (!wasDirty) this.emit()
+  }
+
+  /**
+   * Schlüsselwechsel im laufenden Betrieb: Ab sofort wird mit `key`
+   * geschrieben; `previousKeys` dienen nur noch zum Lesen. Der eigene Stand
+   * wird mit dem neuen Schlüssel neu geschrieben.
+   */
+  setKeys(key: CryptoKey, previousKeys: CryptoKey[]): void {
+    this.o.key = key
+    this.o.previousKeys = previousKeys
+    // Bei Peers, die jetzt anders entschlüsselt werden, Inhalt erneut prüfen.
+    for (const peer of Object.values(this.state.peers)) delete peer.version
+    this.markDirty()
   }
 
   /** Hat das Gerät noch nicht geschriebene Änderungen? */
@@ -317,6 +337,21 @@ export class DocSync {
     if (!this.dirty) this.lastSyncAt = this.now()
   }
 
+  private async decrypt(envelope: Envelope, deviceId: string): Promise<Uint8Array> {
+    const expected = { space: this.o.spaceId, doc: this.o.kind, device: deviceId }
+    let lastError: unknown
+    for (const key of [this.o.key, ...(this.o.previousKeys ?? [])]) {
+      try {
+        return await openEnvelope(key, envelope, expected)
+      } catch (error) {
+        // Nur ein falscher Schlüssel rechtfertigt den nächsten Versuch.
+        if (!(error instanceof EnvelopeError) || error.reason !== 'decrypt') throw error
+        lastError = error
+      }
+    }
+    throw lastError
+  }
+
   /** Liefert true, wenn sich der gespeicherte Peer-Zustand geändert hat. */
   private async pollPeer(peer: Peer): Promise<boolean> {
     const known = this.state.peers[peer.deviceId]
@@ -332,11 +367,7 @@ export class DocSync {
         this.problems[peer.deviceId] = 'rollback'
       } else {
         // Auch bei gleicher seq prüfen: Eine geänderte Datei mit alter seq ist verdächtig.
-        const update = await openEnvelope(this.o.key, envelope, {
-          space: this.o.spaceId,
-          doc: this.o.kind,
-          device: peer.deviceId,
-        })
+        const update = await this.decrypt(envelope, peer.deviceId)
         Y.applyUpdate(this.o.doc, update, REMOTE_ORIGIN)
         record.seq = envelope.seq
         delete this.problems[peer.deviceId]

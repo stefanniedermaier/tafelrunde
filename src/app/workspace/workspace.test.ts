@@ -157,4 +157,55 @@ describe('Workspace', () => {
     markRemoved(family.doc, 'evil', 1)
     await expect(ws.acceptReply(reply)).rejects.toThrow(/entfernt/)
   })
+
+  it('entfernt ein Gerät und wechselt den Schlüssel', async () => {
+    const cloud = new FakeCloud()
+    const { ws: anna } = await workspace(cloud, 'anna')
+    const { ws: ben } = await workspace(cloud, 'ben')
+    const { ws: cleo } = await workspace(cloud, 'cleo')
+    await anna.setup('Anna', 'Laptop')
+    await ben.setup('Ben', 'Handy')
+    await cleo.setup('Cleo', 'Tablet')
+
+    const family = await anna.createSpace('Familie', 'household')
+    const listId = createList(family.doc, 'Liste')
+    await family.sync.flush()
+    await family.sync.flush()
+    const invite = transfer(await anna.invite(family.record.id))
+    const benSpace = await ben.join(invite)
+    await anna.acceptReply(transfer(await ben.reply(family.record.id)))
+    const cleoSpace = await cleo.join(invite)
+    await anna.acceptReply(transfer(await cleo.reply(family.record.id)))
+    await family.sync.flush()
+    const oldKey = invite.key
+
+    // Ben wird entfernt.
+    await anna.removeDevice(family.record.id, ben.profile!.deviceId)
+    const rekey = transfer(await anna.invite(family.record.id))
+    expect(rekey.key).not.toBe(oldKey)
+    addItem(family.doc, listId, { name: 'Geheim nach Entfernen' }, anna.profile!.deviceId)
+    await family.sync.flush()
+
+    // Ben liest mit dem alten Schlüssel nichts Neues mehr.
+    await benSpace.sync.poll()
+    expect(getItems(benSpace.doc, listId)).toEqual([])
+    expect(benSpace.sync.snapshot().problems).toMatchObject({
+      [anna.profile!.deviceId]: 'undecryptable',
+    })
+
+    // Cleo hat den Schlüssel noch nicht: Anna liest Cleo weiterhin mit dem alten Schlüssel.
+    addItem(cleoSpace.doc, listId, { name: 'Von Cleo, alter Schlüssel' }, cleo.profile!.deviceId)
+    await cleoSpace.sync.flush()
+    await family.sync.poll()
+    expect(getItems(family.doc, listId).map((i) => i.name)).toContain('Von Cleo, alter Schlüssel')
+
+    // Cleo übernimmt den neuen Schlüssel per Schlüssel-Code und sieht alles.
+    await cleo.join(rekey)
+    await cleoSpace.sync.poll()
+    expect(getItems(cleoSpace.doc, listId).map((i) => i.name)).toContain('Geheim nach Entfernen')
+    await cleoSpace.sync.flush()
+    await benSpace.sync.poll()
+    expect(getItems(benSpace.doc, listId).map((i) => i.name)).not.toContain('Geheim nach Entfernen')
+    expect(listMembers(cleoSpace.doc).map((m) => m.person)).toEqual(['Anna', 'Cleo'])
+  })
 })

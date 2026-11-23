@@ -23,6 +23,7 @@ import {
   importSpaceKey,
   initSpace,
   listMembers,
+  markRemoved,
   peerFiles,
   randomId,
   setMemberFile,
@@ -42,6 +43,8 @@ export interface SpaceRecord {
   id: string
   kind: SpaceKind
   key: CryptoKey
+  /** Frühere Schlüssel nach einem Wechsel, nur zum Lesen (neueste zuerst). */
+  previousKeys?: CryptoKey[]
   /** Dateien aus Einladung/Wiederherstellung, bis sie im Register stehen. */
   bootstrap: Peer[]
   createdAt: number
@@ -71,6 +74,11 @@ const K = {
   profile: 'profile',
   space: (id: string) => `space/${id}`,
   sync: (key: string) => `sync/${key}`,
+}
+
+/** Höchstens drei alte Schlüssel behalten – genug für Geräte, die noch nicht gewechselt haben. */
+function keepKeys(record: SpaceRecord): CryptoKey[] {
+  return [record.key, ...(record.previousKeys ?? [])].slice(0, 3)
 }
 
 class KvSyncStateStore implements SyncStateStore {
@@ -215,6 +223,7 @@ export class Workspace {
       kind: 'live',
       spaceId: id,
       key: record.key,
+      previousKeys: record.previousKeys ?? [],
       deviceId: profile.deviceId,
       provider: this.deps.provider,
       store: this.syncStore,
@@ -235,7 +244,16 @@ export class Workspace {
       onUnexpectedError: (error) => console.error('Sync-Fehler', error),
     })
     loop.setVisible(this.visible)
-    return { record, doc, sync, loop }
+    const records = this.records
+    return {
+      // Immer der aktuelle Datensatz (Schlüssel ändern sich beim Schlüsselwechsel).
+      get record() {
+        return records.get(id) ?? record
+      },
+      doc,
+      sync,
+      loop,
+    }
   }
 
   private peersOf(id: string, doc: Y.Doc): Peer[] {
@@ -326,10 +344,19 @@ export class Workspace {
     )
     const existing = this.records.get(access.spaceId)
     if (existing) {
-      // Erneut beigetreten (z. B. nach Schlüsselwechsel): Schlüssel und Dateien übernehmen.
+      // Erneut beigetreten (z. B. nach Schlüsselwechsel): neuen Schlüssel übernehmen,
+      // den alten nur noch zum Lesen behalten.
       const key = await importSpaceKey(access.key)
-      await this.saveRecord({ ...existing, key, bootstrap })
-      await this.closeSpace(access.spaceId)
+      const same = (await exportSpaceKey(existing.key)) === access.key
+      const updated: SpaceRecord = {
+        ...existing,
+        key,
+        previousKeys: same ? (existing.previousKeys ?? []) : keepKeys(existing),
+        bootstrap,
+      }
+      await this.saveRecord(updated)
+      const open = this.handles.get(access.spaceId)
+      if (open) (await open).sync.setKeys(updated.key, updated.previousKeys ?? [])
     } else {
       await this.saveRecord({
         id: access.spaceId,
@@ -379,6 +406,32 @@ export class Workspace {
     })
     await handle.sync.poll().catch(() => undefined)
     return handle
+  }
+
+  /**
+   * Entfernt ein Gerät und wechselt den Schlüssel (plan/01-architektur.md,
+   * „Entfernen und Schlüsselwechsel“). Ab sofort wird mit dem neuen
+   * Schlüssel geschrieben; die verbleibenden Geräte übernehmen ihn über
+   * `invite()` (Schlüssel-Code). Was das entfernte Gerät schon gesehen hat,
+   * bleibt ihm bekannt.
+   */
+  async removeDevice(spaceId: string, deviceId: string): Promise<SpaceHandle> {
+    const profile = this.requireProfile()
+    if (deviceId === profile.deviceId)
+      throw new Error('Dieses Gerät kann sich nicht selbst entfernen.')
+    const before = await this.space(spaceId)
+    markRemoved(before.doc, deviceId, this.now())
+    const record = this.records.get(spaceId)!
+    const updated: SpaceRecord = {
+      ...record,
+      key: await generateSpaceKey(),
+      previousKeys: keepKeys(record),
+      bootstrap: record.bootstrap.filter((b) => b.deviceId !== deviceId),
+    }
+    await this.saveRecord(updated)
+    before.sync.setKeys(updated.key, updated.previousKeys ?? [])
+    await before.sync.flush()
+    return before
   }
 
   private async closeSpace(id: string): Promise<void> {

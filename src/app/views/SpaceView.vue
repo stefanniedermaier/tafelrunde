@@ -15,6 +15,7 @@ import {
 } from '@/core'
 import AppButton from '@/ui/components/AppButton.vue'
 import AppCard from '@/ui/components/AppCard.vue'
+import AppDialog from '@/ui/components/AppDialog.vue'
 import AppTextField from '@/ui/components/AppTextField.vue'
 import QrCode from '@/ui/components/QrCode.vue'
 import QrScanner from '@/ui/components/QrScanner.vue'
@@ -57,28 +58,45 @@ async function saveDeviceName() {
 const shown = shallowRef<{ title: string; code: Code; link: string; secret: boolean }>()
 const codeError = ref<string>()
 
-async function show(kindOfCode: 'invite' | 'recovery' | 'reply') {
+async function show(kindOfCode: 'invite' | 'recovery' | 'reply' | 'rekey') {
   codeError.value = undefined
   shown.value = undefined
   try {
     const ws = await workspace()
     const code =
-      kindOfCode === 'invite'
+      kindOfCode === 'invite' || kindOfCode === 'rekey'
         ? await ws.invite(props.spaceId)
         : kindOfCode === 'recovery'
           ? await ws.recoveryCode(props.spaceId)
           : await ws.reply(props.spaceId)
     shown.value = {
       title:
-        kindOfCode === 'invite'
-          ? 'Einladung'
-          : kindOfCode === 'recovery'
-            ? 'Wiederherstellungscode'
-            : 'Antwort-Code',
+        kindOfCode === 'rekey'
+          ? 'Neuer Schlüssel – allen verbleibenden Geräten zeigen'
+          : kindOfCode === 'invite'
+            ? 'Einladung'
+            : kindOfCode === 'recovery'
+              ? 'Wiederherstellungscode'
+              : 'Antwort-Code',
       code,
       link: codeLink(appUrl(), code),
       secret: kindOfCode !== 'reply',
     }
+  } catch (e) {
+    codeError.value = message(e)
+  }
+}
+
+// --- Gerät entfernen ---------------------------------------------------------
+
+const removing = shallowRef<{ deviceId: string; label: string }>()
+async function confirmRemove() {
+  if (!removing.value) return
+  const id = removing.value.deviceId
+  removing.value = undefined
+  try {
+    await (await workspace()).removeDevice(props.spaceId, id)
+    await show('rekey')
   } catch (e) {
     codeError.value = message(e)
   }
@@ -152,6 +170,13 @@ async function acceptReply(input = replyInput.value) {
             >
               Gerät umbenennen
             </AppButton>
+            <AppButton
+              v-else
+              variant="danger"
+              @click="removing = { deviceId: m.deviceId, label: `${m.person} · ${m.deviceName}` }"
+            >
+              Entfernen<span class="visually-hidden">: {{ m.person }} · {{ m.deviceName }}</span>
+            </AppButton>
           </li>
         </ul>
         <form v-if="deviceName !== undefined" class="inline" @submit.prevent="saveDeviceName">
@@ -209,6 +234,22 @@ async function acceptReply(input = replyInput.value) {
       </AppCard>
     </div>
   </template>
+
+  <AppDialog
+    :open="!!removing"
+    title="Gerät entfernen?"
+    @update:open="(v: boolean) => !v && (removing = undefined)"
+  >
+    <p v-if="removing">
+      „{{ removing.label }}“ verliert den Zugriff auf alles, was ab jetzt geändert wird. Dafür
+      bekommt der Bereich einen neuen Schlüssel, den du danach allen verbleibenden Geräten zeigst.
+      Was das Gerät bereits gesehen hat, kann es weiterhin lesen.
+    </p>
+    <template #actions>
+      <AppButton @click="removing = undefined">Abbrechen</AppButton>
+      <AppButton variant="danger" @click="confirmRemove">Entfernen</AppButton>
+    </template>
+  </AppDialog>
 </template>
 
 <style scoped>
