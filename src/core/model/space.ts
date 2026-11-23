@@ -35,6 +35,7 @@ export const LIVE_ROOT = {
   lists: 'lists',
   items: 'items',
   categoryOverrides: 'categoryOverrides',
+  stores: 'stores',
 } as const
 
 /**

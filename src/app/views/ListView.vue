@@ -13,6 +13,7 @@ import {
   findDuplicate,
   getItems,
   getLists,
+  getStores,
   groupItems,
   mergeItems,
   removeChecked,
@@ -21,6 +22,7 @@ import {
   restoreItems,
   setChecked,
   setItemCategory,
+  setListStore,
   updateItem,
 } from '@/core'
 import AppButton from '@/ui/components/AppButton.vue'
@@ -46,7 +48,15 @@ const items = computed(() => {
   void version.value
   return doc.value ? getItems(doc.value, props.listId) : []
 })
-const groups = computed(() => (doc.value ? groupItems(doc.value, items.value, catalogLookup) : []))
+const stores = computed(() => (version.value, doc.value ? getStores(doc.value) : []))
+const store = computed(() => stores.value.find((s) => s.id === list.value?.storeId))
+const groups = computed(() =>
+  doc.value ? groupItems(doc.value, items.value, catalogLookup, store.value?.order) : [],
+)
+function chooseStore(event: Event) {
+  const value = (event.target as HTMLSelectElement).value
+  if (doc.value) setListStore(doc.value, props.listId, value || undefined)
+}
 const hasChecked = computed(() => items.value.some((i) => i.checked))
 
 /** Vorschläge: Katalog und alle bisherigen Einträge des Bereichs. */
@@ -199,6 +209,19 @@ const detail = (i: Item) => [i.quantity, i.unit].filter(Boolean).join(' ')
       </datalist>
     </form>
 
+    <div v-if="stores.length" class="field store">
+      <label for="list-store">Sortiert für</label>
+      <select id="list-store" :value="list.storeId ?? ''" @change="chooseStore">
+        <option value="">Standard-Reihenfolge</option>
+        <option v-for="s in stores" :key="s.id" :value="s.id">{{ s.name }}</option>
+      </select>
+    </div>
+    <p v-else class="muted">
+      Tipp: Unter
+      <RouterLink :to="{ name: 'space', params: { spaceId } }">Mitglieder & Einladen</RouterLink>
+      legst du Läden mit eigener Reihenfolge an.
+    </p>
+
     <p v-if="items.length === 0" class="muted">Die Liste ist leer.</p>
     <section v-for="group in groups" :key="group.category" class="group">
       <h2>{{ categoryName(group.category) }}</h2>
@@ -344,6 +367,9 @@ const detail = (i: Item) => [i.quantity, i.unit].filter(Boolean).join(' ')
 }
 .muted {
   color: var(--text-muted);
+}
+.store {
+  max-width: 20rem;
 }
 .stack {
   display: grid;

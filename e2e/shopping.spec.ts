@@ -98,6 +98,42 @@ test('Katalog ordnet bekannte Artikel ein und schlägt Namen vor', async ({ page
   await expect(page.locator('datalist option[value="Zahnpasta"]')).toHaveCount(1)
 })
 
+test('Laden mit eigener Reihenfolge sortiert die Liste', async ({ page }) => {
+  await setup(page)
+  await page.getByRole('button', { name: 'Haushalt anlegen' }).click()
+  await page.getByLabel('Name des Haushalts').fill('Familie')
+  await page.getByRole('dialog').getByRole('button', { name: 'Anlegen' }).click()
+  await page.getByLabel('Neuer Laden').fill('Getränkemarkt')
+  await page.getByRole('button', { name: 'Anlegen' }).click()
+  const up = page.getByRole('button', { name: 'Getränke nach oben' })
+  for (let i = 0; i < 12; i++) if (await up.isEnabled()) await up.click()
+  await expect(up).toBeDisabled()
+  await expect(page.getByRole('status').filter({ hasText: 'Position 1' })).toHaveCount(1)
+
+  await page.getByRole('link', { name: '← Alle Listen' }).click()
+  await page.getByLabel('Neue Liste in „Familie“').fill('Einkauf')
+  await page.getByRole('button', { name: 'Anlegen' }).first().click()
+  await addItem(page, 'Äpfel')
+  await addItem(page, 'Wasser')
+  await expect(page.getByRole('heading', { level: 2 })).toHaveText(['Obst & Gemüse', 'Getränke'])
+  await page.getByLabel('Sortiert für').selectOption({ label: 'Getränkemarkt' })
+  await expect(page.getByRole('heading', { level: 2 })).toHaveText(['Getränke', 'Obst & Gemüse'])
+})
+
+test('Hinweis auf den Wiederherstellungscode verschwindet, sobald er angezeigt wurde', async ({
+  page,
+}) => {
+  await setup(page)
+  await newList(page, 'Liste')
+  await page.getByRole('link', { name: '← Alle Listen' }).click()
+  const hint = page.getByText('Ohne ihn sind die Daten verloren')
+  await expect(hint).toBeVisible()
+  await page.getByRole('link', { name: 'Wiederherstellungscode' }).click()
+  await page.getByRole('button', { name: 'Wiederherstellungscode anzeigen' }).click()
+  await page.getByRole('link', { name: '← Alle Listen' }).click()
+  await expect(hint).toHaveCount(0)
+})
+
 test('Haushalt anlegen; Einladung braucht einen verbundenen Speicher', async ({ page }) => {
   await setup(page)
   await page.getByRole('button', { name: 'Haushalt anlegen' }).click()

@@ -23,6 +23,8 @@ export interface ShoppingList {
   id: string
   name: string
   createdAt: number
+  /** Gewählter Laden für die Sortierung, falls gesetzt. */
+  storeId?: string
 }
 
 export interface Item {
@@ -94,10 +96,25 @@ export function getLists(doc: Y.Doc): ShoppingList[] {
   const out: ShoppingList[] = []
   lists(doc).forEach((entry, id) => {
     if (entry instanceof Y.Map) {
-      out.push({ id, name: str(entry, 'name'), createdAt: num(entry, 'createdAt') ?? 0 })
+      const list: ShoppingList = {
+        id,
+        name: str(entry, 'name'),
+        createdAt: num(entry, 'createdAt') ?? 0,
+      }
+      const storeId = str(entry, 'storeId')
+      if (storeId) list.storeId = storeId
+      out.push(list)
     }
   })
   return out.sort((a, b) => a.createdAt - b.createdAt || a.id.localeCompare(b.id))
+}
+
+/** Laden für eine Liste wählen (`undefined` = Standard-Reihenfolge). */
+export function setListStore(doc: Y.Doc, listId: string, storeId: string | undefined): void {
+  const entry = lists(doc).get(listId)
+  if (!entry) return
+  if (storeId) entry.set('storeId', storeId)
+  else entry.delete('storeId')
 }
 
 // --- Einträge ---------------------------------------------------------------

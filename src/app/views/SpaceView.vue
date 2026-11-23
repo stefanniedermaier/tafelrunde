@@ -20,6 +20,8 @@ import AppTextField from '@/ui/components/AppTextField.vue'
 import QrCode from '@/ui/components/QrCode.vue'
 import QrScanner from '@/ui/components/QrScanner.vue'
 import { useSpace } from '../workspace/use-space'
+import { markRecoverySeen } from '../recovery-hint'
+import StoresCard from './StoresCard.vue'
 import { workspace } from '../workspace/use-workspace'
 
 const props = defineProps<{ spaceId: string }>()
@@ -82,6 +84,7 @@ async function show(kindOfCode: 'invite' | 'recovery' | 'reply' | 'rekey') {
       link: codeLink(appUrl(), code),
       secret: kindOfCode !== 'reply',
     }
+    if (kindOfCode === 'recovery') markRecoverySeen(props.spaceId)
   } catch (e) {
     codeError.value = message(e)
   }
@@ -208,6 +211,8 @@ async function acceptReply(input = replyInput.value) {
         <p v-if="replyError" role="alert" class="error">{{ replyError }}</p>
         <p v-if="replyOk" role="status">{{ replyOk }}</p>
       </AppCard>
+
+      <StoresCard v-if="kind !== 'personal'" :doc="doc" :version="version" />
 
       <AppCard>
         <h2>Wiederherstellung</h2>

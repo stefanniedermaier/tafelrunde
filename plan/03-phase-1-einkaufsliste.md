@@ -58,7 +58,7 @@
 - [x] Mehrere Listen pro Bereich
 - [x] Eintrag hinzufügen mit Vorschlägen aus Katalog und bisherigen Einträgen; Menge, Einheit und Notiz frei
 - [x] Gruppierung nach Kategorie; wird eine Kategorie geändert, merkt sich der Haushalt die Zuordnung
-- [ ] Läden mit eigener Reihenfolge der Kategorien
+- [x] Läden mit eigener Reihenfolge der Kategorien
 - [x] Abhaken: gedimmt, durchgestrichen, ans Ende der Gruppe; Rückgängig; „Erledigte entfernen“
 - [x] Doppelte Einträge erkennen und Zusammenführen anbieten
 - [x] Eingabe per Diktierfunktion der Tastatur funktioniert (keine eigene Spracherkennung)

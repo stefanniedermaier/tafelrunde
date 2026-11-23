@@ -7,6 +7,7 @@ import AppButton from '@/ui/components/AppButton.vue'
 import AppCard from '@/ui/components/AppCard.vue'
 import AppTextField from '@/ui/components/AppTextField.vue'
 import { useSpace } from '../workspace/use-space'
+import { recoveryHintVersion, recoverySeen } from '../recovery-hint'
 
 const props = defineProps<{ spaceId: string }>()
 const router = useRouter()
@@ -21,6 +22,11 @@ const lists = computed(() => {
     ...l,
     open: getItems(d, l.id).filter((i) => !i.checked).length,
   }))
+})
+
+const showRecoveryHint = computed(() => {
+  void recoveryHintVersion.value
+  return lists.value.length > 0 && !recoverySeen(props.spaceId)
 })
 
 const newList = ref('')
@@ -39,6 +45,11 @@ async function addList() {
       <RouterLink :to="{ name: 'space', params: { spaceId } }">Mitglieder & Einladen</RouterLink>
     </div>
     <p v-if="error" role="alert">{{ error }}</p>
+    <p v-if="showRecoveryHint" class="hint">
+      Sichere den
+      <RouterLink :to="{ name: 'space', params: { spaceId } }">Wiederherstellungscode</RouterLink>:
+      Ohne ihn sind die Daten verloren, wenn alle Geräte weg sind.
+    </p>
     <ul v-if="lists.length" class="lists">
       <li v-for="list in lists" :key="list.id">
         <RouterLink :to="{ name: 'list', params: { spaceId, listId: list.id } }">
@@ -77,6 +88,11 @@ async function addList() {
   align-items: center;
   min-height: var(--touch-target);
   border-bottom: 1px solid var(--border);
+}
+.hint {
+  padding: var(--space-2) var(--space-3);
+  border-left: 4px solid var(--warning);
+  background: var(--bg);
 }
 .count,
 .muted {
