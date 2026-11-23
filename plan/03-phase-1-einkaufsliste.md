@@ -7,13 +7,13 @@
 ## Aufgaben
 
 ### 1.1 Domänenkern (`src/core`)
-- [ ] Typen und Yjs-Schema für Bereich, Gerät, Register, Liste und Eintrag
-- [ ] Interface `StorageProvider`: eigene Datei anlegen und aktualisieren, Lese-Freigabe setzen, fremde Datei lesen (Metadaten und Inhalt), Anmeldestatus
-- [ ] Fake-Provider im Arbeitsspeicher für Tests
+- [x] Typen und Yjs-Schema für Bereich, Gerät, Register, Liste und Eintrag
+- [x] Interface `StorageProvider`: eigene Datei anlegen und aktualisieren, Lese-Freigabe setzen, fremde Datei lesen (Metadaten und Inhalt), Anmeldestatus
+- [x] Fake-Provider im Arbeitsspeicher für Tests
 
 ### 1.2 Krypto
-- [ ] Schlüsselerzeugung, AES-256-GCM, AAD, `seq`, base64url
-- [ ] Tests mit festen Testvektoren sowie für Manipulation und Rollback
+- [x] Schlüsselerzeugung, AES-256-GCM, AAD, `seq`, base64url
+- [x] Tests mit festen Testvektoren sowie für Manipulation und Rollback
 
 ### 1.3 Google-Drive-Provider
 - [ ] Login per Weiterleitung laut [Architektur](01-architektur.md#login-per-weiterleitung), Scope `drive.file`: `state`-Prüfung, Token sofort aus der URL entfernen, stille Erneuerung mit `prompt=none`, sonst „Anmeldung nötig“; Token-Speicherung wie in ADR 0001
@@ -22,9 +22,9 @@
 
 ### 1.4 Sync-Engine
 - [ ] Lokale Persistenz mit y-indexeddb
-- [ ] Schreiben: Entprellung, ein Vorgang gleichzeitig, `seq`, Warteschlange solange kein Token da ist
-- [ ] Lesen: Intervalle je Ansicht, Page Visibility, sofortige Abfrage beim Zurückkehren
-- [ ] Zusammenführen, Rollback-Schutz, nicht entschlüsselbare Dateien ignorieren
+- [x] Schreiben: Entprellung, ein Vorgang gleichzeitig, `seq`, Warteschlange solange kein Token da ist
+- [ ] Lesen: Intervalle je Ansicht, Page Visibility, sofortige Abfrage beim Zurückkehren (Taktgeber `PollLoop` in `core` fertig, Anbindung an die App offen)
+- [x] Zusammenführen, Rollback-Schutz, nicht entschlüsselbare Dateien ignorieren
 - [ ] Komponente für den Sync-Status
 
 ### 1.5 Einrichtung
@@ -48,7 +48,7 @@
 
 ### 1.9 Artikel-Grundkatalog
 - [ ] `catalog/ingredients/` mit etwa 300 häufigen Artikeln samt Kategorie und Synonymen, auch Nicht-Lebensmittel wie Drogerieartikel
-- [ ] Standard-Kategorien: Obst & Gemüse · Brot & Backwaren · Milch, Käse & Eier · Fleisch, Wurst & Fisch · Tiefkühl · Nudeln, Reis & Konserven · Backen · Gewürze, Öle & Saucen · Frühstück & Aufstriche · Süßes & Snacks · Getränke · Drogerie & Haushalt · Sonstiges
+- [x] Standard-Kategorien: Obst & Gemüse · Brot & Backwaren · Milch, Käse & Eier · Fleisch, Wurst & Fisch · Tiefkühl · Nudeln, Reis & Konserven · Backen · Gewürze, Öle & Saucen · Frühstück & Aufstriche · Süßes & Snacks · Getränke · Drogerie & Haushalt · Sonstiges
 - [ ] Build-Skript erzeugt die Katalogdateien für die App (siehe [Katalog-Pipeline](01-architektur.md#katalog-pipeline))
 
 ### 1.10 Einkaufsliste
