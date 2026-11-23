@@ -21,30 +21,30 @@
 - [ ] Lesen per API-Key; Fehlerbehandlung für fehlende Dateien, erschöpfte Kontingente und offline, jeweils mit Backoff
 
 ### 1.4 Sync-Engine
-- [ ] Lokale Persistenz mit y-indexeddb
+- [x] Lokale Persistenz mit y-indexeddb
 - [x] Schreiben: Entprellung, ein Vorgang gleichzeitig, `seq`, Warteschlange solange kein Token da ist
-- [ ] Lesen: Intervalle je Ansicht, Page Visibility, sofortige Abfrage beim Zurückkehren (Taktgeber `PollLoop` in `core` fertig, Anbindung an die App offen)
+- [x] Lesen: Intervalle je Ansicht, Page Visibility, sofortige Abfrage beim Zurückkehren (`PollLoop`; 3 s im geöffneten Bereich, sonst 15 s)
 - [x] Zusammenführen, Rollback-Schutz, nicht entschlüsselbare Dateien ignorieren
-- [ ] Komponente für den Sync-Status
+- [x] Komponente für den Sync-Status
 
 ### 1.5 Einrichtung
-- [ ] Erster Start: eigener Name und Gerätename
+- [x] Erster Start: eigener Name und Gerätename
 - [ ] „Mit Google verbinden“, nur fürs Schreiben nötig
-- [ ] Der persönliche Bereich wird automatisch angelegt
-- [ ] Haushalt anlegen
+- [x] Der persönliche Bereich wird automatisch angelegt
+- [x] Haushalt anlegen
 
 ### 1.6 Einladen und Beitreten
-- [ ] Einladung als QR-Code und Link, Schlüssel im URL-Fragment
-- [ ] QR-Code mit der Kamera scannen (Android: BarcodeDetector); am Desktop den Link einfügen
-- [ ] Antwort-Code zurück an das einladende Gerät
-- [ ] Liste der Mitglieder und Geräte, Geräte umbenennen
+- [x] Einladung als QR-Code und Link, Schlüssel im URL-Fragment
+- [x] QR-Code mit der Kamera scannen (Android: BarcodeDetector); am Desktop den Link einfügen
+- [x] Antwort-Code zurück an das einladende Gerät
+- [x] Liste der Mitglieder und Geräte, Geräte umbenennen
 
 ### 1.7 Entfernen und Schlüsselwechsel
 - [ ] Gerät entfernen, neuen Schlüssel erzeugen, verbleibende Geräte per QR aktualisieren
 
 ### 1.8 Wiederherstellung
-- [ ] Wiederherstellungscode je Bereich anzeigen und drucken; beim Einrichten darauf hinweisen
-- [ ] Bereich auf einem neuen Gerät aus dem Code wiederherstellen
+- [x] Wiederherstellungscode je Bereich anzeigen und drucken; beim Einrichten darauf hinweisen
+- [x] Bereich auf einem neuen Gerät aus dem Code wiederherstellen
 
 ### 1.9 Artikel-Grundkatalog
 - [ ] `catalog/ingredients/` mit etwa 300 häufigen Artikeln samt Kategorie und Synonymen, auch Nicht-Lebensmittel wie Drogerieartikel
@@ -52,21 +52,21 @@
 - [ ] Build-Skript erzeugt die Katalogdateien für die App (siehe [Katalog-Pipeline](01-architektur.md#katalog-pipeline))
 
 ### 1.10 Einkaufsliste
-- [ ] Mehrere Listen pro Bereich
-- [ ] Eintrag hinzufügen mit Vorschlägen aus Katalog und bisherigen Einträgen; Menge, Einheit und Notiz frei
-- [ ] Gruppierung nach Kategorie; wird eine Kategorie geändert, merkt sich der Haushalt die Zuordnung
+- [x] Mehrere Listen pro Bereich
+- [x] Eintrag hinzufügen mit Vorschlägen aus Katalog und bisherigen Einträgen; Menge, Einheit und Notiz frei
+- [x] Gruppierung nach Kategorie; wird eine Kategorie geändert, merkt sich der Haushalt die Zuordnung
 - [ ] Läden mit eigener Reihenfolge der Kategorien
-- [ ] Abhaken: gedimmt, durchgestrichen, ans Ende der Gruppe; Rückgängig; „Erledigte entfernen“
-- [ ] Doppelte Einträge erkennen und Zusammenführen anbieten
-- [ ] Eingabe per Diktierfunktion der Tastatur funktioniert (keine eigene Spracherkennung)
+- [x] Abhaken: gedimmt, durchgestrichen, ans Ende der Gruppe; Rückgängig; „Erledigte entfernen“
+- [x] Doppelte Einträge erkennen und Zusammenführen anbieten
+- [x] Eingabe per Diktierfunktion der Tastatur funktioniert (keine eigene Spracherkennung)
 
 ### 1.11 Liste mit anderen teilen
 - [ ] Eine einzelne Liste in einen eigenen Bereich überführen und Externe einladen
 - [ ] Lesen ohne Google-Konto, Abhaken und Ändern mit Konto
 
 ### 1.12 Qualität
-- [ ] Unit-Tests: Krypto, Zusammenführen, Kategorisierung
-- [ ] Integrationstests: drei Geräte mit Fake-Provider, Offline-Szenarien, Rollback, untergeschobene Dateien
+- [x] Unit-Tests: Krypto, Zusammenführen, Kategorisierung
+- [x] Integrationstests: drei Geräte mit Fake-Provider, Offline-Szenarien, Rollback, untergeschobene Dateien
 - [ ] E2E-Tests mit Playwright: zwei Browser-Kontexte, Einladen, gemeinsames Abhaken
 - [ ] Familientest auf Android und Desktop, mindestens zwei Wochen
 - [ ] `docs/threat-model.md` und den Datenschutzhinweis („welche Daten liegen wo“) aktualisieren

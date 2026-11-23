@@ -4,6 +4,22 @@ import { RouterLink, RouterView } from 'vue-router'
 import SyncStatus from '@/ui/components/SyncStatus.vue'
 import ThemeSwitch from '@/ui/components/ThemeSwitch.vue'
 import UpdatePrompt from './UpdatePrompt.vue'
+import { computed, onMounted, shallowRef } from 'vue'
+import type { Workspace } from './workspace/workspace'
+import { activeSpaceId, useSpace } from './workspace/use-space'
+import { workspace, workspaceVersion } from './workspace/use-workspace'
+
+// Kopfzeile zeigt den Sync-Status des gerade geöffneten Bereichs, sonst des persönlichen.
+const ws = shallowRef<Workspace>()
+onMounted(async () => (ws.value = await workspace()))
+const shownSpace = computed(() => {
+  void workspaceVersion.value
+  return activeSpaceId.value ?? ws.value?.personalSpace()?.id
+})
+const { snapshot } = useSpace(shownSpace)
+const lastSync = computed(() =>
+  snapshot.value?.lastSyncAt ? new Date(snapshot.value.lastSyncAt) : undefined,
+)
 </script>
 
 <template>
@@ -11,7 +27,7 @@ import UpdatePrompt from './UpdatePrompt.vue'
   <header class="app-header">
     <RouterLink to="/" class="brand">Tafelrunde</RouterLink>
     <div class="app-header__tools">
-      <SyncStatus state="local" />
+      <SyncStatus :state="snapshot?.status ?? 'local'" :last-sync="lastSync" />
       <ThemeSwitch />
     </div>
   </header>
