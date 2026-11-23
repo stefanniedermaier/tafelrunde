@@ -29,6 +29,7 @@ const lastSync = computed(() =>
     <RouterLink to="/" class="brand">Tafelrunde</RouterLink>
     <nav class="app-nav" aria-label="Hauptmenü">
       <RouterLink to="/">Einkauf</RouterLink>
+      <RouterLink to="/plan">Plan</RouterLink>
       <RouterLink to="/rezepte">Rezepte</RouterLink>
     </nav>
     <div class="app-header__tools">

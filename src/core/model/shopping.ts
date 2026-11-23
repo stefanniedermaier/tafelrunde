@@ -188,9 +188,13 @@ function readSources(entry: Y.Map<unknown>): ItemSource[] {
       : []
     out.push({ key, label: typeof v.label === 'string' ? v.label.slice(0, 120) : '', amounts })
   }
-  // Handeingabe zuerst, dann in der Reihenfolge der Schlüssel (stabil auf allen Geräten).
+  // Handeingabe zuerst, dann nach Rezept (stabil auf allen Geräten).
   return out.sort((a, b) =>
-    a.key === 'manual' ? -1 : b.key === 'manual' ? 1 : a.key.localeCompare(b.key),
+    a.key === 'manual'
+      ? -1
+      : b.key === 'manual'
+        ? 1
+        : a.label.localeCompare(b.label, 'de') || a.key.localeCompare(b.key),
   )
 }
 

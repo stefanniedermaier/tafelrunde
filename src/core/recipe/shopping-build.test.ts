@@ -254,7 +254,7 @@ describe('Änderungen nachziehen', () => {
     expect(effects.map((e) => [e.name, e.before, e.after])).toEqual([
       ['Essig', '1 EL', undefined],
       ['Öl', '2 EL', undefined],
-      ['Tomaten', '800 g + 2', '800 g'],
+      ['Tomaten', '2 + 800 g', '800 g'],
       ['Zwiebeln', '2,5', '2'],
     ])
     applyPlanChange(doc, 'e5', 'remove')
@@ -266,7 +266,7 @@ describe('Änderungen nachziehen', () => {
   it('skaliert bei geänderten Portionen', () => {
     const { doc, get } = setup()
     applyPlanChange(doc, 'e4', 0.5)
-    expect(get('Tomaten')).toMatchObject({ quantity: '400 g + 2' })
+    expect(get('Tomaten')).toMatchObject({ quantity: '2 + 400 g' })
     expect(get('Zwiebeln')).toMatchObject({ quantity: '1,5' })
   })
 
