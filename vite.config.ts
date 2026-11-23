@@ -43,6 +43,13 @@ export default defineConfig({
         display: 'standalone',
         background_color: '#FAF8F5',
         theme_color: '#2D6A4F',
+        // Rezepttext unter Android teilen (plan/06-phase-4-import-naehrwerte.md, 4.3).
+        share_target: {
+          action: './',
+          method: 'GET',
+          enctype: 'application/x-www-form-urlencoded',
+          params: { title: 'title', text: 'text', url: 'url' },
+        },
         icons: [
           { src: 'icons/icon.svg', sizes: 'any', type: 'image/svg+xml' },
           { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },

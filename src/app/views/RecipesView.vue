@@ -25,6 +25,7 @@ import {
 } from '@/core'
 import { catalogDiet } from '../catalog'
 import { downloadFile } from '../download'
+import { loadNutrition, nutritionOf } from '../nutrition'
 import { loadCatalogRecipes } from '../recipes/catalog-recipes'
 import { catalogEntries } from '../recipes/recipe-store'
 import AppButton from '@/ui/components/AppButton.vue'
@@ -40,6 +41,7 @@ onMounted(async () => {
   ws.value = await workspace()
   await loadCatalogRecipes()
 })
+void loadNutrition()
 const source = ref<'all' | 'own' | 'catalog'>('all')
 
 // --- Suche, Filter, Sortierung (2.6) -----------------------------------------------
@@ -48,6 +50,7 @@ const query = ref('')
 const selectedTags = ref<string[]>([])
 const diet = ref<Diet | ''>('')
 const maxMinutes = ref<number | ''>('')
+const maxKcal = ref<number | ''>('')
 const collection = ref('')
 const sort = ref<RecipeSort>('name')
 
@@ -63,6 +66,12 @@ const collections = computed(() =>
   ),
 )
 
+/** Kalorien je Portion (4.8); nur bei Rezepten mit Portionen und mindestens halber Abdeckung. */
+function kcalOf(recipe: ParsedRecipe, scope: string): number | undefined {
+  const n = nutritionOf(index.value, recipe, scope)
+  return n?.perServing && n.coverage >= 0.5 ? n.perServing.kcal : undefined
+}
+
 const searchable = computed<SearchableRecipe[]>(() => [
   ...(source.value === 'catalog' ? [] : recipes.value).map((r) => {
     const lib = handles.value.find((h) => h.record.id === r.spaceId)?.library
@@ -70,6 +79,7 @@ const searchable = computed<SearchableRecipe[]>(() => [
       key: r.key,
       recipe: r.recipe,
       diet: recipeDiet(index.value, r.recipe, r.scope, catalogDiet).diet,
+      kcal: kcalOf(r.recipe, r.scope),
       stars: lib ? averageStars(getReviews(lib.doc, r.id)) : undefined,
       lastCooked: lib ? lastCooked(lib.doc, r.id) : undefined,
       createdAt: r.stored.createdAt,
@@ -80,6 +90,7 @@ const searchable = computed<SearchableRecipe[]>(() => [
     key: e.key,
     recipe: e.recipe,
     diet: recipeDiet(index.value, e.recipe, e.scope, catalogDiet).diet,
+    kcal: kcalOf(e.recipe, e.scope),
     createdAt: 0,
   })),
 ])
@@ -122,6 +133,7 @@ const sorted = computed(() =>
         tags: selectedTags.value,
         ...(diet.value ? { diet: diet.value } : {}),
         ...(maxMinutes.value ? { maxMinutes: maxMinutes.value } : {}),
+        ...(maxKcal.value ? { maxKcal: maxKcal.value } : {}),
         ...(collection.value ? { collection: collection.value } : {}),
       },
       sort.value,
@@ -134,6 +146,7 @@ const filtered = computed(
     selectedTags.value.length > 0 ||
     !!diet.value ||
     !!maxMinutes.value ||
+    !!maxKcal.value ||
     !!collection.value,
 )
 function resetFilters() {
@@ -141,6 +154,7 @@ function resetFilters() {
   selectedTags.value = []
   diet.value = ''
   maxMinutes.value = ''
+  maxKcal.value = ''
   collection.value = ''
 }
 function toggleTag(tag: string) {
@@ -228,6 +242,7 @@ const minutes = (m?: number) => (m ? `${m} min` : '')
       .cook importieren
       <input type="file" accept=".cook,.txt,text/plain" multiple @change="importFiles" />
     </label>
+    <RouterLink class="file-button" :to="{ name: 'import' }">Von Rezeptseite oder Text</RouterLink>
     <AppButton variant="ghost" :disabled="!recipes.length" @click="exportAll">
       Alle als ZIP sichern
     </AppButton>
@@ -259,6 +274,15 @@ const minutes = (m?: number) => (m ? `${m} min` : '')
         <option :value="20">bis 20 min</option>
         <option :value="30">bis 30 min</option>
         <option :value="60">bis 1 h</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="recipe-kcal">Kalorien</label>
+      <select id="recipe-kcal" v-model="maxKcal">
+        <option value="">beliebig</option>
+        <option :value="400">bis 400 kcal</option>
+        <option :value="600">bis 600 kcal</option>
+        <option :value="800">bis 800 kcal</option>
       </select>
     </div>
     <div v-if="collections.length" class="field">
@@ -315,6 +339,9 @@ const minutes = (m?: number) => (m ? `${m} min` : '')
             {{ minutes((r.recipe.meta.prepMinutes ?? 0) + (r.recipe.meta.cookMinutes ?? 0)) }}
           </span>
           <span v-if="meta.get(r.key)?.diet">{{ DIET_LABELS[meta.get(r.key)!.diet!] }}</span>
+          <span v-if="meta.get(r.key)?.kcal">
+            ≈ {{ Math.round(meta.get(r.key)!.kcal!) }} kcal/Portion
+          </span>
           <span v-if="meta.get(r.key)?.stars">
             <span aria-hidden="true">★</span>
             {{ meta.get(r.key)!.stars!.toLocaleString('de-DE', { maximumFractionDigits: 1 }) }}
@@ -362,6 +389,10 @@ select {
   background: var(--surface);
   font-weight: 600;
   cursor: pointer;
+}
+a.file-button {
+  color: var(--text);
+  text-decoration: none;
 }
 .file-button:focus-within {
   outline: var(--focus-ring);

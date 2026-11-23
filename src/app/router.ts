@@ -25,9 +25,19 @@ export const router = createRouter({
       props: true,
     },
     {
+      path: '/plan',
+      name: 'plan',
+      component: () => import('./views/PlanView.vue'),
+    },
+    {
       path: '/rezepte',
       name: 'recipes',
       component: () => import('./views/RecipesView.vue'),
+    },
+    {
+      path: '/import',
+      name: 'import',
+      component: () => import('./views/ImportView.vue'),
     },
     {
       path: '/katalog/:path+',

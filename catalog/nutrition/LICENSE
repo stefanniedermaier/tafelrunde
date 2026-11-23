@@ -1,0 +1,18 @@
+Lizenzen in diesem Ordner
+=========================
+
+bls-4.0-auszug.csv
+  Auszug aus: Max Rubner-Institut (2025): Bundeslebensmittelschlüssel (BLS), Version 4.0 —
+  Deutsche Nährstoffdatenbank. Karlsruhe. DOI: 10.25826/Data20251217-134202-0
+  Herausgeber: Max Rubner-Institut. Lizenz: Creative Commons Namensnennung 4.0 International
+  (CC BY 4.0), https://creativecommons.org/licenses/by/4.0/deed.de – Volltext: LICENSES/CC-BY-4.0.txt
+  Änderungen: gekürzt auf die Lebensmittel, die der Zutatenkatalog braucht, und auf die Nährstoffe
+  der üblichen Nährwerttabelle (Energie, Fett, gesättigte Fettsäuren, Kohlenhydrate, Zucker,
+  Ballaststoffe, Eiweiß, Salz) je 100 g. Spuren und Werte unter der Nachweisgrenze als 0,
+  fehlende Werte leer. Erzeugt mit tools/bls-extract.py.
+  Die Nennung bedeutet keine Unterstützung von Tafelrunde durch das Max Rubner-Institut.
+
+zuordnung.yaml, gewichte.yaml
+  Eigene Arbeit der Mitwirkenden von Tafelrunde, wie der übrige Katalog unter
+  Creative Commons Namensnennung – Weitergabe unter gleichen Bedingungen 4.0 International
+  (CC BY-SA 4.0), siehe ../LICENSE.

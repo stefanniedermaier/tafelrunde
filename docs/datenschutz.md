@@ -1,6 +1,6 @@
 # Welche Daten liegen wo?
 
-Stand: Phase 2 (Rezepte). Dieser Hinweis beschreibt, was Tafelrunde speichert und wer es sehen kann. Er ersetzt keine Datenschutzerklärung; solange die App nur privat in der Familie genutzt wird, ist keine nötig (siehe [Architektur, offene Punkte](../plan/01-architektur.md#offene-punkte-klärung-in-phase-0)).
+Stand: Phase 4 (Rezept-Import). Dieser Hinweis beschreibt, was Tafelrunde speichert und wer es sehen kann. Er ersetzt keine Datenschutzerklärung; solange die App nur privat in der Familie genutzt wird, ist keine nötig (siehe [Architektur, offene Punkte](../plan/01-architektur.md#offene-punkte-klärung-in-phase-0)).
 
 ## Auf deinem Gerät
 
@@ -33,6 +33,12 @@ Wer Zugriff auf das entsperrte Gerät und den Browser hat, kann die Daten lesen.
 | Antwort-Code              | Bereichs-ID, Geräte-ID, Name, Gerätename, Datei-ID | nein – enthält keinen Schlüssel        |
 
 Codes stehen im URL-Fragment (`#/…`) und werden nie an einen Server gesendet. Als Link im Messenger bleibt eine Einladung dort lesbar; bevorzugt den QR-Code.
+
+## Beim Import von Rezepten
+
+- **Bookmarklet:** Es läuft auf der Rezeptseite, liest dort die Rezeptdaten (oder den markierten Text) und übergibt sie nur an das Tafelrunde-Fenster, das es selbst geöffnet hat. Es sendet nichts an andere Stellen und lädt nichts nach. Die Rezeptseite erfährt, dass Tafelrunde geöffnet wurde.
+- **Teilen unter Android:** Der geteilte Text kommt als Teil der Startadresse in die App und wird sofort daraus entfernt. Bei installierter App beantwortet der Service Worker den Aufruf, der Text erreicht dann keinen Server. Ohne Service Worker (z. B. beim allerersten Aufruf) landet er in der Anfrage an GitHub Pages.
+- Importierte Rezepte werden wie eigene behandelt: Sie liegen im gewählten Bereich, verschlüsselt im eigenen Speicher. Die Quelle (Adresse) und das Importdatum stehen im Rezept.
 
 ## Beim Betreiber
 

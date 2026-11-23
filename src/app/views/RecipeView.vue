@@ -1,13 +1,16 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
 <script setup lang="ts">
 import { computed, ref, shallowRef, watch } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import {
   type Block,
   type RecipeEntry,
   type ResolvedReference,
   DIET_LABELS,
+  addPlanEntry,
   deleteRecipe,
+  getMeals,
+  toPlanDate,
   formatAmount,
   formatNumber,
   lastCooked,
@@ -27,16 +30,22 @@ import { downloadFile } from '../download'
 import { catalogSources } from '../recipes/catalog-recipes'
 import AppButton from '@/ui/components/AppButton.vue'
 import AppDialog from '@/ui/components/AppDialog.vue'
+import AppTextField from '@/ui/components/AppTextField.vue'
+import AppToast from '@/ui/components/AppToast.vue'
 import TimerButton from '@/ui/components/TimerButton.vue'
 import { catalogDiet } from '../catalog'
 import { useRecipes } from '../recipes/recipe-store'
 import { recipeRoute } from '../recipes/routes'
 import { catalogVersions, loadCatalogRecipes } from '../recipes/catalog-recipes'
 import { bumpWorkspace, workspace } from '../workspace/use-workspace'
+import { planSpaces, recipeRequest } from '../plan/plan-helpers'
 import CookMode from './CookMode.vue'
+import ShoppingPreview from './ShoppingPreview.vue'
 import RecipeCollections from './RecipeCollections.vue'
 import RecipePhotos from './RecipePhotos.vue'
+import RecipeNutrition from './RecipeNutrition.vue'
 import RecipeReviews from './RecipeReviews.vue'
+import { loadNutrition, nutritionOf } from '../nutrition'
 
 /**
  * Rezeptansicht. Kann auch ein Katalogrezept zeigen (`entry` gesetzt, ohne Bereich).
@@ -50,9 +59,11 @@ const props = defineProps<{
   imageUrl?: string | undefined
 }>()
 const router = useRouter()
+const route = useRoute()
 const { recipes, index, handles } = useRecipes()
 // Für Referenzen auf Katalogrezepte und den Hinweis „Original geändert“.
 void loadCatalogRecipes()
+void loadNutrition()
 
 const current = computed<RecipeEntry | undefined>(
   () =>
@@ -131,7 +142,11 @@ function exportCook() {
 const servings = ref<number>()
 watch(
   () => base.value?.meta.servings,
-  (s) => (servings.value = s),
+  (s) => {
+    // Aus dem Wochenplan („Heute kochen“) mit den geplanten Portionen.
+    const planned = Number(route.query.portionen)
+    servings.value = s && Number.isFinite(planned) && planned > 0 ? planned : s
+  },
   { immediate: true },
 )
 const factor = computed(() =>
@@ -154,6 +169,10 @@ const referenceByIngredient = computed(() => {
   return map
 })
 const ingredientList = computed(() => (recipe.value ? listIngredients(recipe.value) : []))
+/** Nährwerte für die gewählten Portionen, inklusive Unterrezepten (4.7, 4.8). */
+const nutrition = computed(() =>
+  base.value ? nutritionOf(index.value, base.value, scope.value, factor.value) : undefined,
+)
 const diet = computed(() =>
   base.value ? recipeDiet(index.value, base.value, scope.value, catalogDiet) : undefined,
 )
@@ -182,7 +201,47 @@ const sourceUrl = computed(() => {
 
 // --- Aktionen -----------------------------------------------------------------
 
-const cooking = ref(false)
+const cooking = ref(route.query.kochen === '1')
+
+// --- Planen und Einkaufen (3.2, 3.3) --------------------------------------------------
+
+const planTargets = computed(() => planSpaces(handles.value))
+const planOpen = ref(false)
+const planSpace = ref<string>()
+const planDate = ref('')
+const planMeal = ref('')
+const planHandle = computed(() =>
+  handles.value.find((h) => h.record.id === (planSpace.value ?? planTargets.value[0]?.id)),
+)
+const planMeals = computed(() => (planHandle.value ? getMeals(planHandle.value.doc) : []))
+const toast = ref<string>()
+function openPlan() {
+  planDate.value = toPlanDate(new Date())
+  planMeal.value = ''
+  planOpen.value = true
+}
+async function plan() {
+  const h = planHandle.value
+  const ws = await workspace()
+  if (!h || !current.value || !base.value || !ws.profile) return
+  const input: Parameters<typeof addPlanEntry>[1] = {
+    title: base.value.meta.title || 'Rezept',
+    recipeKey: current.value.key,
+    meal: planMeal.value || planMeals.value[0]?.id || 'abend',
+  }
+  if (planDate.value) input.date = planDate.value
+  if (servings.value) input.servings = servings.value
+  addPlanEntry(h.doc, input, ws.profile.personId)
+  planOpen.value = false
+  toast.value = planDate.value
+    ? `Eingeplant am ${new Date(`${planDate.value}T12:00:00`).toLocaleDateString('de-DE')}.`
+    : 'In den Ideen-Pool gelegt.'
+}
+
+const shoppingOpen = ref(false)
+const shoppingRequests = computed(() =>
+  recipe.value && base.value ? [recipeRequest(base.value, scope.value, servings.value)] : [],
+)
 const confirmDelete = ref(false)
 const cookedAt = shallowRef<number>()
 watch(
@@ -275,6 +334,10 @@ const stepBlocks = (blocks: Block[]) => blocks
     <div class="actions">
       <AppButton variant="primary" :disabled="!recipe.sections.length" @click="cooking = true">
         Kochmodus
+      </AppButton>
+      <AppButton v-if="planTargets.length" @click="openPlan">Einplanen</AppButton>
+      <AppButton v-if="planTargets.length" @click="shoppingOpen = true">
+        Auf die Einkaufsliste
       </AppButton>
       <template v-if="library">
         <RouterLink
@@ -408,6 +471,8 @@ const stepBlocks = (blocks: Block[]) => blocks
       <template v-else>{{ base.meta.source }}</template>
     </p>
 
+    <RecipeNutrition v-if="nutrition" :nutrition="nutrition" />
+
     <RecipeReviews
       v-if="library && props.recipeId"
       :space-id="props.spaceId!"
@@ -437,6 +502,48 @@ const stepBlocks = (blocks: Block[]) => blocks
         <AppButton variant="primary" @click="share">Freigabe erstellen</AppButton>
       </template>
     </AppDialog>
+
+    <AppDialog v-model:open="planOpen" title="Einplanen">
+      <form v-if="planOpen" id="plan-form" class="plan-form" @submit.prevent="plan">
+        <div v-if="planTargets.length > 1" class="field">
+          <label for="plan-space">Bereich</label>
+          <select id="plan-space" v-model="planSpace">
+            <option v-for="t in planTargets" :key="t.id" :value="t.id">{{ t.name }}</option>
+          </select>
+        </div>
+        <AppTextField
+          v-model="planDate"
+          label="Tag"
+          type="date"
+          hint="Leer lassen für den Ideen-Pool."
+        />
+        <div v-if="planMeals.length > 1" class="field">
+          <label for="plan-meal">Mahlzeit</label>
+          <select id="plan-meal" v-model="planMeal">
+            <option v-for="m in planMeals" :key="m.id" :value="m.id">{{ m.name }}</option>
+          </select>
+        </div>
+        <p v-if="servings" class="muted">Für {{ formatNumber(servings) }} Portionen.</p>
+      </form>
+      <template #actions>
+        <AppButton @click="planOpen = false">Abbrechen</AppButton>
+        <AppButton type="submit" form="plan-form" variant="primary">Einplanen</AppButton>
+      </template>
+    </AppDialog>
+
+    <ShoppingPreview v-model:open="shoppingOpen" :requests="shoppingRequests" />
+    <AppToast v-if="toast" :duration="5000" @dismiss="toast = undefined">
+      {{ toast }}
+      <template #actions>
+        <RouterLink
+          :to="{
+            name: 'plan',
+            query: { b: planSpace ?? planTargets[0]?.id, woche: planDate || undefined },
+          }"
+          >Zum Plan</RouterLink
+        >
+      </template>
+    </AppToast>
 
     <AppDialog v-model:open="confirmDelete" title="Rezept löschen?">
       <p>„{{ base.meta.title }}“ wird mit Notizen und Bewertungen auf allen Geräten gelöscht.</p>
@@ -594,5 +701,9 @@ select {
 }
 .danger-zone {
   margin-top: var(--space-8);
+}
+.plan-form {
+  display: grid;
+  gap: var(--space-4);
 }
 </style>

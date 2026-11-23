@@ -88,3 +88,18 @@ describe('Rezeptsuche', () => {
     ])
   })
 })
+
+describe('Kalorien', () => {
+  const list = [
+    item('a', '---\ntitle: Salat\n---\nx', { kcal: 250 }),
+    item('b', '---\ntitle: Auflauf\n---\nx', { kcal: 780 }),
+    item('c', '---\ntitle: Brot\n---\nx'),
+  ]
+  const search = createRecipeSearch(list)
+  it('sortiert nach kcal je Portion, ohne Werte am Ende', () => {
+    expect(search({}, 'kcal').map((r) => r.key)).toEqual(['a', 'b', 'c'])
+  })
+  it('filtert nach Obergrenze und lässt Rezepte ohne Werte weg', () => {
+    expect(search({ maxKcal: 600 }).map((r) => r.key)).toEqual(['a'])
+  })
+})

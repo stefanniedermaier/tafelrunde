@@ -46,6 +46,9 @@ export const LIVE_ROOT = {
   items: 'items',
   categoryOverrides: 'categoryOverrides',
   stores: 'stores',
+  plan: 'plan',
+  planSettings: 'planSettings',
+  pantry: 'pantry',
 } as const
 
 /**

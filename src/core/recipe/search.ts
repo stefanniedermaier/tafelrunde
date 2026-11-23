@@ -19,15 +19,18 @@ export interface SearchableRecipe {
   lastCooked?: number | undefined
   createdAt: number
   collections?: string[]
+  /** Kalorien je Portion (Näherung), falls berechenbar. */
+  kcal?: number | undefined
 }
 
-export type RecipeSort = 'name' | 'rating' | 'cooked' | 'time' | 'newest'
+export type RecipeSort = 'name' | 'rating' | 'cooked' | 'time' | 'kcal' | 'newest'
 
 export const SORT_LABELS: Record<RecipeSort, string> = {
   name: 'Name',
   rating: 'Bewertung',
   cooked: 'Zuletzt gekocht',
   time: 'Zubereitungszeit',
+  kcal: 'Kalorien je Portion',
   newest: 'Neueste',
 }
 
@@ -36,6 +39,8 @@ export interface RecipeFilter {
   tags?: string[]
   diet?: Diet
   maxMinutes?: number
+  /** Höchstens so viele kcal je Portion; Rezepte ohne Nährwerte fallen heraus. */
+  maxKcal?: number
   collection?: string
 }
 
@@ -110,6 +115,9 @@ export function createRecipeSearch(items: readonly SearchableRecipe[]) {
         return t > 0 && t <= filter.maxMinutes!
       })
     }
+    if (filter.maxKcal) {
+      result = result.filter((i) => i.kcal !== undefined && i.kcal <= filter.maxKcal!)
+    }
     if (filter.collection)
       result = result.filter((i) => i.collections?.includes(filter.collection!))
 
@@ -121,6 +129,7 @@ export function createRecipeSearch(items: readonly SearchableRecipe[]) {
       cooked: (a, b) => (b.lastCooked ?? 0) - (a.lastCooked ?? 0) || byName(a, b),
       time: (a, b) =>
         (totalMinutes(a.recipe) || Infinity) - (totalMinutes(b.recipe) || Infinity) || byName(a, b),
+      kcal: (a, b) => (a.kcal ?? Infinity) - (b.kcal ?? Infinity) || byName(a, b),
       newest: (a, b) => b.createdAt - a.createdAt || byName(a, b),
     }
     // Bei einer Suche ohne ausdrückliche Sortierung zählt die Trefferqualität.

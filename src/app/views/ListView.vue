@@ -190,6 +190,11 @@ async function removeList() {
 }
 
 const detail = (i: Item) => [i.quantity, i.unit].filter(Boolean).join(' ')
+/** Herkunft aus Rezepten, z. B. „für: Pizza, Zwiebelkuchen“. */
+const origin = (i: Item) => {
+  const labels = [...new Set((i.sources ?? []).map((s) => s.label).filter(Boolean))]
+  return labels.length ? `für: ${labels.join(', ')}` : undefined
+}
 </script>
 
 <template>
@@ -257,6 +262,7 @@ const detail = (i: Item) => [i.quantity, i.unit].filter(Boolean).join(' ')
           :key="item.id"
           :label="item.note ? `${item.name} – ${item.note}` : item.name"
           :detail="detail(item)"
+          :hint="origin(item)"
           :done="item.checked"
           @update:done="(v: boolean) => doc && setChecked(doc, item.id, v)"
         >
