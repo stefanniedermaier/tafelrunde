@@ -30,10 +30,10 @@
 
 ### 4.5 Lizenzprüfung (ADR)
 
-Recherche und Vorschlag: [ADR 0004](../docs/adr/0004-naehrwertdaten.md) – BLS 4.0 unter CC BY 4.0; Prüfung der Originalquellen noch offen.
+Recherche und Vorschlag: [ADR 0004](../docs/adr/0004-naehrwertdaten.md) – BLS 4.0 unter CC BY 4.0, Lizenz auf der Download-Seite bestätigt.
 
-- [ ] Nutzungsbedingungen des BLS 4.0 prüfen: Weitergabe im öffentlichen Repo, Vereinbarkeit mit CC BY-SA 4.0, Quellenangabe
-- [ ] Sind sie nicht vereinbar, Alternativen bewerten, z. B. USDA FoodData Central (gemeinfrei) mit Zuordnung deutscher Namen
+- [x] Nutzungsbedingungen des BLS 4.0 prüfen: Weitergabe im öffentlichen Repo, Vereinbarkeit mit CC BY-SA 4.0, Quellenangabe
+- [x] Sind sie nicht vereinbar, Alternativen bewerten, z. B. USDA FoodData Central (gemeinfrei) mit Zuordnung deutscher Namen
 
 ### 4.6 Daten
 - [ ] Zuordnung Katalog-Zutat → BLS-Code

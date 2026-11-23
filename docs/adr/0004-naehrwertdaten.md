@@ -1,6 +1,6 @@
 # ADR 0004 – Nährwertdaten: Bundeslebensmittelschlüssel 4.0
 
-- **Status:** vorgeschlagen – Prüfung der Originalquellen offen (siehe unten)
+- **Status:** vorgeschlagen – Lizenz geprüft; Datenformat noch offen (siehe unten)
 - **Datum:** 2026-11-23
 - **Bezug:** plan/06-phase-4-import-naehrwerte.md, 4.5
 
@@ -17,9 +17,9 @@ Phase 4 Teil B soll Nährwerte und Kalorien je Rezept, Portion und Woche zeigen.
 ### Bundeslebensmittelschlüssel (BLS) 4.0, Max Rubner-Institut (MRI)
 
 - Seit **16. Dezember 2025** in Version 4.0 **kostenfrei** verfügbar; die bisherigen Lizenzgebühren entfallen ([heise](https://www.heise.de/en/news/Bundeslebensmittelschluessel-4-0-Nutrient-database-now-publicly-available-11123877.html), [MRI](https://www.mri.bund.de/en/institutes/nutritional-behaviour/translate-to-english-arbeitsbereiche/german-nutrient-database-bundeslebensmittelschluessel-bl/)).
-- **Lizenz laut Download-Seite: CC BY 4.0.** Bei Verwendung ist das MRI als Herausgeber zu nennen ([blsdb.de/download](https://blsdb.de/download)).
+- **Lizenz laut Download-Seite: CC BY 4.0, ausdrücklich für die Daten.** Wortlaut (geprüft am 2026-11-23): „Die Daten des Bundeslebensmittelschlüssels (BLS) stehen als Open Data zur freien Verfügung. Die Nutzung ist unter der Lizenz CC BY 4.0 (Creative Commons Namensnennung 4.0 International) gestattet. Bei Verwendung ist das Max Rubner-Institut als Herausgeber zu nennen.“ ([blsdb.de/download](https://blsdb.de/download))
 - Die Dokumentation nennt ausdrücklich App- und Softwareentwicklung als vorgesehene Nutzung ([BLS 4.0 Dokumentation](https://www.openagrar.de/servlets/MCRFileNodeServlet/openagrar_derivate_00069363/BLS_4_0_Dokumentation_DE.pdf)).
-- Empfohlene Zitierweise: „Max Rubner-Institut (2025): Bundeslebensmittelschlüssel (BLS), Version 4.0. Karlsruhe.“
+- Zitierweise laut Download-Seite: „Max Rubner-Institut (2025): Bundeslebensmittelschlüssel (BLS), Version 4.0 — Deutsche Nährstoffdatenbank. Karlsruhe. DOI: [10.25826/Data20251217-134202-0](https://doi.org/10.25826/Data20251217-134202-0)“
 - Umfang: gut 7 000 Lebensmittel und Gerichte mit bis zu 138 Nährstoffen, deutsche Bezeichnungen, aktualisierte Auswahl (u. a. Pflanzendrinks, Quinoa, Buchweizen).
 - **Nicht bestätigt:** ob der Datensatz Stück- oder Löffelgewichte enthält. Davon gehen wir nicht aus (siehe Folgen).
 
@@ -44,19 +44,20 @@ CC BY 4.0 erlaubt Weitergabe und Bearbeitung, auch kommerziell, unter der Beding
   - `zuordnung.yaml` – Katalog-ID → BLS-Code (4.6). Eigene Arbeit, **CC BY-SA 4.0** wie der übrige Katalog.
   - `gewichte.yaml` – Gewicht je Stück, EL, TL, Prise, Bund, Dose, Becher (4.6). Eigene Werte, **CC BY-SA 4.0**; keine Übernahme aus Quellen mit unklaren Rechten.
 - `REUSE.toml` bekommt eine eigene Annotation `catalog/nutrition/bls-*` → `CC-BY-4.0`, `LICENSES/CC-BY-4.0.txt` kommt dazu.
-- **Namensnennung in der App:** unter jeder Nährwertanzeige „Nährwerte: Max Rubner-Institut (2025), Bundeslebensmittelschlüssel 4.0, CC BY 4.0 – Auszug“ mit Link auf die Lizenz; zusätzlich in `catalog/README.md` und im Impressum/Über-Bereich. Kein Hinweis, der eine Unterstützung durch das MRI nahelegt.
+- **Namensnennung in der App:** unter jeder Nährwertanzeige „Nährwerte: Max Rubner-Institut (2025), Bundeslebensmittelschlüssel 4.0, CC BY 4.0 – Auszug“ mit Link auf die Lizenz und die DOI; zusätzlich in `catalog/README.md` und im Impressum/Über-Bereich. Kein Hinweis, der eine Unterstützung durch das MRI nahelegt.
 - `tools/catalog.mjs` baut daraus `public/catalog/nutrition.json`; die Validierung prüft, dass jeder BLS-Code im Auszug existiert.
 
 **Rückfallebene:** Ergibt die Prüfung der Originalquellen eine Einschränkung, die einen Auszug im öffentlichen Repo ausschließt, wird USDA FoodData Central (CC0) verwendet – mit derselben Ordnerstruktur, nur anderer Quelle und manueller Namenszuordnung.
 
 ## Vor der Annahme zu prüfen
 
-Die Recherche stützt sich auf die Download-Seite und Dokumentation des MRI in Suchergebnissen sowie auf Berichte Dritter. **Die Originalseiten waren aus der Arbeitsumgebung nicht abrufbar.** Vor dem Status „angenommen“ von Hand prüfen:
+Die Recherche stützte sich zunächst auf Suchergebnisse; die Originalseiten waren aus der Arbeitsumgebung nicht abrufbar. Den Text der Download-Seite hat der Maintainer am 2026-11-23 nachgereicht.
 
-- [ ] [blsdb.de/download](https://blsdb.de/download): Lizenz CC BY 4.0 gilt für die **Datendateien** selbst (nicht nur für die Dokumentation); keine Zusatzbedingungen wie Registrierungspflicht für Weitergabe oder Verbot der Weiterverbreitung von Auszügen.
-- [ ] Dokumentation: genaue Zitierweise, Haftungsausschluss, ob Lizenz- oder Versionshinweise in abgeleiteten Daten erhalten bleiben müssen.
-- [ ] Datenformat und Nährstoffspalten (Bezeichnungen, Einheit je 100 g); ob Portions- oder Stückgewichte enthalten sind.
-- [ ] Lizenztext CC BY 4.0 nach `LICENSES/` (REUSE).
+- [x] [blsdb.de/download](https://blsdb.de/download): CC BY 4.0 gilt für die **Daten** („stehen als Open Data zur freien Verfügung“). Die Seite nennt keine Zusatzbedingungen außer der Nennung des MRI als Herausgeber.
+- [x] Zitierweise mit DOI (siehe oben).
+- [ ] Datenformat und Nährstoffspalten im Download (`BLS_4_0_2025_DE.zip`): Bezeichnungen, Einheit je 100 g; ob Portions- oder Stückgewichte enthalten sind. Erst beim Bau des Auszugs (4.6) nötig.
+- [ ] Haftungsausschluss in der Dokumentation, falls er in abgeleiteten Daten erhalten bleiben soll.
+- [ ] Lizenztext CC BY 4.0 nach `LICENSES/` (REUSE), zusammen mit dem Auszug.
 
 ## Folgen
 
