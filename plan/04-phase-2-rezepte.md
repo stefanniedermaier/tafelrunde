@@ -45,8 +45,8 @@
 - [x] Durchschnitt im Haushalt, „zuletzt gekocht“
 
 ### 2.9 Fotos
-- [ ] Im Browser verkleinert (WebP, höchstens 1600 px) und als eigene verschlüsselte Datei im Drive der Person gespeichert, die das Foto hinzufügt; Laden über Lese-Link, lokaler Cache
-- [ ] Fotos im Katalog liegen im Repo, mit Größenlimit und Lizenzangabe
+- [x] Im Browser verkleinert (WebP, höchstens 1600 px) und als eigene verschlüsselte Datei im Drive der Person gespeichert, die das Foto hinzufügt; Laden über Lese-Link, lokaler Cache
+- [x] Fotos im Katalog liegen im Repo, mit Größenlimit und Lizenzangabe
 
 ### 2.10 Öffentlicher Katalog auf GitHub
 - [x] `catalog/recipes/**/*.cook` mit Front Matter
@@ -64,9 +64,9 @@
 - [x] Einzelne Rezepte als `.cook` exportieren und importieren; alle Rezepte als ZIP exportieren (Backup)
 
 ### 2.13 Qualität
-- [ ] Unit-Tests: Skalierung, Referenzen, Zyklen, Ernährungsform
-- [ ] E2E-Tests: Rezept anlegen, referenzieren, teilen, übernehmen
-- [ ] Bedrohungsmodell: Rezepttext und Fotos als nicht vertrauenswürdige Eingabe, Größenlimits
+- [x] Unit-Tests: Skalierung, Referenzen, Zyklen, Ernährungsform
+- [x] E2E-Tests: Rezept anlegen, referenzieren, teilen, übernehmen
+- [x] Bedrohungsmodell: Rezepttext und Fotos als nicht vertrauenswürdige Eingabe, Größenlimits
 
 ## Akzeptanzkriterien
 - Kuchen mit Referenz auf Hefeteig: Die Mengen skalieren korrekt, ein Zyklus wird abgelehnt

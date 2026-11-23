@@ -4,7 +4,12 @@ import { computed, onMounted, ref, shallowRef } from 'vue'
 import { useRouter } from 'vue-router'
 import { createRecipe, spaceKind, spaceName } from '@/core'
 import AppButton from '@/ui/components/AppButton.vue'
-import { catalogSources, catalogVersions, loadCatalogRecipes } from '../recipes/catalog-recipes'
+import {
+  catalogImages,
+  catalogSources,
+  catalogVersions,
+  loadCatalogRecipes,
+} from '../recipes/catalog-recipes'
 import { catalogEntries, useRecipes } from '../recipes/recipe-store'
 import { workspace } from '../workspace/use-workspace'
 import type { Workspace } from '../workspace/workspace'
@@ -46,7 +51,7 @@ async function adopt() {
 </script>
 
 <template>
-  <RecipeView v-if="entry" :entry="entry">
+  <RecipeView v-if="entry" :entry="entry" :image-url="catalogImages.get(path)">
     <template #actions>
       <form class="adopt" @submit.prevent="adopt">
         <div v-if="targets.length > 1" class="field">

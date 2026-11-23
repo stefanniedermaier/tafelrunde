@@ -9,7 +9,15 @@
  * Rezepte: werden mit demselben Parser wie in der App gelesen (src/core, über Vite geladen).
  */
 import { createHash } from 'node:crypto'
-import { mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
+import {
+  copyFileSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs'
 import { basename, dirname, join, relative, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parse } from 'yaml'
@@ -20,6 +28,11 @@ const SOURCE = join(root, 'catalog', 'ingredients')
 const TARGET = join(root, 'public', 'catalog', 'ingredients.json')
 const RECIPES = join(root, 'catalog', 'recipes')
 const RECIPES_TARGET = join(root, 'public', 'catalog', 'recipes.json')
+const IMAGES = join(root, 'catalog', 'images')
+const IMAGES_TARGET = join(root, 'public', 'catalog', 'images')
+/** Fotos im Katalog: klein halten, die App lädt sie offline vor. */
+export const MAX_IMAGE_BYTES = 400 * 1024
+const IMAGE_TYPES = { '.webp': [0x52, 0x49, 0x46, 0x46], '.jpg': [0xff, 0xd8, 0xff] }
 const RECIPE_PATH = /^[a-z0-9]+(-[a-z0-9]+)*(\/[a-z0-9]+(-[a-z0-9]+)*)*$/
 
 const CATEGORY_IDS = new Set(CATEGORIES.map((c) => c.id))
@@ -140,6 +153,37 @@ function walk(dir) {
  * unzulässiger Pfad, nicht auflösbare Referenz, Zyklus. Hinweise: Zutaten,
  * die der Artikelkatalog nicht kennt.
  */
+/**
+ * Fotos zu Katalogrezepten: `catalog/images/<rezeptpfad>.webp` oder `.jpg`,
+ * höchstens 400 KB, nur echte Bilddateien, nur zu vorhandenen Rezepten.
+ */
+export function loadImages(recipePaths, dir = IMAGES) {
+  const errors = []
+  const images = new Map()
+  for (const file of walk(dir)) {
+    const rel = relative(dir, file).split(sep).join('/')
+    const ext = Object.keys(IMAGE_TYPES).find((e) => rel.endsWith(e))
+    if (!ext) {
+      errors.push(`images/${rel}: nur .webp und .jpg erlaubt`)
+      continue
+    }
+    const path = rel.slice(0, -ext.length)
+    const bytes = readFileSync(file)
+    if (!recipePaths.has(path)) errors.push(`images/${rel}: kein Rezept „${path}.cook“`)
+    if (bytes.length > MAX_IMAGE_BYTES) errors.push(`images/${rel}: größer als 400 KB`)
+    if (!IMAGE_TYPES[ext].every((b, i) => bytes[i] === b))
+      errors.push(`images/${rel}: keine gültige Bilddatei`)
+    if (images.has(path)) errors.push(`images/${rel}: mehrere Fotos für „${path}“`)
+    images.set(path, { file, image: `images/${rel}` })
+  }
+  if (errors.length) {
+    const error = new Error(`Katalogfotos fehlerhaft:\n  ${errors.join('\n  ')}`)
+    error.errors = errors
+    throw error
+  }
+  return images
+}
+
 export function loadRecipes(core, ingredients, dir = RECIPES) {
   const errors = []
   const notes = []
@@ -211,7 +255,11 @@ async function main() {
     items = loadCatalog()
     const result = loadRecipes(await loadCore(), items)
     for (const note of result.notes) console.warn(`Hinweis: ${note}`)
-    recipes = result.recipes
+    const images = loadImages(new Set(result.recipes.map((r) => r.path)))
+    recipes = result.recipes.map((r) =>
+      images.has(r.path) ? { ...r, image: images.get(r.path).image } : r,
+    )
+    recipes.images = images
   } catch (e) {
     console.error(e.message)
     process.exit(1)
@@ -220,6 +268,12 @@ async function main() {
     mkdirSync(dirname(TARGET), { recursive: true })
     writeFileSync(TARGET, JSON.stringify({ version: 1, license: 'CC-BY-SA-4.0', items }))
     writeFileSync(RECIPES_TARGET, JSON.stringify({ version: 1, license: 'CC-BY-SA-4.0', recipes }))
+    rmSync(IMAGES_TARGET, { recursive: true, force: true })
+    for (const { file, image } of recipes.images.values()) {
+      const target = join(root, 'public', 'catalog', image)
+      mkdirSync(dirname(target), { recursive: true })
+      copyFileSync(file, target)
+    }
     console.log(
       `Katalog gebaut: ${items.length} Artikel, ${recipes.length} Rezepte → public/catalog/`,
     )

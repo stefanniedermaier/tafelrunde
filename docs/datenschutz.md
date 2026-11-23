@@ -1,6 +1,6 @@
 # Welche Daten liegen wo?
 
-Stand: Phase 1 (Einkaufsliste). Dieser Hinweis beschreibt, was Tafelrunde speichert und wer es sehen kann. Er ersetzt keine Datenschutzerklärung; solange die App nur privat in der Familie genutzt wird, ist keine nötig (siehe [Architektur, offene Punkte](../plan/01-architektur.md#offene-punkte-klärung-in-phase-0)).
+Stand: Phase 2 (Rezepte). Dieser Hinweis beschreibt, was Tafelrunde speichert und wer es sehen kann. Er ersetzt keine Datenschutzerklärung; solange die App nur privat in der Familie genutzt wird, ist keine nötig (siehe [Architektur, offene Punkte](../plan/01-architektur.md#offene-punkte-klärung-in-phase-0)).
 
 ## Auf deinem Gerät
 
@@ -17,7 +17,7 @@ Wer Zugriff auf das entsperrte Gerät und den Browser hat, kann die Daten lesen.
 
 ## In deinem Google Drive
 
-- Ordner `Tafelrunde/` mit einer Datei je Bereich und Gerät; zufälliger Dateiname ohne Personenbezug.
+- Ordner `Tafelrunde/` mit zwei Dateien je Bereich und Gerät (Listen und Rezepte) und einer Datei je Foto, das du hinzugefügt hast; zufällige Dateinamen ohne Personenbezug.
 - Inhalt: der vollständige Stand des Bereichs, **Ende-zu-Ende verschlüsselt** (AES-256-GCM). Ohne Bereichsschlüssel nicht lesbar – auch nicht für Google.
 - Jede Datei ist für „Jeder mit Link: Lesen“ freigegeben, damit die anderen Geräte sie ohne Anmeldung lesen können. Der Link allein nützt nichts.
 - Die App hat nur Zugriff auf Dateien, die sie selbst angelegt hat (Scope `drive.file`), nicht auf den Rest deines Drives.

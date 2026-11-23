@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import * as core from '../src/core/index.ts'
-import { loadCatalog, loadRecipes } from './catalog.mjs'
+import { loadCatalog, loadImages, loadRecipes } from './catalog.mjs'
 
 const dirs = []
 function fixture(files) {
@@ -95,5 +95,30 @@ describe('Katalogrezepte', () => {
     ['zu groß', { 'a.cook': cook('A', 'x'.repeat(60_000)) }, /größer als/],
   ])('meldet %s', (_, files, message) => {
     expect(() => loadRecipes(core, ingredients, fixture(files))).toThrow(message)
+  })
+})
+
+describe('Katalogfotos', () => {
+  const webp = Buffer.from([0x52, 0x49, 0x46, 0x46, 0, 0, 0, 0, 0x57, 0x45, 0x42, 0x50])
+  const paths = new Set(['backen/hefeteig'])
+
+  it('ordnet Fotos Rezepten zu', () => {
+    const dir = fixture({})
+    mkdirSync(join(dir, 'backen'))
+    writeFileSync(join(dir, 'backen', 'hefeteig.webp'), webp)
+    expect(loadImages(paths, dir).get('backen/hefeteig').image).toBe('images/backen/hefeteig.webp')
+  })
+
+  it.each([
+    ['falsches Format', { 'a.png': webp }, /nur .webp und .jpg/],
+    ['ohne Rezept', { 'torte.webp': webp }, /kein Rezept/],
+    ['kein Bild', { 'kuchen.jpg': Buffer.from('<svg/>') }, /keine gültige Bilddatei/],
+    [
+      'zu groß',
+      { 'kuchen.webp': Buffer.concat([webp, Buffer.alloc(500 * 1024)]) },
+      /größer als 400 KB/,
+    ],
+  ])('meldet %s', (_, files, message) => {
+    expect(() => loadImages(new Set(['kuchen']), fixture(files))).toThrow(message)
   })
 })

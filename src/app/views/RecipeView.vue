@@ -35,13 +35,20 @@ import { catalogVersions } from '../recipes/catalog-recipes'
 import { bumpWorkspace, workspace } from '../workspace/use-workspace'
 import CookMode from './CookMode.vue'
 import RecipeCollections from './RecipeCollections.vue'
+import RecipePhotos from './RecipePhotos.vue'
 import RecipeReviews from './RecipeReviews.vue'
 
 /**
  * Rezeptansicht. Kann auch ein Katalogrezept zeigen (`entry` gesetzt, ohne Bereich).
  * Alle Texte aus dem Rezept werden als Text gerendert, nie als HTML.
  */
-const props = defineProps<{ spaceId?: string; recipeId?: string; entry?: RecipeEntry }>()
+const props = defineProps<{
+  spaceId?: string
+  recipeId?: string
+  entry?: RecipeEntry
+  /** Foto eines Katalogrezepts (statische Datei der App). */
+  imageUrl?: string | undefined
+}>()
 const router = useRouter()
 const { recipes, index, handles } = useRecipes()
 
@@ -206,6 +213,20 @@ const stepBlocks = (blocks: Block[]) => blocks
   <template v-if="recipe && base">
     <h1>{{ base.meta.title || 'Ohne Titel' }}</h1>
     <p v-if="base.meta.description" class="lead">{{ base.meta.description }}</p>
+    <RecipePhotos
+      v-if="handle && props.recipeId"
+      :space-id="props.spaceId!"
+      :recipe-id="props.recipeId"
+      :title="base.meta.title"
+      :editable="!!library"
+    />
+    <img
+      v-else-if="imageUrl"
+      class="catalog-photo"
+      :src="imageUrl"
+      :alt="base.meta.title"
+      loading="lazy"
+    />
 
     <ul class="facts">
       <li v-if="servings">
@@ -454,6 +475,12 @@ const stepBlocks = (blocks: Block[]) => blocks
   padding: var(--space-3) var(--space-3) var(--space-3) var(--space-6);
   border-left: 4px solid var(--warning);
   background: var(--surface);
+}
+.catalog-photo {
+  width: 100%;
+  max-height: 28rem;
+  object-fit: cover;
+  border-radius: var(--radius-md);
 }
 .origin {
   padding: var(--space-2) var(--space-3);

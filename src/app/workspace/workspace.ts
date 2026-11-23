@@ -30,6 +30,13 @@ import {
   linkSpace,
   listMembers,
   markRemoved,
+  MAX_PHOTO_BYTES,
+  addPhotoRef,
+  listPhotos,
+  openPhoto,
+  removePhotoRef,
+  sealPhoto,
+  setPhotoFile,
   createRecipe,
   getRecipe,
   listRecipes,
@@ -98,6 +105,7 @@ const K = {
   profile: 'profile',
   space: (id: string) => `space/${id}`,
   sync: (key: string) => `sync/${key}`,
+  photo: (id: string) => `photo/${id}`,
 }
 
 /** `live` und, falls vorhanden, `library` eines Bereichs. */
@@ -376,6 +384,7 @@ export class Workspace {
     for (const record of this.spaces()) {
       for (const h of docHandles(await this.space(record.id))) await h.sync.flush()
     }
+    await this.uploadPendingPhotos().catch((e: unknown) => console.error('Foto-Upload', e))
   }
 
   get hasPendingChanges(): Promise<boolean> {
@@ -643,6 +652,75 @@ export class Workspace {
       ref: `${fromSpaceId}/${recipeId}`,
       version: String(recipe.updatedAt),
     })
+  }
+
+  // --- Fotos (2.9) ------------------------------------------------------------------
+
+  /**
+   * Fügt ein (bereits verkleinertes) Foto hinzu. Es liegt sofort lokal vor
+   * und wird hochgeladen, sobald ein Speicher verbunden ist.
+   */
+  async addPhoto(
+    spaceId: string,
+    recipeId: string,
+    bytes: Uint8Array,
+    size: { width: number; height: number },
+  ): Promise<string> {
+    const handle = await this.space(spaceId)
+    if (!handle.library) throw new Error('Dieser Bereich hat keine Rezepte.')
+    if (bytes.length > MAX_PHOTO_BYTES) throw new Error('Foto ist zu groß.')
+    const id = randomId()
+    await this.deps.kv.set(K.photo(id), bytes)
+    addPhotoRef(handle.library.doc, {
+      id,
+      recipeId,
+      ...size,
+      addedBy: this.requireProfile().personId,
+      addedAt: this.now(),
+    })
+    await this.uploadPendingPhotos().catch(() => undefined)
+    return id
+  }
+
+  /** Lädt noch nicht hochgeladene Fotos dieses Geräts hoch. */
+  async uploadPendingPhotos(): Promise<void> {
+    if (!this.deps.provider.canWrite()) return
+    for (const record of this.spaces()) {
+      const handle = await this.space(record.id)
+      if (!handle.library) continue
+      for (const ref of listPhotos(handle.library.doc)) {
+        if (ref.fileId) continue
+        const bytes = await this.deps.kv.get<Uint8Array>(K.photo(ref.id))
+        if (!bytes) continue // liegt auf einem anderen Gerät
+        const file = await sealPhoto(handle.record.key, record.id, ref.id, bytes)
+        setPhotoFile(handle.library.doc, ref.id, await this.deps.provider.createFile(file))
+      }
+    }
+  }
+
+  /** Foto-Inhalt: aus dem lokalen Speicher oder über den Lese-Link (dann zwischengespeichert). */
+  async loadPhoto(spaceId: string, photoId: string): Promise<Uint8Array | undefined> {
+    const cached = await this.deps.kv.get<Uint8Array>(K.photo(photoId))
+    if (cached) return cached
+    const handle = await this.space(spaceId)
+    const ref = handle.library && listPhotos(handle.library.doc).find((p) => p.id === photoId)
+    if (!ref?.fileId) return undefined
+    const file = await this.deps.provider.readFile(ref.fileId)
+    const record = handle.record
+    const bytes = await openPhoto(
+      [record.key, ...(record.previousKeys ?? [])],
+      spaceId,
+      photoId,
+      file,
+    )
+    await this.deps.kv.set(K.photo(photoId), bytes)
+    return bytes
+  }
+
+  async removePhoto(spaceId: string, photoId: string): Promise<void> {
+    const handle = await this.space(spaceId)
+    if (handle.library) removePhotoRef(handle.library.doc, photoId)
+    await this.deps.kv.delete(K.photo(photoId))
   }
 
   /** Wird aufgerufen, wenn Bereiche ohne Zutun der Oberfläche hinzukommen. */

@@ -15,6 +15,12 @@ import { isValidId } from './ids'
 export const ENVELOPE_VERSION = 1
 export const DOC_KINDS = ['live', 'library'] as const
 export type DocKind = (typeof DOC_KINDS)[number]
+/**
+ * Arten verschlüsselter Dateien: die Dokumente eines Bereichs und Fotos.
+ * Bei Fotos steht im Feld `device` die Foto-ID, `seq` ist 0 (Fotos ändern sich nicht).
+ */
+export const ENVELOPE_KINDS = [...DOC_KINDS, 'photo'] as const
+export type EnvelopeKind = (typeof ENVELOPE_KINDS)[number]
 
 const IV_BYTES = 12
 const KEY_BYTES = 32
@@ -24,7 +30,7 @@ const MAX_CT_CHARS = 16 * 1024 * 1024
 export interface Envelope {
   v: typeof ENVELOPE_VERSION
   space: string
-  doc: DocKind
+  doc: EnvelopeKind
   device: string
   seq: number
   iv: string
@@ -33,7 +39,7 @@ export interface Envelope {
 
 export interface EnvelopeHeader {
   space: string
-  doc: DocKind
+  doc: EnvelopeKind
   device: string
   seq: number
 }
@@ -77,7 +83,8 @@ export async function importSpaceKey(encoded: string, extractable = true): Promi
 
 function assertHeader(h: EnvelopeHeader): void {
   if (!isValidId(h.space) || !isValidId(h.device)) throw new EnvelopeError('ungültige ID', 'format')
-  if (!DOC_KINDS.includes(h.doc)) throw new EnvelopeError('unbekanntes Dokument', 'format')
+  if (!(ENVELOPE_KINDS as readonly string[]).includes(h.doc))
+    throw new EnvelopeError('unbekanntes Dokument', 'format')
   if (!Number.isSafeInteger(h.seq) || h.seq < 0) throw new EnvelopeError('ungültige seq', 'format')
 }
 

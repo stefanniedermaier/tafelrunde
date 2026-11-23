@@ -361,4 +361,52 @@ describe('Workspace', () => {
       kind: 'shared',
     })
   })
+
+  it('lädt Fotos verschlüsselt hoch, sobald angemeldet, und andere Geräte laden sie', async () => {
+    const cloud = new FakeCloud()
+    const { ws: anna, provider } = await workspace(cloud, 'anna')
+    const { ws: ben } = await workspace(cloud, 'ben')
+    await anna.setup('Anna', 'Laptop')
+    await ben.setup('Ben', 'Handy')
+    const family = await anna.createSpace('Familie', 'household')
+    await family.sync.flush()
+    await family.sync.flush()
+    const benFamily = await ben.join(transfer(await anna.invite(family.record.id)))
+    await anna.acceptReply(transfer(await ben.reply(family.record.id)))
+
+    const { createRecipe, listPhotos } = await import('@/core')
+    const recipeId = createRecipe(
+      family.library!.doc,
+      '---\ntitle: Kuchen\n---\n',
+      anna.profile!.personId,
+    )
+    const bytes = new Uint8Array([0x52, 0x49, 0x46, 0x46, 1, 2, 3])
+
+    // Offline hinzugefügt: liegt lokal, noch ohne Datei.
+    provider.loggedIn = false
+    const photoId = await anna.addPhoto(family.record.id, recipeId, bytes, { width: 4, height: 3 })
+    expect(listPhotos(family.library!.doc, recipeId)[0]?.fileId).toBeUndefined()
+    expect(await anna.loadPhoto(family.record.id, photoId)).toEqual(bytes)
+
+    // Nach dem Login hochgeladen – verschlüsselt.
+    provider.loggedIn = true
+    await anna.flushAll()
+    const ref = listPhotos(family.library!.doc, recipeId)[0]!
+    expect(ref.fileId).toBeDefined()
+    const stored = cloud.files.get(ref.fileId!)!.content
+    expect(new TextDecoder().decode(stored)).not.toContain('RIFF')
+    await anna.flushAll()
+    await family.sync.flush()
+
+    // Ben bekommt Verweis und Datei.
+    await benFamily.sync.poll()
+    await benFamily.library!.sync.poll()
+    expect(await ben.loadPhoto(family.record.id, photoId)).toEqual(bytes)
+    const reads = cloud.calls.read
+    await ben.loadPhoto(family.record.id, photoId)
+    expect(cloud.calls.read).toBe(reads) // aus dem lokalen Speicher
+
+    await anna.removePhoto(family.record.id, photoId)
+    expect(listPhotos(family.library!.doc, recipeId)).toEqual([])
+  })
 })

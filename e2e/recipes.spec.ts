@@ -255,6 +255,42 @@ test('Rezept teilen, als .cook speichern und wieder importieren', async ({ page 
   await expect(page.getByRole('heading', { name: 'Jemanden einladen' })).toBeVisible()
 })
 
+test('Foto hinzufügen: verkleinert, lokal gespeichert, ohne CSP-Verstoß', async ({ page }) => {
+  const problems = collectProblems(page)
+  await setup(page)
+  await createRecipe(page, HEFETEIG)
+  await page.getByRole('button', { name: 'Fertig' }).click()
+
+  // 2400×1200-PNG im Browser erzeugen und als Datei übergeben
+  const png = await page.evaluate(async () => {
+    const canvas = document.createElement('canvas')
+    canvas.width = 2400
+    canvas.height = 1200
+    const ctx = canvas.getContext('2d')!
+    ctx.fillStyle = '#D96B43'
+    ctx.fillRect(0, 0, 2400, 1200)
+    const blob = await new Promise<Blob>((r) => canvas.toBlob((b) => r(b!), 'image/png'))
+    return Array.from(new Uint8Array(await blob.arrayBuffer()))
+  })
+  await page.locator('.photos input[type=file]').setInputFiles({
+    name: 'kuchen.png',
+    mimeType: 'image/png',
+    buffer: Buffer.from(png),
+  })
+  const img = page.getByRole('img', { name: 'Hefeteig, Foto 1' })
+  await expect(img).toBeVisible()
+  expect(await img.getAttribute('src')).toMatch(/^blob:/)
+  expect(await img.getAttribute('width')).toBe('1600')
+  expect(await img.getAttribute('height')).toBe('800')
+
+  await page.waitForTimeout(500)
+  await page.reload()
+  await expect(page.getByRole('img', { name: 'Hefeteig, Foto 1' })).toBeVisible()
+  await page.getByRole('button', { name: /Entfernen\s*:\s*Foto 1/ }).click()
+  await expect(page.getByRole('img', { name: 'Hefeteig, Foto 1' })).toHaveCount(0)
+  expect(problems).toEqual([])
+})
+
 for (const theme of ['light', 'dark'] as const) {
   test(`Barrierefreiheit Rezeptansicht und Editor (${theme})`, async ({ page }) => {
     await page.emulateMedia({ colorScheme: theme })
