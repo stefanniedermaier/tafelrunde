@@ -226,6 +226,7 @@ export class Workspace {
     const existing = getMember(doc, profile.deviceId)
     upsertMember(doc, {
       deviceId: profile.deviceId,
+      personId: profile.personId,
       person: profile.person,
       deviceName: profile.deviceName,
       provider: this.deps.provider.id,

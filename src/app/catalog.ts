@@ -7,7 +7,13 @@
  */
 
 import { shallowRef } from 'vue'
-import { type CatalogIndex, type CatalogLookup, EMPTY_CATALOG, buildCatalogIndex } from '@/core'
+import {
+  type CatalogIndex,
+  type CatalogLookup,
+  type DietLookup,
+  EMPTY_CATALOG,
+  buildCatalogIndex,
+} from '@/core'
 
 const index = shallowRef<CatalogIndex>(EMPTY_CATALOG)
 let loading: Promise<void> | undefined
@@ -31,3 +37,6 @@ export const catalogLookup: CatalogLookup = (name) => index.value.lookup(name)
 export function catalogNames(): string[] {
   return index.value.names
 }
+
+/** Ernährungsform eines Artikels laut Katalog (reaktiv wie `catalogLookup`). */
+export const catalogDiet: DietLookup = (name) => index.value.diet(name)

@@ -159,6 +159,66 @@ function readMeta(fields: Record<string, FrontValue>, warnings: string[]): Recip
   return meta
 }
 
+/** Felder, die das Metadaten-Formular bearbeitet (Reihenfolge = Ausgabe). */
+export const META_FIELDS = [
+  'title',
+  'servings',
+  'yield',
+  'tags',
+  'time.prep',
+  'time.cook',
+  'source',
+  'description',
+  'diet',
+] as const
+export type MetaField = (typeof META_FIELDS)[number]
+
+function yamlValue(value: string): string {
+  // Anführungszeichen, wenn YAML den Wert sonst anders lesen würde.
+  return /^[\s]|[\s]$|[:#[\]{},&*!|>'"%@`]|^-/.test(value) || value === ''
+    ? JSON.stringify(value)
+    : value
+}
+
+/**
+ * Schreibt Felder ins Front Matter; leere Werte entfernen das Feld, andere
+ * Felder bleiben erhalten. Der Rezepttext bleibt unverändert.
+ */
+export function setFrontMatter(
+  src: string,
+  patch: Partial<Record<MetaField, string | string[]>>,
+): string {
+  const { fields, body } = splitFrontMatter(src)
+  const merged: Record<string, FrontValue> = { ...fields }
+  for (const [key, value] of Object.entries(patch)) {
+    const empty = Array.isArray(value) ? value.length === 0 : !value?.trim()
+    if (empty) delete merged[key]
+    else merged[key] = Array.isArray(value) ? value.map((v) => v.trim()) : value.trim()
+  }
+  const order = [
+    ...META_FIELDS,
+    ...Object.keys(merged).filter((k) => !(META_FIELDS as readonly string[]).includes(k)),
+  ]
+  const lines = order.flatMap((key) => {
+    const value = merged[key]
+    if (value === undefined) return []
+    if (Array.isArray(value)) return [`${key}: [${value.map(yamlValue).join(', ')}]`]
+    return [`${key}: ${yamlValue(value.replace(/\r?\n/g, ' '))}`]
+  })
+  return `---\n${lines.join('\n')}\n---\n${body.replace(/^\r?\n/, '')}`
+}
+
+/** Liest die Felder für das Formular (Rohwerte, wie im Text). */
+export function readFrontMatter(src: string): Partial<Record<MetaField, string>> {
+  const { fields } = splitFrontMatter(src)
+  const out: Partial<Record<MetaField, string>> = {}
+  for (const key of META_FIELDS) {
+    const v = fields[key]
+    if (v !== undefined) out[key] = Array.isArray(v) ? v.join(', ') : v
+  }
+  return out
+}
+
 // --- Umwandlung aus dem Parser ------------------------------------------------
 
 type ParserValue =
@@ -335,4 +395,28 @@ export function listIngredients(recipe: ParsedRecipe): ListedIngredient[] {
     if (!merged) entry.amounts.push(i.amount)
   }
   return [...byName.values()]
+}
+
+/** Cooklang-Schreibweise für eine Zutat (Einfügehilfe im Editor). */
+export function ingredientSnippet(o: {
+  name: string
+  quantity?: string
+  unit?: string
+  fixed?: boolean
+  optional?: boolean
+  note?: string
+  reference?: boolean
+}): string {
+  const clean = (v: string | undefined) => (v ?? '').replace(/[{}%()@#~\n]/g, '').trim()
+  const name = clean(o.name)
+  const quantity = clean(o.quantity)
+  const unit = clean(o.unit)
+  const amount = quantity ? `${o.fixed ? '=' : ''}${quantity}${unit ? `%${unit}` : ''}` : ''
+  const note = clean(o.note)
+  return `@${o.optional ? '?' : ''}${o.reference ? './' : ''}${name}{${amount}}${note ? `(${note})` : ''}`
+}
+
+export function timerSnippet(minutes: number, name = ''): string {
+  const clean = name.replace(/[{}%@#~\n]/g, '').trim()
+  return `~${clean}{${minutes}%min}`
 }

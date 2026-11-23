@@ -14,21 +14,21 @@
 - [x] Eigene Datei je Gerät, langsameres Abfrage-Intervall als bei `live`
 
 ### 2.3 Rezeptansicht
-- [ ] Zutaten im Fließtext hervorgehoben, Mengen in `--text`
-- [ ] Portionen skalieren; fixe Mengen wie eine Prise skalieren nicht mit
-- [ ] Abgeleitete Zutatenliste, Abschnitte, Kochgeschirr, antippbare Timer
-- [ ] Kochmodus: Bildschirm bleibt an (Wake Lock), große Schrift, Schritt für Schritt
+- [x] Zutaten im Fließtext hervorgehoben, Mengen in `--text`
+- [x] Portionen skalieren; fixe Mengen wie eine Prise skalieren nicht mit
+- [x] Abgeleitete Zutatenliste, Abschnitte, Kochgeschirr, antippbare Timer
+- [x] Kochmodus: Bildschirm bleibt an (Wake Lock), große Schrift, Schritt für Schritt
 
 ### 2.4 Editor
-- [ ] CodeMirror 6 mit Cooklang-Hervorhebung, Live-Vorschau und Fehlern direkt im Text
-- [ ] Dialoge „Zutat einfügen“ (Vorschläge aus dem Katalog, Menge, Einheit) und „Rezept referenzieren“
-- [ ] Formular für die Metadaten
+- [x] CodeMirror 6 mit Cooklang-Hervorhebung, Live-Vorschau und Fehlern direkt im Text
+- [x] Dialoge „Zutat einfügen“ (Vorschläge aus dem Katalog, Menge, Einheit) und „Rezept referenzieren“
+- [x] Formular für die Metadaten
 
 ### 2.5 Referenzen
 - [x] Auflösung gegen den Katalog und die eigenen Bereiche
 - [x] Zyklen beim Speichern erkennen und verständlich melden
 - [x] Skalierung relativ zur Ausbeute des Unterrezepts, z. B. 500 g von 800 g Hefeteig
-- [ ] Anzeige als Link mit aufklappbarer Zutatenliste
+- [x] Anzeige als Link mit aufklappbarer Zutatenliste
 - [x] Rekursive Auflösung für Zutatenliste und Ernährungsform
 
 ### 2.6 Organisation und Suche
@@ -41,8 +41,8 @@
 - [x] Ein Rezept erbt die strengste Stufe seiner Zutaten, auch über Referenzen; unbekannte Zutaten werden markiert; manuelle Überschreibung möglich
 
 ### 2.8 Notizen und Bewertungen
-- [ ] Pro Person eine Notiz und 1–5 Sterne, sichtbar privat oder im Haushalt
-- [ ] Durchschnitt im Haushalt, „zuletzt gekocht“
+- [x] Pro Person eine Notiz und 1–5 Sterne, sichtbar privat oder im Haushalt
+- [x] Durchschnitt im Haushalt, „zuletzt gekocht“
 
 ### 2.9 Fotos
 - [ ] Im Browser verkleinert (WebP, höchstens 1600 px) und als eigene verschlüsselte Datei im Drive der Person gespeichert, die das Foto hinzufügt; Laden über Lese-Link, lokaler Cache

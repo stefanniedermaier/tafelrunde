@@ -25,6 +25,23 @@ export const router = createRouter({
       props: true,
     },
     {
+      path: '/rezepte',
+      name: 'recipes',
+      component: () => import('./views/RecipesView.vue'),
+    },
+    {
+      path: '/b/:spaceId/r/:recipeId',
+      name: 'recipe',
+      component: () => import('./views/RecipeView.vue'),
+      props: true,
+    },
+    {
+      path: '/b/:spaceId/r/:recipeId/bearbeiten',
+      name: 'recipe-edit',
+      component: () => import('./views/RecipeEditView.vue'),
+      props: true,
+    },
+    {
       path: '/beitreten/:code',
       name: 'join',
       component: () => import('./views/JoinView.vue'),

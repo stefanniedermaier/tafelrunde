@@ -27,6 +27,10 @@ const lastSync = computed(() =>
   <a class="skip-link" href="#main">Zum Inhalt springen</a>
   <header class="app-header">
     <RouterLink to="/" class="brand">Tafelrunde</RouterLink>
+    <nav class="app-nav" aria-label="Hauptmenü">
+      <RouterLink to="/">Einkauf</RouterLink>
+      <RouterLink to="/rezepte">Rezepte</RouterLink>
+    </nav>
     <div class="app-header__tools">
       <SyncStatus :state="snapshot?.status ?? 'local'" :last-sync="lastSync" />
       <ConnectButton />
@@ -56,6 +60,22 @@ const lastSync = computed(() =>
   justify-content: flex-end;
   align-items: center;
   gap: var(--space-3);
+}
+.app-nav {
+  display: flex;
+  gap: var(--space-4);
+  margin-right: auto;
+}
+.app-nav a {
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+}
+.app-nav a.router-link-exact-active,
+.app-nav a[aria-current='page'] {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
 }
 .brand {
   font-weight: 700;

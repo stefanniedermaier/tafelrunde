@@ -14,6 +14,7 @@ import {
   logCooked,
   recipeText,
   replaceRecipeSource,
+  updateRecipeSource,
   setRecipeOrigin,
   setReview,
 } from './library'
@@ -57,6 +58,18 @@ describe('Rezepte im Dokument library', () => {
     sync(a, b)
     expect(getRecipe(a, id)?.source).toBe('Zuerst: Mische @Mehl{500%g}. Dann backen.')
     expect(getRecipe(b, id)?.source).toBe(getRecipe(a, id)?.source)
+  })
+
+  it('ändert nur den geänderten Teil (gleichzeitige Bearbeitung bleibt erhalten)', () => {
+    const a = new Y.Doc()
+    const id = createRecipe(a, '---\ntitle: Alt\n---\nSchritt eins.', 'p')
+    const b = new Y.Doc()
+    sync(a, b)
+    updateRecipeSource(a, id, '---\ntitle: Neu\n---\nSchritt eins.')
+    const tb = recipeText(b, id)!
+    tb.insert(tb.length, ' Schritt zwei.')
+    sync(a, b)
+    expect(getRecipe(a, id)?.source).toBe('---\ntitle: Neu\n---\nSchritt eins. Schritt zwei.')
   })
 
   it('begrenzt die Größe', () => {

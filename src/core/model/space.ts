@@ -21,6 +21,8 @@ export interface FileRefs {
 
 export interface Member {
   deviceId: string
+  /** Personen-ID (gleich auf allen Geräten einer Person), für Notizen und Bewertungen. */
+  personId?: string
   person: string
   deviceName: string
   provider: string
@@ -52,7 +54,7 @@ export function membersMap(doc: Y.Doc): Y.Map<unknown> {
 }
 
 type MemberField =
-  'person' | 'deviceName' | 'provider' | 'joinedAt' | 'removedAt' | `file:${DocKind}`
+  'personId' | 'person' | 'deviceName' | 'provider' | 'joinedAt' | 'removedAt' | `file:${DocKind}`
 
 function entry(doc: Y.Doc, deviceId: string) {
   const map = membersMap(doc)
@@ -115,6 +117,7 @@ export function upsertMember(
   const e = entry(doc, member.deviceId)
   doc.transact(() => {
     e.set('person', member.person)
+    if (member.personId && isValidId(member.personId)) e.set('personId', member.personId)
     e.set('deviceName', member.deviceName)
     e.set('provider', member.provider)
     if (!e.has('joinedAt')) e.set('joinedAt', member.joinedAt)
@@ -172,6 +175,8 @@ function readMember(doc: Y.Doc, deviceId: string): Member | undefined {
   }
   const removedAt = num('removedAt')
   if (removedAt !== undefined) member.removedAt = removedAt
+  const personId = str('personId')
+  if (personId && isValidId(personId)) member.personId = personId
   return member
 }
 
@@ -182,6 +187,15 @@ export function listMembers(doc: Y.Doc, { includeRemoved = false } = {}): Member
     if (m && (includeRemoved || m.removedAt === undefined)) out.push(m)
   }
   return out.sort((a, b) => a.joinedAt - b.joinedAt || a.deviceId.localeCompare(b.deviceId))
+}
+
+/** Anzeigename je Personen-ID, z. B. für Bewertungen. */
+export function personNames(doc: Y.Doc): Map<string, string> {
+  const names = new Map<string, string>()
+  for (const m of listMembers(doc, { includeRemoved: true })) {
+    if (m.personId && m.person) names.set(m.personId, m.person)
+  }
+  return names
 }
 
 /** Dateien der anderen, nicht entfernten Geräte für ein Dokument – Eingabe für den Sync. */

@@ -2,7 +2,16 @@
 
 import { describe, expect, it } from 'vitest'
 import { addAmounts, formatAmount, parseDuration, timerSeconds } from './amount'
-import { listIngredients, parseRecipe, scaleRecipe, splitFrontMatter } from './recipe'
+import {
+  listIngredients,
+  parseRecipe,
+  readFrontMatter,
+  scaleRecipe,
+  ingredientSnippet,
+  setFrontMatter,
+  timerSnippet,
+  splitFrontMatter,
+} from './recipe'
 
 const KUCHEN = `---
 title: Zwetschgenkuchen
@@ -175,5 +184,63 @@ describe('Mengen', () => {
     expect(parseDuration('45')).toBe(45)
     expect(timerSeconds({ kind: 'number', value: 2, unit: 'h', scalable: false })).toBe(7200)
     expect(timerSeconds({ kind: 'number', value: 40, unit: 'Minuten', scalable: false })).toBe(2400)
+  })
+})
+
+describe('Front Matter bearbeiten', () => {
+  it('setzt, entfernt und erhält Felder, Text bleibt', () => {
+    const src = '---\ntitle: Alt\nauthor: Oma\n---\nMische @Salz{}.'
+    const out = setFrontMatter(src, {
+      title: 'Neu: Kuchen',
+      servings: '4',
+      tags: ['A', 'B c'],
+      source: '',
+    })
+    expect(out).toBe(
+      '---\ntitle: "Neu: Kuchen"\nservings: 4\ntags: [A, B c]\nauthor: Oma\n---\nMische @Salz{}.',
+    )
+    expect(parseRecipe(out).meta).toMatchObject({
+      title: 'Neu: Kuchen',
+      servings: 4,
+      tags: ['A', 'B c'],
+    })
+    expect(readFrontMatter(out)).toEqual({ title: 'Neu: Kuchen', servings: '4', tags: 'A, B c' })
+  })
+
+  it('legt Front Matter an, wenn es fehlt', () => {
+    expect(setFrontMatter('Text', { title: 'X' })).toBe('---\ntitle: X\n---\nText')
+  })
+})
+
+describe('Einfügehilfen', () => {
+  it('erzeugen gültiges Cooklang', () => {
+    const snippet = ingredientSnippet({
+      name: 'Rote Bete',
+      quantity: '1,5',
+      unit: 'kg',
+      note: 'gewürfelt',
+    })
+    expect(snippet).toBe('@Rote Bete{1,5%kg}(gewürfelt)')
+    expect(
+      ingredientSnippet({
+        name: 'Zimt',
+        quantity: '1',
+        unit: 'Prise',
+        fixed: true,
+        optional: true,
+      }),
+    ).toBe('@?Zimt{=1%Prise}')
+    expect(
+      ingredientSnippet({ name: 'Hefeteig', quantity: '500', unit: 'g', reference: true }),
+    ).toBe('@./Hefeteig{500%g}')
+    expect(ingredientSnippet({ name: 'Bö{se}%' })).toBe('@Böse{}')
+    expect(timerSnippet(20)).toBe('~{20%min}')
+    const r = parseRecipe(`---\ntitle: X\n---\n${snippet} ${timerSnippet(5, 'Ruhen')}`)
+    expect(r.ingredients[0]).toMatchObject({
+      name: 'Rote Bete',
+      note: 'gewürfelt',
+      amount: { value: 1.5, unit: 'kg' },
+    })
+    expect(r.timers[0]).toMatchObject({ name: 'Ruhen', amount: { value: 5, unit: 'min' } })
   })
 })

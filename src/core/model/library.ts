@@ -88,6 +88,35 @@ export function replaceRecipeSource(
   })
 }
 
+/**
+ * Ändert den Quelltext mit möglichst kleiner Änderung (gemeinsamer Anfang und
+ * Ende bleiben stehen) – so gehen gleichzeitige Bearbeitungen und die
+ * Cursorposition anderer nicht verloren, etwa beim Metadaten-Formular.
+ */
+export function updateRecipeSource(doc: Y.Doc, id: string, next: string, now = Date.now()): void {
+  const text = recipeText(doc, id)
+  if (!text) return
+  const current = text.toJSON()
+  const target = clampSource(next)
+  if (current === target) return
+  let start = 0
+  while (start < current.length && start < target.length && current[start] === target[start])
+    start++
+  let end = 0
+  while (
+    end < current.length - start &&
+    end < target.length - start &&
+    current[current.length - 1 - end] === target[target.length - 1 - end]
+  ) {
+    end++
+  }
+  doc.transact(() => {
+    text.delete(start, current.length - start - end)
+    text.insert(start, target.slice(start, target.length - end))
+    recipes(doc).get(id)?.set('updatedAt', now)
+  })
+}
+
 export function touchRecipe(doc: Y.Doc, id: string, now = Date.now()): void {
   recipes(doc).get(id)?.set('updatedAt', now)
 }
