@@ -25,11 +25,11 @@
 - [ ] Formular für die Metadaten
 
 ### 2.5 Referenzen
-- [ ] Auflösung gegen den Katalog und die eigenen Bereiche
-- [ ] Zyklen beim Speichern erkennen und verständlich melden
-- [ ] Skalierung relativ zur Ausbeute des Unterrezepts, z. B. 500 g von 800 g Hefeteig
+- [x] Auflösung gegen den Katalog und die eigenen Bereiche
+- [x] Zyklen beim Speichern erkennen und verständlich melden
+- [x] Skalierung relativ zur Ausbeute des Unterrezepts, z. B. 500 g von 800 g Hefeteig
 - [ ] Anzeige als Link mit aufklappbarer Zutatenliste
-- [ ] Rekursive Auflösung für Zutatenliste und Ernährungsform
+- [x] Rekursive Auflösung für Zutatenliste und Ernährungsform
 
 ### 2.6 Organisation und Suche
 - [ ] Tags und Sammlungen
@@ -37,8 +37,8 @@
 - [ ] Volltextsuche (z. B. MiniSearch); Filter nach Tags, Ernährungsform und Zeit
 
 ### 2.7 Ernährungsform
-- [ ] Den Zutatenkatalog um die Ernährungsform erweitern: vegan · vegetarisch · mit Fisch · mit Fleisch
-- [ ] Ein Rezept erbt die strengste Stufe seiner Zutaten, auch über Referenzen; unbekannte Zutaten werden markiert; manuelle Überschreibung möglich
+- [x] Den Zutatenkatalog um die Ernährungsform erweitern: vegan · vegetarisch · mit Fisch · mit Fleisch
+- [x] Ein Rezept erbt die strengste Stufe seiner Zutaten, auch über Referenzen; unbekannte Zutaten werden markiert; manuelle Überschreibung möglich
 
 ### 2.8 Notizen und Bewertungen
 - [ ] Pro Person eine Notiz und 1–5 Sterne, sichtbar privat oder im Haushalt
